@@ -529,6 +529,15 @@ textarea{height:70px;font-size:11px;resize:none;font-family:monospace}
 .hud .av{width:54px;height:54px;flex:0 0 54px;font-size:30px;background:radial-gradient(circle closest-side,var(--brand) 0 80%,rgba(0,0,0,.25) 81% 83%,transparent 84%),conic-gradient(#ffb020 calc(var(--xp,0)*1%),rgba(255,255,255,.95) 0);box-shadow:0 3px 0 rgba(43,35,64,.25),0 6px 14px rgba(43,35,64,.2)}
 .hud .av .lvl{bottom:-3px;right:-4px;z-index:2}.hud .av::after{content:'';position:absolute;inset:-5px;border-radius:50%;background:conic-gradient(#ffb020 calc(var(--xp,0)*1%),rgba(255,255,255,.95) 0);-webkit-mask:radial-gradient(circle closest-side,transparent 84%,#000 86%);mask:radial-gradient(circle closest-side,transparent 84%,#000 86%);pointer-events:none}.hud .hrow .money{margin:0;flex:1;width:auto;min-width:0;padding:4px 10px 5px}.money .cn{font-size:9.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;opacity:.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
 .hud .money .v{font-size:24px}.hud .res{gap:4px}.hud .pill{height:24px;font-size:13.5px;min-width:58px;padding:0 8px;border-radius:12px}.hudmin .hud .money .v{font-size:23px}
+.avsvg{width:100%;height:100%;display:block;border-radius:50%}.avs{position:absolute;inset:0;border-radius:50%;overflow:hidden;display:block}.hud .av .avs{inset:0}
+.avwrap{display:inline-block;border-radius:50%;overflow:hidden;vertical-align:middle;box-shadow:inset 0 -3px 0 rgba(0,0,0,.18)}
+.cc{display:flex;gap:12px;align-items:center;margin:4px 0 8px}.ccprev{width:104px;height:104px;flex:0 0 104px;border-radius:50%;overflow:hidden;box-shadow:0 4px 0 rgba(0,0,0,.15),inset 0 -6px 0 rgba(0,0,0,.15)}
+.ccside{flex:1;display:flex;flex-direction:column;gap:6px}.ccside .btn{width:100%}.cchint{font-size:11px;color:var(--muted);font-weight:700}
+.cctabs{display:flex;gap:5px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}.cctabs::-webkit-scrollbar{display:none}
+.cctabs button{flex:0 0 auto;border:0;border-radius:12px;padding:6px 11px;font-weight:800;font-size:12.5px;background:#efe6d2;color:#5b4f3b;cursor:pointer}.cctabs button.on{background:#2b2340;color:#fff}
+.ccopts{min-height:88px;margin-bottom:6px}.ccgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.ccgrid button{border:0;background:#fff;border-radius:12px;padding:5px 2px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;box-shadow:0 2px 0 rgba(0,0,0,.08);cursor:pointer}
+.ccgrid button.on{box-shadow:0 0 0 3px #22c55e}.ccgrid small{font-size:9.5px;font-weight:800;color:#5b4f3b;line-height:1.1;text-align:center}.cct{width:52px;height:52px;border-radius:50%;overflow:hidden;display:block}
+.ccsw{display:flex;flex-wrap:wrap;gap:8px}.ccsw button{width:38px;height:38px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 0 rgba(0,0,0,.15);cursor:pointer}.ccsw button.on{box-shadow:0 0 0 3px #22c55e}
 </style>
 </head>
 <body>
@@ -561,7 +570,7 @@ textarea{height:70px;font-size:11px;resize:none;font-family:monospace}
   <div class="hud">
     <div class="hrow">
       <div class="prof" id="prof">
-        <div class="av" id="hAv">🧔<span class="lvl" id="hLvl">1</span></div>
+        <div class="av" id="hAv"><span class="avs"></span><span class="lvl" id="hLvl">1</span></div>
         <div class="pinfo"><div class="pname" id="hName">–</div><div class="ptitle" id="hTitle"></div><div class="xp"><i id="hXp"></i></div></div>
       </div>
       <div class="res">
@@ -741,7 +750,7 @@ function newFloors(first){ return FLOORS.map((_,i)=>({m:(i===0&&!first)?1:0, p:0
 function freshSales(){ return {contracts:[], offers:[], offerAt:0, regions:1, brands:['haus'], flavors:[0], str:0, online:0, index:0}; }
 function freshState(){
   return Object.assign({money:0, earnedTier:0, lifetime:0, stars:0, gold:5, tier:0, maxTier:0,
-    company:'', avatar:0, color:0, onboarded:false, lvl:1,
+    company:'', avatar:0, look:null, color:0, onboarded:false, lvl:1,
     floors:newFloors(true), research:{}, packed:0, pk:0, boostUntil:0, boostMult:1, taxWarned:false,
     resets:0, switches:0, drones:0, started:Date.now(), last:Date.now(), buyMode:0, cid:0,
     store:freshStore(), mission:0, coins:0, daily:{last:'',streak:0}, managers:[], mgrAssign:{}, mid:0, event:null, eventNext:0, fleetLv:0, whLv:0, stock:0, city:0, citiesOpen:[0], cdata:{}, cansTotal:0, ach:{}, vips:0, orders:0, order:null, tmp:null, decNext:0, orderNext:0, snd:{m:.35,s:.7}, qual:{}, gfx:'hoch', wx:'auto', seenV6:false, wasLeader:false, mk:{}, off:null, offNext:0, camp:{}, hudMin:true}, freshSales());
@@ -2513,6 +2522,220 @@ world6=function(dt){ _world6_8(dt); detailTick(dt); ambientTick(dt); slow8+=dt; 
 // ---------- Erfolge ----------
 ACH.push({id:'wm3',em:'👑',t:'Marktführer in 3 Märkten',p:()=>regLeads(),n:3,g:10},{id:'wmA',em:'🌐',t:'Alle 13 Märkte erschlossen',p:()=>S.regions,n:REGIONS.length,g:30},{id:'mk20',em:'📈',t:'Marketing Lv 20 in einem Markt',p:()=>Math.max(0,...Object.values(S.mk||{})),n:20,g:8});
 
+// =====================================================================
+//  v9: Charakter-Editor (SVG-Avatar mit Hauttönen) · dynamische Beleuchtung · detaillierter Gabelstapler
+// =====================================================================
+
+// ---------- Charakter ----------
+const SKINS=['#ffe3cc','#f7d0ae','#ecbb8f','#dca26e','#c68642','#a8693a','#8d5524','#5e3a22'];
+const HAIRC=['#1c1714','#3b2417','#6b4226','#a0703f','#e3b866','#efe3c4','#b4472a','#8f98a3','#f1f2f4','#3b82f6','#ec4899'];
+const OUTC=['#1f2937','#2f6fed','#e5484d','#2bb673','#f5a623','#8e5cf7','#f8fafc','#7c4a2d'];
+const LOOKCAT=[
+  {k:'skin',n:'Haut',col:SKINS},
+  {k:'face',n:'Gesicht',opts:['Oval','Rund','Kantig']},
+  {k:'hair',n:'Frisur',opts:['Glatze','Buzzcut','Kurz','Seitenscheitel','Undercut','Locken','Afro','Lang','Bob','Dutt','Zopf','Irokese']},
+  {k:'hairC',n:'Haarfarbe',col:HAIRC},
+  {k:'beard',n:'Bart',opts:['Ohne','Stoppeln','Schnurrbart','Ziegenbart','Vollbart','Wikinger']},
+  {k:'eyes',n:'Augen',opts:['Normal','Fröhlich','Cool','Wimpern']},
+  {k:'glasses',n:'Brille',opts:['Ohne','Rund','Eckig','Sonnenbrille']},
+  {k:'hat',n:'Kopf',opts:['Ohne','Cap','Mütze','Helm','Zylinder','Kopfhörer']},
+  {k:'outfit',n:'Outfit',opts:['Anzug','Hoodie','Polo','Lederjacke','Rollkragen','Warnweste']},
+  {k:'outC',n:'Farbe',col:OUTC},
+  {k:'acc',n:'Extra',opts:['Ohne','Goldkette','Ohrringe','Uhr & Kette']},
+];
+const LOOK0={skin:1,face:0,hair:2,hairC:2,beard:0,eyes:0,glasses:0,hat:0,outfit:0,outC:0,acc:0};
+const OLD_AV=[{beard:4},{hair:8,eyes:3,outC:1},{hair:3},{hairC:6},{hair:7,hairC:6,eyes:3},{hair:5},{hair:3,hairC:4},{hair:10,hairC:4,eyes:3},{hat:4,glasses:3},{outfit:4,outC:2,hair:4}];
+function lookOf(s){ return Object.assign({},LOOK0,(s&&s.look)||OLD_AV[(s&&s.avatar)||0]||{}); }
+let AVID=0;
+function avatarSVG(L,bg){ L=Object.assign({},LOOK0,L||{}); const id='a'+(++AVID), sk=SKINS[L.skin]||SKINS[1], skD=shade(sk,-28), skL=shade(sk,18), hc=HAIRC[L.hairC]||HAIRC[0], hcD=shade(hc,-30), oc=OUTC[L.outC]||OUTC[0], ocD=shade(oc,-35), ocL=shade(oc,25);
+  const hatOn=L.hat>=1&&L.hat<=4; let s=`<svg viewBox="0 0 120 120" class="avsvg" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="${id}c"><circle cx="60" cy="60" r="60"/></clipPath>
+    <radialGradient id="${id}f" cx=".42" cy=".38" r=".7"><stop offset="0" stop-color="${skL}"/><stop offset=".7" stop-color="${sk}"/><stop offset="1" stop-color="${skD}"/></radialGradient>
+    <linearGradient id="${id}h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${shade(hc,22)}"/><stop offset="1" stop-color="${hc}"/></linearGradient>
+    <linearGradient id="${id}o" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${ocL}"/><stop offset="1" stop-color="${ocD}"/></linearGradient></defs><g clip-path="url(#${id}c)">`;
+  if(bg) s+=`<rect width="120" height="120" fill="${bg}"/><circle cx="60" cy="40" r="55" fill="#fff" opacity=".12"/>`;
+  const H=`url(#${id}h)`;
+  // Haare hinten
+  if(!hatOn||L.hair===7||L.hair===8||L.hair===10){ if(L.hair===6) s+=`<circle cx="60" cy="42" r="35" fill="${H}"/>`;
+    if(L.hair===7) s+=`<path d="M31,48 Q29,16 60,15 Q91,16 89,48 L92,100 Q60,108 28,100Z" fill="${H}"/>`;
+    if(L.hair===8) s+=`<path d="M32,50 Q30,17 60,16 Q90,17 88,50 L89,78 Q80,82 74,75 L46,75 Q40,82 31,78Z" fill="${H}"/>`;
+    if(L.hair===10) s+=`<path d="M78,34 Q104,44 96,92 Q92,76 84,62Z" fill="${H}"/>`; }
+  // Körper & Outfit
+  const body='M12,122 C14,97 33,86 60,86 C87,86 106,97 108,122Z';
+  s+=`<rect x="50" y="68" width="20" height="24" rx="6" fill="${skD}"/>`;
+  if(L.outfit===0) s+=`<path d="${body}" fill="url(#${id}o)"/><path d="M49,86 L60,108 L71,86Z" fill="#f8fafc"/><path d="M57,89 L63,89 L64.5,108 L60,114 L55.5,108Z" fill="${L.outC===2?'#1f2937':'#d23b4a'}"/><path d="M49,86 L60,108 L44,98 L42,88Z" fill="${ocD}"/><path d="M71,86 L60,108 L76,98 L78,88Z" fill="${ocD}"/>`;
+  else if(L.outfit===1) s+=`<path d="${body}" fill="url(#${id}o)"/><path d="M38,94 Q60,104 82,94 Q80,84 60,83 Q40,84 38,94Z" fill="${ocD}"/><path d="M53,96 L52,112 M67,96 L68,112" stroke="#f8fafc" stroke-width="1.8" stroke-linecap="round"/><path d="M44,118 Q60,112 76,118" stroke="${ocD}" stroke-width="2" fill="none"/>`;
+  else if(L.outfit===2) s+=`<path d="${body}" fill="url(#${id}o)"/><path d="M47,85 L60,95 L56,101 L44,90Z M73,85 L60,95 L64,101 L76,90Z" fill="${ocL}"/><path d="M60,95 L60,110" stroke="${ocD}" stroke-width="1.5"/><circle cx="60" cy="101" r="1.3" fill="#f8fafc"/><circle cx="60" cy="106" r="1.3" fill="#f8fafc"/>`;
+  else if(L.outfit===3) s+=`<path d="${body}" fill="${shade(oc==='#f8fafc'?'#2b2b30':oc,-45)}"/><path d="M50,86 L60,104 L70,86Z" fill="#e5e7eb"/><path d="M50,86 L60,104 L45,100 L40,89Z M70,86 L60,104 L75,100 L80,89Z" fill="#111114"/><path d="M63,100 L63,122" stroke="#9ca3af" stroke-width="1.6"/><path d="M42,90 L48,88" stroke="#6b7280" stroke-width="1.2"/>`;
+  else if(L.outfit===4) s+=`<path d="${body}" fill="url(#${id}o)"/><rect x="48" y="72" width="24" height="20" rx="7" fill="${ocL}"/><path d="M50,77 H70 M50,81 H70 M50,85 H70" stroke="${oc}" stroke-width="1.2"/>`;
+  else s+=`<path d="${body}" fill="#334155"/><path d="M30,96 Q38,88 50,86 L54,122 L28,122Z M90,96 Q82,88 70,86 L66,122 L92,122Z" fill="#c6e83a"/><path d="M31,106 L53,104 M89,106 L67,104" stroke="#e5e7eb" stroke-width="4"/><path d="M50,86 L60,98 L70,86" fill="#f8fafc"/>`;
+  if(L.acc===1||L.acc===3) s+=`<path d="M49,87 Q60,101 71,87" stroke="#f5c542" stroke-width="2.4" fill="none"/><circle cx="60" cy="97" r="2.6" fill="#f5c542"/>`;
+  // Ohren & Kopf
+  s+=`<ellipse cx="37" cy="54" rx="4.8" ry="7.2" fill="${sk}"/><ellipse cx="83" cy="54" rx="4.8" ry="7.2" fill="${sk}"/><ellipse cx="37.5" cy="54" rx="2" ry="3.6" fill="${skD}" opacity=".5"/><ellipse cx="82.5" cy="54" rx="2" ry="3.6" fill="${skD}" opacity=".5"/>`;
+  if(L.acc===2) s+=`<circle cx="37" cy="62.5" r="2" fill="#f5c542"/><circle cx="83" cy="62.5" r="2" fill="#f5c542"/>`;
+  const face=L.face===1?`<ellipse cx="60" cy="52" rx="23.5" ry="25" fill="url(#${id}f)"/>`:L.face===2?`<path d="M37,40 Q37,26 60,26 Q83,26 83,40 L83,62 Q82,78 66,80 L54,80 Q38,78 37,62Z" fill="url(#${id}f)"/>`:`<ellipse cx="60" cy="52" rx="22" ry="26.5" fill="url(#${id}f)"/>`;
+  s+=face+`<ellipse cx="46" cy="64" rx="4" ry="2.6" fill="#ff7b7b" opacity=".22"/><ellipse cx="74" cy="64" rx="4" ry="2.6" fill="#ff7b7b" opacity=".22"/>`;
+  // Bart (unter Mund)
+  const bc=hc, mo=`<path d="M50,68.5 Q55,64.5 60,67.5 Q65,64.5 70,68.5 Q66,71.5 60,69.5 Q54,71.5 50,68.5Z" fill="${bc}"/>`;
+  if(L.beard===1) s+=`<path d="M38,57 Q40,84 60,86 Q80,84 82,57 Q78,75 60,77 Q42,75 38,57Z" fill="${bc}" opacity=".3"/><path d="M50,68 Q60,65 70,68" stroke="${bc}" stroke-width="3" opacity=".3" fill="none"/>`;
+  if(L.beard===4) s+=`<path d="M37,53 Q37,89 60,93 Q83,89 83,53 Q80,71 72,73 Q60,66 48,73 Q40,71 37,53Z" fill="${bc}"/>`;
+  if(L.beard===5) s+=`<path d="M37,53 Q35,102 60,110 Q85,102 83,53 Q80,72 72,74 Q60,67 48,74 Q40,72 37,53Z" fill="${bc}"/><path d="M55,92 L55,106 M65,92 L65,106" stroke="${hcD}" stroke-width="1.6"/><circle cx="55" cy="100" r="1.8" fill="#9ca3af"/><circle cx="65" cy="100" r="1.8" fill="#9ca3af"/>`;
+  // Mund
+  const happy=L.eyes===1;
+  s+=happy?`<path d="M52,70 Q60,79 68,70 Q60,73 52,70Z" fill="#7f1d1d"/><path d="M53.5,70.6 Q60,72.6 66.5,70.6 L66,72 Q60,73.6 54,72Z" fill="#fff"/>`:`<path d="M53,71 Q60,76 67,71" stroke="#8b3a3a" stroke-width="2.1" fill="none" stroke-linecap="round"/>`;
+  if(L.beard===2||L.beard===3||L.beard===4||L.beard===5) s+=mo;
+  if(L.beard===3) s+=`<path d="M54,75 Q60,73 66,75 Q66,85 60,87 Q54,85 54,75Z" fill="${bc}"/>`;
+  // Nase
+  s+=`<path d="M60,56 Q63,63 58.5,64.5" stroke="${skD}" stroke-width="1.7" fill="none" stroke-linecap="round"/>`;
+  // Augen
+  const eye=(x)=>{ if(L.eyes===1) return `<path d="M${x-4.5},56 Q${x},51 ${x+4.5},56" stroke="#2b1d14" stroke-width="2.3" fill="none" stroke-linecap="round"/>`;
+    let e=`<ellipse cx="${x}" cy="55" rx="4.7" ry="${L.eyes===2?2.6:3.7}" fill="#fff"/><circle cx="${x+.4}" cy="55.3" r="2.6" fill="#3b2a1a"/><circle cx="${x+.4}" cy="55.3" r="1.3" fill="#0b0b0b"/><circle cx="${x+1.3}" cy="54.2" r=".9" fill="#fff"/>`;
+    if(L.eyes===2) e+=`<path d="M${x-5.2},53.2 L${x+5.2},53.2" stroke="${sk}" stroke-width="2.6"/><path d="M${x-5},53.6 L${x+5},53.6" stroke="#2b1d14" stroke-width="1.2"/>`;
+    if(L.eyes===3) e+=`<path d="M${x-5},53.4 Q${x},50 ${x+5},53.4" stroke="#1c1714" stroke-width="1.6" fill="none"/><path d="M${x+4.4},52.6 l2.2,-1.6 M${x+3},51.6 l1.4,-2" stroke="#1c1714" stroke-width="1.1"/>`;
+    return e; };
+  s+=eye(51)+eye(69);
+  if(L.hair!==0||L.beard>0) s+=`<path d="M45.5,47.5 Q51,44.2 56.5,46.6" stroke="${hcD}" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M63.5,46.6 Q69,44.2 74.5,47.5" stroke="${hcD}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`;
+  // Brille
+  if(L.glasses===1) s+=`<circle cx="51" cy="55" r="7" fill="#fff" fill-opacity=".12" stroke="#1f2937" stroke-width="2.2"/><circle cx="69" cy="55" r="7" fill="#fff" fill-opacity=".12" stroke="#1f2937" stroke-width="2.2"/><path d="M58,54 Q60,52.5 62,54" stroke="#1f2937" stroke-width="2" fill="none"/>`;
+  if(L.glasses===2) s+=`<rect x="43" y="49" width="15.5" height="11.5" rx="3" fill="#fff" fill-opacity=".12" stroke="#111827" stroke-width="2.4"/><rect x="61.5" y="49" width="15.5" height="11.5" rx="3" fill="#fff" fill-opacity=".12" stroke="#111827" stroke-width="2.4"/><path d="M58.5,53 H61.5" stroke="#111827" stroke-width="2.2"/>`;
+  if(L.glasses===3) s+=`<path d="M42,50 H58.5 Q58.5,62 50,61.5 Q42,61 42,50Z M61.5,50 H78 Q78,61 70,61.5 Q61.5,62 61.5,50Z" fill="#0f172a"/><path d="M58.5,51.5 H61.5" stroke="#0f172a" stroke-width="2.2"/><path d="M44.5,52.5 L49,52.5 M64,52.5 L68.5,52.5" stroke="#fff" stroke-width="1.6" opacity=".55" stroke-linecap="round"/>`;
+  // Haare vorne
+  const F=(d,op)=>`<path d="${d}" fill="${H}"${op?` opacity="${op}"`:''}/>`;
+  if(!hatOn){ switch(L.hair){
+    case 0: s+=`<ellipse cx="52" cy="33" rx="7" ry="3.5" fill="#fff" opacity=".22"/>`; break;
+    case 1: s+=F('M38,47 Q37,24 60,23 Q83,24 82,47 Q79,35 60,34 Q41,35 38,47Z',.6); break;
+    case 2: s+=F('M36,50 Q34,21 60,20 Q86,21 84,50 Q82,37 74,33 Q62,40 46,34 Q39,39 36,50Z'); break;
+    case 3: s+=F('M35,53 Q32,19 62,18 Q89,21 85,50 Q84,33 70,30 Q55,29 47,38 Q40,41 35,53Z')+`<path d="M47,37 Q55,29 69,29" stroke="${hcD}" stroke-width="1.2" fill="none" opacity=".6"/>`; break;
+    case 4: s+=F('M37,48 Q37,32 40,30 L40,46Z M83,48 Q83,32 80,30 L80,46Z',.45)+F('M40,40 Q41,13 66,14 Q90,17 84,40 Q76,28 62,29 Q50,30 40,40Z'); break;
+    case 5: for(const [x,y,r] of [[40,40,7],[45,30,8],[54,24,8.5],[65,23,8.5],[75,28,8],[81,38,7],[49,34,6],[70,32,6],[60,30,6]]) s+=`<circle cx="${x}" cy="${y}" r="${r}" fill="${H}"/>`; break;
+    case 6: for(const [x,y,r] of [[42,36,8],[50,28,9],[60,25,9],[70,28,9],[78,36,8]]) s+=`<circle cx="${x}" cy="${y}" r="${r}" fill="${H}"/>`; break;
+    case 7: s+=F('M36,52 Q36,23 60,21 Q84,23 84,52 Q80,34 64,32 Q57,41 44,38 Q38,43 36,52Z'); break;
+    case 8: s+=F('M36.5,47 Q37,21 60,20 Q83,21 83.5,47 L76,44 L68,46 L60,44 L52,46 L44,44Z'); break;
+    case 9: s+=F('M36,50 Q34,22 60,21 Q86,22 84,50 Q80,34 60,31 Q40,34 36,50Z')+`<circle cx="60" cy="15" r="10" fill="${H}"/><path d="M52,22 Q60,25 68,22" stroke="${hcD}" stroke-width="2" fill="none"/>`; break;
+    case 10: s+=F('M36,49 Q35,21 60,20 Q85,21 84,49 Q80,33 60,31 Q40,33 36,49Z')+`<circle cx="81" cy="35" r="3.2" fill="${L.outC===2?'#2f6fed':'#e5484d'}"/>`; break;
+    case 11: s+=F('M38,46 Q38,30 42,28 L42,44Z M82,46 Q82,30 78,28 L78,44Z',.45)+F('M53,40 L51,6 Q60,0 69,6 L67,40 Q60,36 53,40Z'); break; } }
+  // Kopfbedeckung
+  const hb=OUTC[L.outC===6?1:L.outC];
+  if(L.hat===1) s+=`<path d="M35.5,42 Q35,14 60,13 Q85,14 84.5,42Z" fill="${hb}"/><path d="M35,40 Q62,35 92,41 Q98,44 93,47.5 Q66,42 35,44.5Z" fill="${shade(hb,-35)}"/><circle cx="60" cy="14" r="2.6" fill="${shade(hb,-35)}"/><path d="M60,14 L60,40" stroke="${shade(hb,-20)}" stroke-width="1"/>`;
+  if(L.hat===2) s+=`<path d="M34.5,44 Q34,11 60,10 Q86,11 85.5,44Z" fill="${hb}"/><rect x="33" y="36" width="54" height="11" rx="5" fill="${shade(hb,-25)}"/><path d="M40,38 V46 M47,38 V46 M54,38 V46 M61,38 V46 M68,38 V46 M75,38 V46 M82,38 V46" stroke="${shade(hb,-40)}" stroke-width="1"/><circle cx="60" cy="9" r="6.5" fill="#f8fafc"/>`;
+  if(L.hat===3) s+=`<path d="M33,43 Q34,12 60,11 Q86,12 87,43Z" fill="#f5c518"/><ellipse cx="60" cy="43" rx="31" ry="5" fill="#e0ab00"/><path d="M55,13 Q60,10 65,13 L64,40 L56,40Z" fill="#ffd94a"/><ellipse cx="50" cy="22" rx="6" ry="3" fill="#fff" opacity=".35"/>`;
+  if(L.hat===4) s+=`<rect x="42" y="2" width="36" height="31" rx="3" fill="#18181b"/><rect x="42" y="25" width="36" height="6" fill="${hb===OUTC[0]?'#d23b4a':hb}"/><ellipse cx="60" cy="33" rx="30" ry="5.5" fill="#09090b"/><rect x="46" y="4" width="5" height="20" rx="2" fill="#fff" opacity=".12"/>`;
+  if(L.hat===5) s+=`<path d="M33,54 Q33,8 60,8 Q87,8 87,54" stroke="#1f2937" stroke-width="5" fill="none"/><rect x="27" y="46" width="11" height="18" rx="5" fill="#1f2937"/><rect x="82" y="46" width="11" height="18" rx="5" fill="#1f2937"/><rect x="29" y="49" width="4" height="12" rx="2" fill="${hb}"/><rect x="87" y="49" width="4" height="12" rx="2" fill="${hb}"/>`;
+  if(L.acc===3) s+=`<rect x="92" y="108" width="12" height="9" rx="2" fill="#f5c542"/><rect x="94" y="110" width="8" height="5" rx="1" fill="#1f2937"/>`;
+  return s+'</g></svg>'; }
+function avatarHTML(px){ return `<span class="avwrap" style="width:${px}px;height:${px}px;background:${COLORS[S.color]}">${avatarSVG(S.look)}</span>`; }
+
+// Editor
+let CCTAB={};
+function profileEditor(prefix){ CCTAB[prefix]=CCTAB[prefix]||0;
+  return `<div class="lbl2">Firmenname</div><input type="text" id="${prefix}Name" maxlength="24" placeholder="z. B. Nordkap Snus" value="${esc(S.company)}">
+    <div class="lbl2">Dein Charakter</div><div class="cc"><div class="ccprev" id="${prefix}CC" style="background:${COLORS[S.color]}">${avatarSVG(S.look)}</div>
+      <div class="ccside"><button class="btn" id="${prefix}Rnd" type="button">🎲 Zufall</button><div class="cchint">Tippe auf eine Kategorie und wähle aus</div></div></div>
+    <div class="cctabs" id="${prefix}Tabs">${LOOKCAT.map((c,k)=>`<button type="button" data-ct="${k}" class="${k===CCTAB[prefix]?'on':''}">${c.n}</button>`).join('')}</div>
+    <div class="ccopts" id="${prefix}Opts"></div>
+    <div class="lbl2">Firmenfarbe</div><div class="colgrid" id="${prefix}Col">${COLORS.map((c,k)=>`<button data-k="${k}" class="${k===S.color?'on':''}" style="background:${c}"></button>`).join('')}</div>`; }
+function bindProfileEditor(prefix,onChange){ S.look=lookOf(S);
+  const prev=()=>{ const p=$(prefix+'CC'); if(p){ p.innerHTML=avatarSVG(S.look); p.style.background=COLORS[S.color]; } };
+  const opts=()=>{ const c=LOOKCAT[CCTAB[prefix]], el=$(prefix+'Opts'); if(!el) return;
+    if(c.col) el.innerHTML=`<div class="ccsw">${c.col.map((v,k)=>`<button type="button" data-cv="${k}" class="${S.look[c.k]===k?'on':''}" style="background:${v}"></button>`).join('')}</div>`;
+    else el.innerHTML=`<div class="ccgrid">${c.opts.map((n,k)=>{ const L=Object.assign({},S.look,{[c.k]:k}); return `<button type="button" data-cv="${k}" class="${S.look[c.k]===k?'on':''}"><span class="cct" style="background:${COLORS[S.color]}">${avatarSVG(L)}</span><small>${n}</small></button>`; }).join('')}</div>`;
+    el.querySelectorAll('[data-cv]').forEach(b=>b.onclick=()=>{ S.look[c.k]=+b.dataset.cv; SFX.click&&SFX.click(); prev(); opts(); onChange&&onChange(); }); };
+  $(prefix+'Tabs').querySelectorAll('[data-ct]').forEach(b=>b.onclick=()=>{ CCTAB[prefix]=+b.dataset.ct; $(prefix+'Tabs').querySelectorAll('[data-ct]').forEach(x=>x.classList.toggle('on',x===b)); opts(); });
+  $(prefix+'Rnd').onclick=()=>{ LOOKCAT.forEach(c=>{ const n=(c.col||c.opts).length; S.look[c.k]=Math.floor(Math.random()*n); });
+    if(Math.random()<.5) S.look.beard=0; if(Math.random()<.55) S.look.glasses=0; if(Math.random()<.6) S.look.hat=0; if(Math.random()<.5) S.look.acc=0; if(Math.random()<.75) S.look.hairC=Math.floor(Math.random()*9);
+    SFX.pop&&SFX.pop(); prev(); opts(); onChange&&onChange(); };
+  $(prefix+'Col').querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.color=+b.dataset.k; $(prefix+'Col').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); prev(); opts(); onChange&&onChange(); });
+  $(prefix+'Name').oninput=()=>onChange&&onChange();
+  opts(); }
+
+// ---------- Dynamische Beleuchtung ----------
+let CONES9=[];
+const coneTex=()=>canvasTex('cone9',8,128,(g,w,h)=>{ const gr=g.createLinearGradient(0,0,0,h); gr.addColorStop(0,'rgba(255,255,255,1)'); gr.addColorStop(.35,'rgba(255,255,255,.45)'); gr.addColorStop(1,'rgba(255,255,255,0)'); g.fillStyle=gr; g.fillRect(0,0,w,h); });
+function lightCone(x,y,top,r,col,op,par){ const geo=new THREE.ConeGeometry(r,top,28,1,true); const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:coneTex(),color:col,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+  m.position.set(x,top/2,y); m.renderOrder=3; (par||CUR||STAT).add(m); const h=Math.abs(Math.sin(x*12.9898+y*78.233)*43758.5453)%1;
+  CONES9.push({m,op,th:h*.22,fl:h>.93,ph:h*50}); return m; }
+const _lampPost9=lampPost;
+lampPost=function(x,y){ _lampPost9(x,y); lightCone(x,y+.36,1.8,.95,'#ffc46b',.16); const L=LAMPS[LAMPS.length-1]; if(L) L[3]='#ffbf6e'; };
+const _floodMast9=floodMast;
+floodMast=function(x,y){ _floodMast9(x,y); lightCone(x-1,y,3.1,1.6,'#e8f0ff',.1); };
+const _extraScene9=extraScene;
+extraScene=function(){ CONES9=[]; return _extraScene9.apply(null,arguments); };
+function roomLights9(){ ROOMS.forEach(R=>{ if(!R.unlocked) return; const par=ROOMGROUPS[R.i]||STAT; [[R.x0+1.6,R.y0+2.5],[R.x0+4.4,R.y0+2.5]].forEach(([x,y])=>lightCone(x,y,2.6,1.25,'#fff1d6',.085,par)); }); }
+function updateLights(){ const tx=target.x, tz=target.z, t=TIME;
+  const lf=(L)=>{ if(L.th==null){ const h=Math.abs(Math.sin(L[0]*12.9898+L[1]*78.233)*43758.5453)%1; L.th=h*.22; L.fl=h>.93; L.ph=h*50; }
+    let f=Math.max(0,Math.min(1,(NIGHT-.15-L.th)/.32)); if(L.fl&&f>0){ const n=Math.sin(t*23+L.ph)*Math.sin(t*7.3+L.ph*2); if(n>.82) f*=.25; else f*=.9+.1*Math.sin(t*40+L.ph); } return f; };
+  if(NIGHT<.15){ PLS.forEach(l=>l.intensity=0); }
+  else { const list=LAMPS.slice().sort((a,b)=>((a[0]-tx)**2+(a[1]-tz)**2)-((b[0]-tx)**2+(b[1]-tz)**2));
+    PLS.forEach((l,k)=>{ const L=k<gfxLights()?list[k]:null; if(!L){ l.intensity=0; return; } const f=lf(L); l.position.set(L[0],L[2],L[1]); l.color.set(L[3]); const hi=L[2]>2.5; l.intensity=f*(hi?2.3:1.7); l.distance=hi?10.5:7; l.decay=1.6; }); }
+  CONES9.forEach(c=>{ const f=lf(c.m.position.x!=null?Object.assign(c,{0:c.m.position.x,1:c.m.position.z}):c); c.m.material.opacity=c.op*f*(gfx().lights?1:.6); c.m.visible=f>.01; });
+  if(FL9&&FL9.light){ const b=FL9.beacon; FL9.light.intensity=b*(.4+1.4*NIGHT); FL9.light.position.copy(FL9.bpos); } }
+
+// ---------- Gabelstapler ----------
+let FL9=null;
+function hazTex(){ return canvasTex('haz9',64,64,(g,w,h)=>{ g.fillStyle='#f5b800'; g.fillRect(0,0,w,h); g.fillStyle='#18181b'; for(let k=-2;k<4;k++){ g.beginPath(); g.moveTo(k*24,0); g.lineTo(k*24+12,0); g.lineTo(k*24+12+h,h); g.lineTo(k*24+h,h); g.closePath(); g.fill(); } }); }
+function makeFork(){ const g=new THREE.Group(), Y=M('#f5b800',{r:.38,m:.15}), YD=M('#d99a00',{r:.45}), DK=M('#27272a',{r:.6}), ST=M('#4b5563',{r:.35,m:.7}), CH=M('#d4d4d8',{r:.15,m:.95}), BR=COLORS[S.color];
+  const bx=(par,x,y,z,sx,sy,sz,m)=>{ const o=new THREE.Mesh(G.box,m); o.scale.set(sx,sy,sz); o.position.set(x,y,z); o.castShadow=true; o.receiveShadow=true; par.add(o); return o; };
+  const cy=(par,x,y,z,r,h,m,rx,rz)=>{ const o=new THREE.Mesh(G.cyl,m); o.scale.set(r,h,r); o.position.set(x,y,z); if(rx) o.rotation.x=rx; if(rz) o.rotation.z=rz; o.castShadow=true; par.add(o); return o; };
+  // Fahrgestell
+  bx(g,0,.31,-.05,.78,.34,1.0,Y); bx(g,0,.155,-.05,.7,.05,.96,DK);
+  bx(g,0,.61,-.33,.7,.26,.44,Y); bx(g,0,.75,-.33,.6,.02,.36,YD);
+  [-.12,0,.12].forEach(z=>bx(g,.0,.745,-.33+z,.5,.02,.03,DK));
+  const cw=bx(g,0,.45,-.62,.8,.58,.2,M('#3f3f46',{r:.5,m:.3})); const hz=new THREE.Mesh(G.plane,new THREE.MeshStandardMaterial({map:hazTex(),roughness:.6})); hz.scale.set(.78,.22,1); hz.position.set(0,.3,-.722); hz.rotation.y=Math.PI; g.add(hz);
+  bx(g,0,.62,.3,.68,.2,.16,Y); bx(g,0,.725,.3,.6,.02,.13,DK);
+  [-.396,.396].forEach(x=>bx(g,x,.43,-.05,.01,.07,.92,M(BR,{r:.4})));
+  // Räder
+  const wheels=[]; [[.37,.17,.32,.17],[-.37,.17,.32,.17],[.35,.13,-.47,.13],[-.35,.13,-.47,.13]].forEach(([x,y,z,r])=>{ const wg=new THREE.Group(); wg.position.set(x,y,z); g.add(wg);
+    const t=new THREE.Mesh(G.cyl,M('#111114',{r:.9})); t.scale.set(r,.13,r); t.rotation.z=Math.PI/2; t.castShadow=true; wg.add(t);
+    const hub=new THREE.Mesh(G.cyl,M('#a1a1aa',{r:.3,m:.8})); hub.scale.set(r*.55,.14,r*.55); hub.rotation.z=Math.PI/2; wg.add(hub);
+    for(let k=0;k<4;k++){ const sp=new THREE.Mesh(G.box,M('#52525b')); sp.scale.set(.145,r*.9,.025); sp.rotation.x=k*Math.PI/4; wg.add(sp); } wheels.push({g:wg,r}); });
+  // Sitz, Lenkrad
+  bx(g,0,.52,-.1,.4,.08,.36,DK); bx(g,0,.73,-.27,.4,.34,.08,DK); bx(g,0,.9,-.27,.3,.06,.07,M('#3f3f46'));
+  const col=cy(g,0,.77,.2,.025,.26,DK,-.55); const wh=new THREE.Mesh(new THREE.TorusGeometry(.12,.016,8,24),DK); wh.position.set(0,.9,.13); wh.rotation.x=-1.0; g.add(wh);
+  bx(g,.2,.78,.3,.04,.12,.04,M('#ef4444')); bx(g,.26,.78,.3,.04,.1,.04,M('#22c55e'));
+  // Fahrer
+  POV={helm:true,vest:'#ff8a1f',shirt:'#1f2937',pants:'#334155'}; const drv=makePerson(false,false); POV=null; if(drv.g.parent) drv.g.parent.remove(drv.g); g.add(drv.g); drv.g.position.set(0,.09,-.12);
+  if(drv.g.children[1]) drv.g.children[1].visible=false; const du=drv.g.userData; du.legs.forEach(L=>{ L.hip.rotation.x=-1.45; L.knee.rotation.x=1.35; }); du.arms.forEach(a=>{ a.sh.rotation.x=-1.05; a.el.rotation.x=-.5; });
+  // Schutzdach
+  [[.34,.3],[-.34,.3],[.34,-.5],[-.34,-.5]].forEach(([x,z])=>bx(g,x,1.07,z,.045,1.0,.045,DK));
+  bx(g,0,1.58,-.1,.76,.04,.86,DK); for(let k=0;k<5;k++) bx(g,0,1.6,-.42+k*.16,.7,.025,.035,M('#3f3f46'));
+  // Lichter
+  const hl=nightMat('#fff7d6','#fff4c2',2.5); [[.3,1.52,.33],[-.3,1.52,.33],[.3,.64,.39],[-.3,.64,.39]].forEach(([x,y,z])=>bx(g,x,y,z,.08,.06,.03,hl));
+  const tl=new THREE.MeshStandardMaterial({color:'#7f1d1d',emissive:'#ef4444',emissiveIntensity:.6}); [[.33,.62,-.725],[-.33,.62,-.725]].forEach(([x,y,z])=>bx(g,x,y,z,.07,.05,.02,tl));
+  cy(g,0,1.63,-.42,.055,.04,DK); const bm=new THREE.MeshStandardMaterial({color:'#7c2d12',emissive:'#ff8a00',emissiveIntensity:1,transparent:true,opacity:.95}); const bc=cy(g,0,1.69,-.42,.045,.08,bm);
+  const spr=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOWTEX,color:'#ff9a1f',transparent:true,blending:THREE.AdditiveBlending,depthWrite:false})); spr.scale.set(.6,.6,1); spr.position.set(0,1.7,-.42); g.add(spr);
+  // Hubmast
+  [-.24,.24].forEach(x=>{ bx(g,x,.92,.56,.065,1.62,.09,ST); bx(g,x*1.08,.92,.6,.02,1.62,.05,M('#374151',{m:.6})); });
+  [.25,1.0,1.7].forEach(y=>bx(g,0,y,.56,.55,.06,.07,ST)); cy(g,0,.82,.5,.035,1.3,CH); cy(g,0,1.5,.5,.045,.08,ST);
+  [-.09,.09].forEach(x=>{ for(let k=0;k<14;k++) bx(g,x,.3+k*.085,.62,.022,.06,.022,M('#18181b',{m:.6})); });
+  // Gabelträger + Gabeln (bewegt sich hoch/runter)
+  const car=new THREE.Group(); car.position.set(0,.06,.66); g.add(car);
+  bx(car,0,.22,0,.64,.32,.045,ST); [.08,.36].forEach(y=>bx(car,0,y,.02,.64,.035,.05,M('#374151',{m:.6})));
+  [-.18,.18].forEach(x=>{ bx(car,x,.2,.03,.085,.4,.045,DK); bx(car,x,.02,.36,.085,.03,.68,DK); bx(car,x,.02,.71,.085,.02,.04,DK); });
+  // Ladung: Palette, Kartons, Stretchfolie
+  const lb=new THREE.Group(); lb.position.set(0,.035,.38); car.add(lb); const W=M('#b9895a',{r:.85}), WD=M('#8a6238',{r:.9});
+  for(let k=0;k<5;k++) bx(lb,0,.07,-.28+k*.14,.66,.022,.1,W); [-.28,0,.28].forEach(x=>[-.28,0,.28].forEach(z=>bx(lb,x,.035,z,.1,.05,.1,WD))); [-.26,.26].forEach(x=>bx(lb,x,.012,0,.1,.022,.66,W));
+  const CB=M('#c8935a',{r:.75}), TP=M('#e8d1a5',{r:.6}); [[-.16,-.16],[.16,-.16],[-.16,.16],[.16,.16]].forEach(([x,z])=>{ bx(lb,x,.24,z,.3,.3,.3,CB); bx(lb,x,.392,z,.3,.006,.06,TP); });
+  bx(lb,0,.54,0,.32,.28,.32,CB); bx(lb,0,.682,0,.32,.006,.06,TP);
+  const lab=new THREE.Mesh(G.plane,new THREE.MeshBasicMaterial({color:BR})); lab.scale.set(.12,.08,1); lab.position.set(.16,.26,.302); lb.add(lab);
+  const wrap=new THREE.Mesh(G.box,new THREE.MeshStandardMaterial({color:'#e0f2fe',transparent:true,opacity:.22,roughness:.1,metalness:.1,depthWrite:false})); wrap.scale.set(.66,.64,.66); wrap.position.set(0,.4,0); lb.add(wrap);
+  // Blue Spot & Scheinwerferkegel
+  const spot=new THREE.Mesh(G.plane,new THREE.MeshBasicMaterial({map:GLOWTEX,color:'#3b82f6',transparent:true,opacity:.75,blending:THREE.AdditiveBlending,depthWrite:false})); spot.rotation.x=-Math.PI/2; spot.scale.set(.55,.55,1); spot.position.set(0,.03,2.0); g.add(spot);
+  const sd=new THREE.Mesh(G.plane,new THREE.MeshBasicMaterial({color:'#93c5fd',transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthWrite:false})); sd.rotation.x=-Math.PI/2; sd.scale.set(.1,.1,1); sd.position.set(0,.032,2.0); g.add(sd);
+  const hc=new THREE.Mesh(G.plane,new THREE.MeshBasicMaterial({map:GLOWTEX,color:'#fff1b8',transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false})); hc.rotation.x=-Math.PI/2; hc.scale.set(1.4,2.4,1); hc.position.set(0,.04,1.9); g.add(hc); if(typeof HEADCONES!=='undefined') HEADCONES.push(hc.material);
+  g.traverse(o=>{ if(o.isMesh&&o.material&&!o.material.transparent) o.castShadow=true; });
+  g.scale.setScalar(1.08); DYN.add(g);
+  if(FL9&&FL9.light) scene.remove(FL9.light);
+  const light=new THREE.PointLight('#ff8a1f',0,3.2,2); scene.add(light);
+  FL9={g,car,wheels,bm,spr,spot,sd,light,beacon:0,bpos:new THREE.Vector3(),py:null,lift:.06};
+  g.userData={load:lb,v9:true}; return g; }
+function forkTick9(dt){ if(!forkA||!FL9||forkA.g!==FL9.g) return; const F=FL9, y=forkA.y; if(F.py==null) F.py=y; const d=Math.abs(y-F.py); F.py=y;
+  F.wheels.forEach(w=>w.g.rotation.x+=d/w.r*1.08); const want=forkA.dir>0?.2:.05; F.lift+=(want-F.lift)*Math.min(1,dt*1.5); F.car.position.y=F.lift;
+  const fl=Math.max(0,Math.sin(TIME*9)); F.beacon=fl; F.bm.emissiveIntensity=.5+2.5*fl; F.spr.material.opacity=(.35+.65*fl)*(.35+.65*NIGHT); F.spr.scale.setScalar(.45+.35*fl);
+  F.spot.material.opacity=.45+.4*NIGHT; F.bpos.set(0,1.75,-.45); F.g.localToWorld(F.bpos); }
+
+// ---------- Tick ----------
+const _buildLife9=buildLife; buildLife=function(){ _buildLife9(); try{ roomLights9(); }catch(e){ console.warn('rooms9',e); } };
+const _world6_9=world6; world6=function(dt){ _world6_9(dt); forkTick9(dt); };
+
 function shade(hex,amt){ const n=parseInt(hex.slice(1),16);
   const c=[n>>16,(n>>8)&255,n&255].map(v=>Math.max(0,Math.min(255,Math.round(v+amt))));
   return '#'+c.map(v=>v.toString(16).padStart(2,'0')).join(''); }
@@ -2523,7 +2746,7 @@ function updateMap(){}
 
 // ---------- HUD ----------
 function updateProfile(){
-  $('hAv').firstChild.textContent=AVATARS[S.avatar];
+  $('hAv').querySelector('.avs').innerHTML=avatarSVG(S.look);
   $('hAv').style.background=COLORS[S.color];
   $('hName').textContent=S.company||'Meine Firma';
   const L=levelOf(S.lifetime);
@@ -2799,12 +3022,12 @@ function confirmPrestige(){
 }
 
 // ----- Profil & Mehr -----
-function profileEditor(prefix){
+function profileEditorOld(prefix){
   return `<div class="lbl2">Firmenname</div><input type="text" id="${prefix}Name" maxlength="24" placeholder="z. B. Nordkap Snus" value="${esc(S.company)}">
     <div class="lbl2">Dein Avatar</div><div class="avgrid" id="${prefix}Av">${AVATARS.map((a,k)=>`<button data-k="${k}" class="${k===S.avatar?'on':''}">${a}</button>`).join('')}</div>
     <div class="lbl2">Firmenfarbe</div><div class="colgrid" id="${prefix}Col">${COLORS.map((c,k)=>`<button data-k="${k}" class="${k===S.color?'on':''}" style="background:${c}"></button>`).join('')}</div>`;
 }
-function bindProfileEditor(prefix,onChange){
+function bindProfileEditorOld(prefix,onChange){
   $(prefix+'Av').querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.avatar=+b.dataset.k; $(prefix+'Av').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); onChange&&onChange(); });
   $(prefix+'Col').querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.color=+b.dataset.k; $(prefix+'Col').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); onChange&&onChange(); });
   $(prefix+'Name').oninput=()=>onChange&&onChange();
@@ -2812,7 +3035,7 @@ function bindProfileEditor(prefix,onChange){
 function renderProfileBase(){
   const L=levelOf(S.lifetime), days=Math.max(1,Math.round((Date.now()-S.started)/864e5));
   BD().innerHTML=`
-    <div class="info hero"><div style="width:76px;height:76px;margin:0 auto 4px;border-radius:50%;background:${COLORS[S.color]};display:flex;align-items:center;justify-content:center;font-size:46px;box-shadow:inset 0 -6px 0 rgba(0,0,0,.18)">${AVATARS[S.avatar]}</div>
+    <div class="info hero"><div style="width:76px;height:76px;margin:0 auto 4px;border-radius:50%;background:${COLORS[S.color]};display:flex;align-items:center;justify-content:center;font-size:46px;box-shadow:inset 0 -6px 0 rgba(0,0,0,.18);overflow:hidden">${avatarSVG(S.look)}</div>
       <div style="font-weight:800;font-size:22px">${esc(S.company)}</div><p>${titleOf(L)} · Level ${L}</p>
       <div class="pr" style="height:10px"><i style="width:${Math.min(100,(S.lifetime-lvlReq(L))/(lvlReq(L+1)-lvlReq(L))*100)}%"></i></div>
       <p style="font-size:12px">Nächstes Level bei ${eur(lvlReq(L+1))} Gesamtumsatz</p></div>
@@ -2854,7 +3077,7 @@ function renderMoreBase(){
 
 // ---------- Onboarding ----------
 function onboarding(){
-  const prev=()=>`<div class="preview"><div class="av" style="background:${COLORS[S.color]}">${AVATARS[S.avatar]}</div>
+  const prev=()=>`<div class="preview"><div class="av" style="background:${COLORS[S.color]};overflow:hidden">${avatarSVG(S.look)}</div>
     <div style="text-align:left"><div class="pname">${esc(($('obName')&&$('obName').value.trim())||'Deine Firma')}</div><div class="ptitle">Garagen-Gründer · Level 1</div></div></div>`;
   modal(`<div class="em">🏭</div><h2>Gründe dein Snus-Business</h2>
     <p>Du startest mit einem leeren Lager und packst die ersten Dosen von Hand. Dann kommen Maschinen, Verträge mit Spätis & Kiosken, eigene Marken – bis zum Export in die ganze Welt.</p>
@@ -2880,7 +3103,7 @@ function pouchStyle(){ const t=S.tier; if(t===0) return {kind:'loose',c1:'#7a4f2
   if(t===2) return {kind:'pouch',c1:'#f1e7d3',c2:'#c9b796'}; if(t===5) return {kind:'pouch',c1:'#ffffff',c2:'#d7dbe0',slim:true}; return {kind:'pouch',c1:'#ffffff',c2:'#d9dde2'}; }
 function canSVG(n,lid){ const st=pouchStyle(), b=COLORS[S.color], P_=PRODUCTS[S.tier];
   let h=`<svg viewBox="0 0 200 200" width="138" height="138" xmlns="http://www.w3.org/2000/svg"><defs>
-   <radialGradient id="pkRim" cx=".45" cy=".4" r=".7"><stop offset=".8" stop-color="${shade(b,25)}"/><stop offset=".93" stop-color="${b}"/><stop offset="1" stop-color="${shade(b,-45)}"/></radialGradient>
+   <radialGradient id="pkRim" cx=".45" cy=".4" r=".7"><stop offset=".8" stop-color="#ffffff"/><stop offset=".93" stop-color="#e3e8ee"/><stop offset="1" stop-color="#94a0ad"/></radialGradient>
    <radialGradient id="pkTray" cx=".5" cy=".45" r=".55"><stop offset="0" stop-color="#f7f4ee"/><stop offset=".82" stop-color="#e6e0d4"/><stop offset="1" stop-color="#b9b1a2"/></radialGradient>
    <radialGradient id="pkP" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="${shade(st.c1,18)}"/><stop offset=".55" stop-color="${st.c1}"/><stop offset="1" stop-color="${st.c2}"/></radialGradient>
    <pattern id="pkFib" width="8" height="6" patternUnits="userSpaceOnUse"><path d="M0 1 L3 2 M4 4 L8 3 M1 5 L5 6 M5 0 L7 1" stroke="${st.kind==='loose'?'#2a180b':'rgba(120,110,95,.28)'}" stroke-width=".5"/></pattern>
@@ -2890,7 +3113,7 @@ function canSVG(n,lid){ const st=pouchStyle(), b=COLORS[S.color], P_=PRODUCTS[S.
   </defs>
   <circle cx="100" cy="103" r="97" fill="rgba(0,0,0,.25)"/>
   <circle cx="100" cy="100" r="97" fill="url(#pkRim)"/>
-  <circle cx="100" cy="100" r="93" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="3" stroke-dasharray="1.6 2.4"/>
+  <circle cx="100" cy="100" r="93" fill="none" stroke="rgba(0,0,0,.10)" stroke-width="3" stroke-dasharray="1.6 2.4"/><circle cx="100" cy="100" r="89.3" fill="none" stroke="${b}" stroke-width="3.2"/>
   <circle cx="100" cy="100" r="86" fill="url(#pkTray)"/>
   <circle cx="100" cy="100" r="86" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="2"/>
   <circle cx="100" cy="101.5" r="84" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="1"/>
@@ -2902,10 +3125,10 @@ function canSVG(n,lid){ const st=pouchStyle(), b=COLORS[S.color], P_=PRODUCTS[S.
     if(st.kind==='loose'){ h+=`<path d="M${x} 0 Q${x} ${y-2} ${x*.4} ${y} Q0 ${y-3} ${-x*.5} ${y+.5} Q${-x+1} ${y} ${-x} 1 Q${-x} ${-y+2} ${-x*.4} ${-y} Q0 ${-y+2} ${x*.5} ${-y-.5} Q${x-1} ${-y+1} ${x} 0Z" fill="url(#pkP)"/>
         <path d="M${x} 0 Q${x} ${y-2} ${x*.4} ${y} Q0 ${y-3} ${-x*.5} ${y+.5} Q${-x+1} ${y} ${-x} 1 Q${-x} ${-y+2} ${-x*.4} ${-y} Q0 ${-y+2} ${x*.5} ${-y-.5} Q${x-1} ${-y+1} ${x} 0Z" fill="url(#pkFib)" opacity=".9"/>
         <ellipse cx="${x*.25}" cy="${y*.35}" rx="${w*.18}" ry="${hh*.12}" fill="rgba(255,255,255,.28)"/>`; }
-    else { const rx=hh/2.3, cr=Array.from({length:6},(_,i)=>`${x+1.2+(i%2)*1.6} ${y+1.5+i*(hh-3)/5}`).join(' L '), cr2=Array.from({length:6},(_,i)=>`${-x-1.2-(i%2)*1.6} ${y+1.5+i*(hh-3)/5}`).join(' L ');
+    else { const rx=hh/6, zz=(sx)=>{ let d=`M${sx*(-x-2.8)} ${y} L${sx*(-x)} ${y}`; for(let i=1;i<=6;i++) d+=` L${sx*(-x+(i%2?1.7:0))} ${y+i*hh/6}`; return d+` L${sx*(-x-2.8)} ${y+hh}Z`; }, cr=Array.from({length:6},(_,i)=>`${x+1.2+(i%2)*1.6} ${y+1.5+i*(hh-3)/5}`).join(' L '), cr2=Array.from({length:6},(_,i)=>`${-x-1.2-(i%2)*1.6} ${y+1.5+i*(hh-3)/5}`).join(' L ');
       h+=`<rect x="${x}" y="${y}" width="${w}" height="${hh}" rx="${rx}" fill="url(#pkP)"/><rect x="${x}" y="${y}" width="${w}" height="${hh}" rx="${rx}" fill="url(#pkFib)"/>
         ${st.spots?`<rect x="${x}" y="${y}" width="${w}" height="${hh}" rx="${rx}" fill="url(#pkSpot)"/>`:''}
-        <path d="M ${cr}" stroke="rgba(0,0,0,.18)" stroke-width=".7" fill="none"/><path d="M ${cr2}" stroke="rgba(0,0,0,.18)" stroke-width=".7" fill="none"/>
+        <path d="${zz(-1)}" fill="rgba(255,255,255,.6)" stroke="rgba(0,0,0,.12)" stroke-width=".5"/><path d="${zz(1)}" fill="rgba(255,255,255,.6)" stroke="rgba(0,0,0,.12)" stroke-width=".5"/>
         <rect x="${x+3.5}" y="${y+1.6}" width="${w-7}" height="${hh*.3}" rx="${hh*.15}" fill="rgba(255,255,255,${st.c1==='#ffffff'?.7:.32})"/>
         <rect x="${x}" y="${y}" width="${w}" height="${hh}" rx="${rx}" fill="none" stroke="rgba(0,0,0,.12)" stroke-width=".6"/>`; }
     h+=`</g></g>`; });
@@ -2962,7 +3185,7 @@ const HEADS={vertraege:['📝','Verträge','Liefere an Spätis, Kioske & Läden'
 function openTab(p){ setNav(p); if(p==='fabrik'){ closeSheet(); return; } const H=HEADS[p];
   openSheet(p,`<span class="big">${H[0]}</span><div><h2>${H[1]}</h2><div class="sub">${H[2]}</div></div>`); }
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>openTab(b.dataset.p));
-$('prof').onclick=()=>{ setNav(''); openSheet('profil',`<span class="big">${AVATARS[S.avatar]}</span><div><h2>Profil</h2><div class="sub">Dein Unternehmen</div></div>`); };
+$('prof').onclick=()=>{ setNav(''); openSheet('profil',`<span class="big">${avatarHTML(40)}</span><div><h2>Profil</h2><div class="sub">Dein Unternehmen</div></div>`); };
 $('cIdx').onclick=()=>{ sub.sortiment=2; openTab('sortiment'); };
 $('cTax').onclick=()=>{ sub.sortiment=2; openTab('sortiment'); };
 $('cCon').onclick=()=>openTab('vertraege');
@@ -3187,7 +3410,7 @@ function hydrate(d){
   s.research=d.research||{}; s.lvl=Math.max(s.lvl||1,1); s.managers=Array.isArray(d.managers)?d.managers:[]; s.mgrAssign=d.mgrAssign||{}; s.store=Object.assign(freshStore(),d.store||{}); s.store.d=ST_DEPTS.map((_,i)=>Object.assign({l:0,s:0},(d.store&&d.store.d||[])[i]));
   if(!Array.isArray(s.brands)||!s.brands.length) s.brands=['haus'];
   if(!Array.isArray(s.flavors)||!s.flavors.length) s.flavors=[0];
-  if(d.fleetLv==null&&d.onboarded) s._mig=1; if(!Array.isArray(s.citiesOpen)||!s.citiesOpen.length) s.citiesOpen=[0]; s.cdata=d.cdata||{}; s.ach=d.ach||{}; s.mk=d.mk||{}; s.camp=d.camp||{}; s.qual=d.qual||{}; if(!d.qual&&d.onboarded) s._qmig=1; s.snd=Object.assign({m:.35,s:.7},d.snd||{});
+  if(d.fleetLv==null&&d.onboarded) s._mig=1; if(!Array.isArray(s.citiesOpen)||!s.citiesOpen.length) s.citiesOpen=[0]; s.cdata=d.cdata||{}; s.ach=d.ach||{}; s.look=lookOf(d); s.mk=d.mk||{}; s.camp=d.camp||{}; s.qual=d.qual||{}; if(!d.qual&&d.onboarded) s._qmig=1; s.snd=Object.assign({m:.35,s:.7},d.snd||{});
   return s;
 }
 function save(){ S.last=Date.now(); try{ localStorage.setItem(SAVE_KEY,JSON.stringify(S)); }catch(e){} }
