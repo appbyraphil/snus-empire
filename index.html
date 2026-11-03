@@ -574,7 +574,7 @@ nav button.locked{opacity:.45;filter:grayscale(1);position:relative}nav button.l
 .ccg{margin-bottom:6px}.ccg button{font-size:13px}.icow{display:inline-block;width:1.25em;height:1.25em;vertical-align:-.28em;line-height:0}.icow .ico{width:100%;height:100%;display:block;overflow:visible}
 nav .i .icow{width:30px;height:30px;vertical-align:middle}.card .ic .icow{width:36px;height:36px;vertical-align:middle}.sheet .hd .big .icow{width:38px;height:38px;vertical-align:middle}
 .em .icow{width:72px;height:72px}.crate-anim .icow{width:96px;height:96px}.mp .icow,.chip .icow{width:17px;height:17px;vertical-align:-3px}.toast .icow{width:20px;height:20px;vertical-align:-4px}
-.fab .icow{width:34px;height:34px}</style>
+.fab .icow{width:34px;height:34px}.icow.face .ico{border-radius:50%}#wmap2.far .wdeco g[transform*="scale(.7)"]{display:none}</style>
 </head>
 <body>
 <div id="app">
@@ -792,7 +792,7 @@ function freshState(){
     company:'', avatar:0, look:null, color:0, onboarded:false, lvl:1,
     floors:newFloors(true), research:{}, packed:0, pk:0, boostUntil:0, boostMult:1, taxWarned:false,
     resets:0, switches:0, drones:0, started:Date.now(), last:Date.now(), buyMode:0, cid:0,
-    store:freshStore(), mission:0, coins:0, daily:{last:'',streak:0}, managers:[], mgrAssign:{}, mid:0, event:null, eventNext:0, fleetLv:0, whLv:0, stock:0, city:0, citiesOpen:[0], cdata:{}, cansTotal:0, ach:{}, vips:0, orders:0, order:null, tmp:null, decNext:0, orderNext:0, snd:{m:.35,s:.7}, qual:{}, gfx:'hoch', wx:'auto', seenV6:false, wasLeader:false, feat:{}, tut:0, seenV11:false, q:null, chillN:0, gfxSet:false, sndHint:0, boss:{lv:0,items:{}}, chill:null, focus:null, wmv:null, mk:{}, off:null, offNext:0, camp:{}, hudMin:true}, freshSales());
+    store:freshStore(), mission:0, coins:0, daily:{last:'',streak:0}, managers:[], mgrAssign:{}, mid:0, event:null, eventNext:0, fleetLv:0, whLv:0, stock:0, city:0, citiesOpen:[0], cdata:{}, cansTotal:0, ach:{}, vips:0, orders:0, order:null, tmp:null, decNext:0, orderNext:0, snd:{m:.35,s:.7}, qual:{}, gfx:'hoch', wx:'auto', seenV6:false, wasLeader:false, perm16:1, feat:{}, tut:0, seenV11:false, q:null, chillN:0, gfxSet:false, sndHint:0, boss:{lv:0,items:{}}, chill:null, focus:null, wmv:null, mk:{}, off:null, offNext:0, camp:{}, hudMin:true}, freshSales());
 }
 let S = freshState();
 const rl = id => S.research[id]||0;
@@ -2415,7 +2415,7 @@ function mapSVG(){ const land='fill="#f3ead2" stroke="#b9a77a" stroke-width="1.2
   // Konkurrenz-Zentralen
   COMP_HQ.forEach(([lo,la,n],ci)=>{ const [x,y]=pEU([lo,la]), c=COMPS[ci]; s+=`<g><rect x="${x-9}" y="${y-9}" width="18" height="18" rx="5" fill="${c.c}" stroke="#fff" stroke-width="2"/><text x="${x}" y="${y+4.5}" text-anchor="middle" font-size="11">${c.em}</text><text x="${x}" y="${y+20}" text-anchor="middle" font-size="8" font-weight="800" fill="${c.c}" stroke="#fff" stroke-width="2.5" paint-order="stroke">${c.n.split(' ')[0]}-Zentrale</text></g>`; });
   // eigene Fabriken
-  const FG=[[13.4,52.5],[18.1,59.3],[10.75,59.9],[12.6,55.7],[24.9,60.2]];
+  const FG=CITIES.map(c=>CITYGEO[c.n]);
   (S.citiesOpen||[0]).forEach(k=>{ const [x,y]=pEU(FG[k]); s+=`<g data-city="${k}" style="cursor:pointer"><circle cx="${x+(k?0:-19)}" cy="${y+(k?0:-12)}" r="8" fill="#2b2340" stroke="#fff" stroke-width="1.5"/><text x="${x+(k?0:-19)}" y="${y+(k?3.5:-8.5)}" text-anchor="middle" font-size="9">🏭</text></g>`; });
   REGIONS.forEach((_,r)=>{ if(!OVERSEA.includes(r)) s+=regionPin(r,pEU); });
   s+=`<text x="10" y="20" font-size="12" font-weight="800" fill="#fff" stroke="#1e3a5f" stroke-width="3" paint-order="stroke">🇪🇺 Europa</text></svg>`;
@@ -2960,7 +2960,7 @@ function wmPin(r){ const [x,y]=pW(WGEO[r]); const R=REGIONS[r], own=r<S.regions,
   s+=`<circle cy="2.5" r="${rad+2}" fill="rgba(0,0,0,.25)"/>`;
   if(own) s+=`<circle r="${rad+2.5}" fill="#fff"/>`+pieSVG(0,0,rad,L)+`<circle r="${rad*.62}" fill="#fff"/>`;
   else s+=`<circle r="${rad+2}" fill="${next?'#fff':'#e5e7eb'}"/><circle r="${rad}" fill="${lead.c}" opacity="${next?.5:.28}"/>`;
-  s+=`<text y="5" text-anchor="middle" font-size="${own?14:12}">${own||next?R.em:'🔒'}</text>`;
+  { const ek=EMOICON[own||next?R.em:'🔒']||EMOICON[(own||next?R.em:'🔒').replace('\uFE0F','')], z=own?10:8.5; s+=ek?`<svg x="${-z}" y="${-z}" width="${2*z}" height="${2*z}" viewBox="0 0 128 128">${icoInner(ek)}</svg>`:`<text y="5" text-anchor="middle" font-size="${own?14:12}">${R.em}</text>`; }
   if(own&&lead.me) s+=`<text x="${rad-2}" y="${-rad+4}" text-anchor="middle" font-size="12">👑</text>`;
   if(att) s+=`<text x="${-rad+1}" y="${-rad+5}" text-anchor="middle" font-size="12">⚔️</text>`;
   if(campOn(r)) s+=`<text x="${rad}" y="${rad+2}" text-anchor="middle" font-size="11">📣</text>`;
@@ -2971,10 +2971,10 @@ function worldSVG(){ const land='fill="#f3ead2" stroke="#b9a77a" stroke-width="1
     <rect x="-400" y="-300" width="2300" height="1400" fill="url(#oc2)"/><rect x="-400" y="-300" width="2300" height="1400" fill="url(#wv2)"/>`;
   for(let lo=-150;lo<=180;lo+=30){ const [x]=pW([lo,0]); s+=`<line x1="${x}" y1="-300" x2="${x}" y2="1100" stroke="#fff" stroke-opacity=".12" stroke-dasharray="3 5" vector-effect="non-scaling-stroke"/>`; }
   for(let la=-50;la<=80;la+=15){ const [,y]=pW([0,la]); s+=`<line x1="-400" y1="${y}" x2="1900" y2="${y}" stroke="#fff" stroke-opacity=".12" stroke-dasharray="3 5" vector-effect="non-scaling-stroke"/>`; }
-  s+=`<path d="${WORLD_LAND}" transform="translate(0,1.4)" fill="#2f6f9e" opacity=".35"/><path d="${WORLD_LAND}" ${land} fill-rule="evenodd"/><path d="${WORLD_BORDERS}" fill="none" stroke="#c9b88e" stroke-width=".7" stroke-dasharray="2 2" vector-effect="non-scaling-stroke" opacity=".9"/>`;
+  s+=`<path d="${WORLD_LAND}" transform="translate(0,1.4)" fill="#2f6f9e" opacity=".35"/><path d="${WORLD_LAND}" ${land} fill-rule="evenodd"/>${worldDeco()}<path d="${WORLD_BORDERS}" fill="none" stroke="#c9b88e" stroke-width=".7" stroke-dasharray="2 2" vector-effect="non-scaling-stroke" opacity=".9"/>`;
   for(let r=1;r<S.regions;r++){ const [a,b]=pW(WGEO[0]), [c,d]=pW(WGEO[r]); const lift=Math.min(60,Math.hypot(c-a,d-b)*.25); s+=`<path d="M${a},${b} Q${(a+c)/2},${Math.min(b,d)-lift} ${c},${d}" fill="none" stroke="${COLORS[S.color]}" stroke-width="2" stroke-dasharray="5 4" opacity=".8" vector-effect="non-scaling-stroke"/>`; }
   COMP_HQ.forEach(([lo,la,n],ci)=>{ const [x,y]=pW([lo,la]), c=COMPS[ci]; s+=`<g class="wpin" data-x="${x}" data-y="${y}" transform="translate(${x} ${y})"><g class="ws"><rect x="-9" y="-9" width="18" height="18" rx="5" fill="${c.c}" stroke="#fff" stroke-width="2"/><text y="4.5" text-anchor="middle" font-size="11">${c.em}</text><text y="20" text-anchor="middle" font-size="8" font-weight="800" fill="${c.c}" stroke="#fff" stroke-width="2.5" paint-order="stroke">${c.n.split(' ')[0]}</text></g></g>`; });
-  const FG=[[13.4,52.5],[18.1,59.3],[10.75,59.9],[12.6,55.7],[24.9,60.2]];
+  const FG=CITIES.map(c=>CITYGEO[c.n]);
   (S.citiesOpen||[0]).forEach(k=>{ const [x,y]=pW(FG[k]); const ox=k?0:-19, oy=k?0:-12; s+=`<g class="wpin" data-city="${k}" data-x="${x}" data-y="${y}" transform="translate(${x} ${y})"><g class="ws"><circle cx="${ox}" cy="${oy}" r="8" fill="#2b2340" stroke="#fff" stroke-width="1.5"/><text x="${ox}" y="${oy+3.5}" text-anchor="middle" font-size="9">🏭</text></g></g>`; });
   REGIONS.forEach((_,r)=>s+=wmPin(r));
   return s+'</svg>'; }
@@ -3421,6 +3421,246 @@ const _badge14=badge; badge=function(sx,sy,em,r,bg,ring,alpha){ const k=EMOICON[
 // HUD, Navigation, Chips regelmäßig nachziehen
 function icoTick(dt){ ['nav','.hud','#mini','#evBar','#ordBar','#tmpBar','#boostBar','#mCard','#toast','#packer','.fab','#chillOv'].forEach(s=>document.querySelectorAll(s).forEach(fixIcons)); }
 const _world6_14=world6; world6=function(dt){ _world6_14(dt); icoTick(dt); };
+
+// =====================================================================
+//  v15: restliche Icons (Flaggen, Gesichter, Wetter …) · Icons ohne Flackern (auch auf Canvas)
+//       ruhigeres Nachtlicht · Regionen-Landschaften je Standort · neuer Standort Tokio
+// =====================================================================
+
+// ---------- weitere Icons ----------
+const FLAG=(inner)=>`<clipPath id="fc"><circle cx="64" cy="60" r="44"/></clipPath>${iSH()}<g clip-path="url(#fc)">${inner}</g><circle cx="64" cy="60" r="44" fill="none" ${o_(5)}/><path d="M34,36 Q42,24 58,20" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".45"/>`;
+const HB=(cs)=>cs.map((c,i)=>`<rect x="0" y="${16+i*88/cs.length}" width="128" height="${88/cs.length+.5}" fill="${c}"/>`).join('');
+const VB=(cs)=>cs.map((c,i)=>`<rect x="${20+i*88/cs.length}" y="0" width="${88/cs.length+.5}" height="128" fill="${c}"/>`).join('');
+const NC=(bg,c1,c2)=>`<rect width="128" height="128" fill="${bg}"/><rect x="40" y="0" width="${c2?20:16}" height="128" fill="${c1}"/><rect x="0" y="${c2?50:52}" width="128" height="${c2?20:16}" fill="${c1}"/>${c2?`<rect x="44" y="0" width="12" height="128" fill="${c2}"/><rect x="0" y="54" width="128" height="12" fill="${c2}"/>`:''}`;
+const FACEY=(eyes,mouth,extra='')=>iSH()+iC(64,60,44,'gold')+eyes+mouth+extra+iHL('M32,46 Q36,30 52,22',5,.55);
+Object.assign(IC,{
+  fl_de:()=>FLAG(HB(['#1f1f1f','#dd2b2b','#ffcc00'])), fl_se:()=>FLAG(NC('#1d6fc4','#ffcc00')), fl_no:()=>FLAG(NC('#d6253a','#fff','#1f3f8f')), fl_dk:()=>FLAG(NC('#cf1f3a','#fff')),
+  fl_fi:()=>FLAG(NC('#fff','#1d4fa8')), fl_at:()=>FLAG(HB(['#d6253a','#fff','#d6253a'])), fl_ch:()=>FLAG(`<rect width="128" height="128" fill="#d6253a"/><path d="M56,32 H72 V52 H92 V68 H72 V88 H56 V68 H36 V52 H56Z" fill="#fff"/>`),
+  fl_pl:()=>FLAG(HB(['#fff','#dc143c'])), fl_nl:()=>FLAG(HB(['#c8102e','#fff','#21468b'])), fl_fr:()=>FLAG(VB(['#1f4fa8','#fff','#e5252a'])), fl_es:()=>FLAG(HB(['#c60b1e','#ffc400','#ffc400','#c60b1e'])),
+  fl_gb:()=>FLAG(`<rect width="128" height="128" fill="#1f3f8f"/><path d="M0,0 L128,128 M128,0 L0,128" stroke="#fff" stroke-width="22"/><path d="M0,0 L128,128 M128,0 L0,128" stroke="#d6253a" stroke-width="8"/><path d="M64,0 V128 M0,60 H128" stroke="#fff" stroke-width="26"/><path d="M64,0 V128 M0,60 H128" stroke="#d6253a" stroke-width="14"/>`),
+  fl_us:()=>FLAG(`${Array.from({length:9},(_,i)=>`<rect x="0" y="${16+i*10}" width="128" height="10" fill="${i%2?'#fff':'#d6253a'}"/>`).join('')}<rect x="18" y="14" width="48" height="42" fill="#1f3f8f"/>${Array.from({length:12},(_,i)=>`<circle cx="${26+(i%4)*11}" cy="${22+Math.floor(i/4)*12}" r="2.4" fill="#fff"/>`).join('')}`),
+  fl_ca:()=>FLAG(VB(['#d6253a','#fff','#fff','#d6253a'])+`<path d="M64,34 L69,46 L78,42 L74,56 L84,56 L76,64 L80,72 L66,70 L66,84 H62 L62,70 L48,72 L52,64 L44,56 L54,56 L50,42 L59,46Z" fill="#d6253a"/>`),
+  fl_jp:()=>FLAG(`<rect width="128" height="128" fill="#fff"/><circle cx="64" cy="60" r="17" fill="#d6253a"/>`),
+  fl_eu:()=>FLAG(`<rect width="128" height="128" fill="#1f3f8f"/>${Array.from({length:12},(_,i)=>{ const a=i*Math.PI/6; return `<circle cx="${(64+Math.cos(a)*24).toFixed(1)}" cy="${(60+Math.sin(a)*24).toFixed(1)}" r="3.6" fill="#ffcc00"/>`; }).join('')}`),
+  sun:()=>iSH()+`<g stroke="${IOL}" stroke-width="4" stroke-linejoin="round">${Array.from({length:8},(_,i)=>{ const a=i*Math.PI/4; const p=(r,t)=>`${(64+Math.cos(t)*r).toFixed(1)},${(60+Math.sin(t)*r).toFixed(1)}`; return `<path d="M${p(34,a-.22)} L${p(54,a)} L${p(34,a+.22)}Z" fill="url(#ig_orange)"/>`; }).join('')}</g>`+iC(64,60,30,'gold')+iHL('M44,50 Q48,38 60,34',5,.7),
+  moon:()=>iSH()+iP('M76,14 C48,16 30,38 30,62 C30,88 52,108 78,108 C92,108 104,102 112,92 C80,96 58,74 58,50 C58,36 64,22 76,14Z','gold')+iSPK(98,28,.8,'#fff3c2')+iSPK(104,58,.5,'#fff3c2'),
+  sunset:()=>iSH()+`<clipPath id="ssc"><rect x="0" y="0" width="128" height="76"/></clipPath><g clip-path="url(#ssc)">${iC(64,76,36,'orange')}</g>`+iLN('M10,80 H118',IOL,5)+iLN('M24,94 H104 M40,106 H88',IOL,4,.5)+`<g stroke="${IOL}" stroke-width="4" stroke-linecap="round"><path d="M64,20 V30 M28,40 l7,7 M100,40 l-7,7 M14,70 H24 M104,70 H114"/></g>`,
+  cloud:()=>iSH()+iP('M30,86 C14,86 10,66 26,60 C24,42 46,34 56,46 C62,28 92,28 96,50 C114,50 118,74 104,86Z','white'),
+  rain:()=>IC.cloud()+`<g stroke="${IOL}" stroke-width="7" stroke-linecap="round"><path d="M42,96 l-5,14 M64,96 l-5,14 M86,96 l-5,14"/></g><g stroke="#5fb0ec" stroke-width="3.5" stroke-linecap="round"><path d="M42,96 l-5,14 M64,96 l-5,14 M86,96 l-5,14"/></g>`,
+  suncloud:()=>iSH()+iC(82,40,24,'gold')+iP('M24,96 C10,96 6,78 22,72 C20,56 40,48 50,60 C56,44 82,44 86,64 C102,64 106,86 92,96Z','white'),
+  sofa:()=>iSH()+iRR(14,58,100,40,10,'teal')+iRR(24,40,80,30,10,'teal')+iRR(8,54,20,46,8,'teal')+iRR(100,54,20,46,8,'teal')+iLN('M20,100 V110 M108,100 V110',IOL,6),
+  people:()=>iSH()+iP('M8,112 C8,90 20,80 40,80 C60,80 72,90 72,112Z','blue')+iC(40,56,17,'tan')+iP('M56,112 C56,88 70,76 90,76 C110,76 122,88 122,112Z','red')+iC(90,50,18,'tan'),
+  fist:()=>iSH()+iP('M32,60 C32,44 42,38 52,40 C54,30 66,28 72,36 C78,28 92,30 94,42 C104,42 110,52 108,64 L104,92 C100,106 88,112 72,112 H56 C42,112 32,100 32,86Z','tan')+iLN('M52,40 V60 M72,36 V60 M94,42 V62 M32,60 C44,58 54,62 58,74',IOL,3.5,.55),
+  phone:()=>iSH()+iRR(32,8,64,110,12,'dark')+iRR(38,20,52,82,4,'sky',3.5)+iC(64,110,3.5,'#fff',0)+iRR(54,13,20,3,1.5,'#000',0)+iP('M50,52 C50,44 64,42 64,52 C64,42 78,44 78,52 C78,62 64,70 64,72 C64,70 50,62 50,52Z','red',3),
+  pen:()=>iSH()+`<g transform="rotate(40 64 64)">`+iRR(56,6,16,82,4,'blue')+iP('M56,88 L64,112 L72,88Z','cream',4)+iRR(56,6,16,14,3,'dark',4)+`</g>`+iLN('M20,110 Q36,96 46,108 T76,104',IOL,4),
+  dotRed:()=>iC(64,62,34,'red')+iHL('M44,52 Q48,40 60,36',5,.6), dotGreen:()=>iC(64,62,34,'green')+iHL('M44,52 Q48,40 60,36',5,.6), dotYellow:()=>iC(64,62,34,'gold')+iHL('M44,52 Q48,40 60,36',5,.6), dotOrange:()=>iC(64,62,34,'orange')+iHL('M44,52 Q48,40 60,36',5,.6),
+  fuel:()=>iSH()+iRR(22,14,58,98,8,'red')+iRR(32,26,38,26,4,'white',3.5)+iP('M80,40 L98,52 V96 C98,104 110,104 110,96 V44','none',5)+iRR(16,104,70,10,3,'dark',4),
+  plane:()=>iSH()+`<g transform="rotate(-30 64 64)">`+iP('M58,8 C58,2 70,2 70,8 V48 L114,72 V82 L70,70 V100 L84,110 V118 L64,112 L44,118 V110 L58,100 V70 L14,82 V72 L58,48Z','white')+`</g>`,
+  heart:()=>iSH()+iP('M64,110 C20,80 8,58 14,38 C20,18 50,14 64,36 C78,14 108,18 114,38 C120,58 108,80 64,110Z','red')+iHL('M28,40 Q32,28 44,26',5,.7),
+  heartG:()=>iSH()+iP('M64,110 C20,80 8,58 14,38 C20,18 50,14 64,36 C78,14 108,18 114,38 C120,58 108,80 64,110Z','gold')+iHL('M28,40 Q32,28 44,26',5,.7),
+  heartK:()=>iSH()+iP('M64,110 C20,80 8,58 14,38 C20,18 50,14 64,36 C78,14 108,18 114,38 C120,58 108,80 64,110Z','dark')+iHL('M28,40 Q32,28 44,26',5,.4),
+  tv:()=>iSH()+iRR(10,22,108,72,8,'dark')+iRR(18,30,92,56,4,'sky',3.5)+iLN('M44,8 L64,22 L84,8',IOL,4)+iRR(40,96,48,10,3,'gray',4),
+  key:()=>iSH()+iC(40,58,24,'gold')+iC(40,58,9,'#fff8ec',4)+iRR(60,52,56,13,3,'gold')+iRR(90,62,10,18,2,'gold',4)+iRR(104,62,10,14,2,'gold',4),
+  shirt:()=>iSH()+iP('M42,14 L22,24 L8,50 L26,60 L32,50 V112 H96 V50 L102,60 L120,50 L106,24 L86,14 C80,26 48,26 42,14Z','red'),
+  shoe:()=>iSH()+iP('M10,70 C10,58 22,50 34,52 L56,60 C70,66 90,66 104,72 C116,76 120,88 116,96 H14 C10,92 10,82 10,70Z','white')+iRR(10,94,108,12,5,'red',4)+iLN('M40,62 L48,70 M52,64 L60,72',IOL,3),
+  cheers:()=>iSH()+`<g transform="rotate(-14 44 60)">${iP('M28,16 H60 C60,44 52,56 44,56 C36,56 28,44 28,16Z','gold')}${iLN('M44,56 V100 M30,102 H58',IOL,5)}</g><g transform="rotate(14 84 60)">${iP('M68,16 H100 C100,44 92,56 84,56 C76,56 68,44 68,16Z','gold')}${iLN('M84,56 V100 M70,102 H98',IOL,5)}</g>`+iSPK(64,12,.9),
+  ticket:()=>iSH()+`<g transform="rotate(-12 64 64)">`+iP('M10,36 H118 V52 C110,52 110,72 118,72 V88 H10 V72 C18,72 18,52 10,52Z','orange')+iLN('M42,40 V84',IOL,3,.5)+`</g>`,
+  plus:()=>iC(64,62,44,'green')+iP('M56,32 H72 V54 H94 V70 H72 V92 H56 V70 H34 V54 H56Z','#fff',4),
+  outbox:()=>iSH()+iRR(14,56,100,52,8,'blue')+iP('M64,10 L90,38 H74 V70 H54 V38 H38Z','gold',4),
+  search:()=>iSH()+iC(52,52,32,'glass')+iLN('M76,76 L112,112',IOL,16)+iLN('M76,76 L112,112','#8a6a3c',9)+iHL('M34,44 Q38,30 50,26',5,.8),
+  question:()=>iC(64,62,44,'purple')+`<text x="64" y="84" text-anchor="middle" font-family="Arial Black,Arial" font-weight="900" font-size="64" fill="#fff" stroke="${IOL}" stroke-width="3">?</text>`,
+  sprout:()=>iSH()+iRR(36,82,56,28,6,'brown')+iLN('M64,82 V48',IOL,6)+iP('M64,52 C40,54 28,40 30,24 C48,22 62,34 64,52Z','leaf',4)+iP('M64,46 C80,46 96,32 94,16 C76,16 64,30 64,46Z','leaf',4),
+  drink:()=>iSH()+iP('M30,30 H98 L88,112 H40Z','red')+iRR(26,24,76,12,4,'white',4)+iLN('M70,24 L82,4',IOL,5)+iHL('M38,44 L44,100',4,.5),
+  brick:()=>iSH()+iRR(10,40,108,36,4,'red')+iRR(10,76,54,30,4,'red')+iRR(64,76,54,30,4,'red'),
+  speaker:()=>iSH()+iP('M18,46 H40 L70,20 V104 L40,78 H18Z','gray')+iLN('M84,44 Q94,62 84,80 M96,32 Q114,62 96,92',IOL,6),
+  refresh:()=>iC(64,62,44,'blue')+iP('M86,46 A26,26 0 1 0 90,72','none',8)+iLN('M86,46 A26,26 0 1 0 90,72','#fff',4)+iP('M76,40 L96,36 L92,56Z','#fff',3),
+  halfmoon:()=>iSH()+iC(64,60,44,'navy')+iP('M64,16 A44,44 0 0 1 64,104Z','gold'),
+  clipboard:()=>iSH()+iRR(22,18,84,96,8,'wood')+iRR(30,30,68,78,4,'paper',4)+iRR(46,10,36,16,4,'steel',4)+iLN('M40,52 H88 M40,66 H88 M40,80 H76',IOL,4,.5),
+  floppy:()=>iSH()+iP('M14,14 H96 L114,32 V114 H14Z','blue')+iRR(32,14,52,34,2,'steel',4)+iRR(30,70,68,44,3,'white',4)+iRR(66,20,10,22,2,IOL,0),
+  pointer:()=>iP('M50,40 V12 C50,4 62,4 62,12 V54 V44 C62,36 74,36 74,44 V56 V48 C74,40 86,40 86,48 V60 V54 C86,46 98,46 98,54 V82 C98,104 86,118 66,118 C50,118 40,108 32,92 L18,66 C14,58 24,52 30,58 L50,78Z','tan',5),
+  wind:()=>iLN('M12,50 H80 C94,50 98,32 86,26 C76,22 70,32 74,38 M12,72 H100 C114,72 118,92 104,98 C94,102 88,92 92,86 M12,94 H54',IOL,10)+iLN('M12,50 H80 C94,50 98,32 86,26 C76,22 70,32 74,38 M12,72 H100 C114,72 118,92 104,98 C94,102 88,92 92,86 M12,94 H54','#d4f1ff',5),
+  cap:()=>iSH()+iP('M20,78 C20,44 40,28 64,28 C88,28 106,44 106,74Z','red')+iP('M14,74 H106 C120,74 124,88 112,92 H14Z','red')+iC(64,30,6,'red',3),
+  check:()=>iC(64,62,44,'green')+iP('M38,62 L56,80 L92,42','none',13)+iLN('M38,62 L56,80 L92,42','#fff',7),
+  cross:()=>iC(64,62,44,'red')+iLN('M44,42 L84,82 M84,42 L44,82',IOL,13)+iLN('M44,42 L84,82 M84,42 L44,82','#fff',7),
+  arrows:()=>iP('M8,62 L38,34 V50 H90 V34 L120,62 L90,90 V74 H38 V90Z','blue',4.5),
+  fHappy:()=>FACEY(`<ellipse cx="48" cy="52" rx="5" ry="7" fill="${IOL}"/><ellipse cx="80" cy="52" rx="5" ry="7" fill="${IOL}"/>`,`<path d="M40,70 Q64,96 88,70Z" fill="#fff" ${o_(4)}/>`,`<ellipse cx="38" cy="68" rx="6" ry="4" fill="#ff7b7b" opacity=".45"/><ellipse cx="90" cy="68" rx="6" ry="4" fill="#ff7b7b" opacity=".45"/>`),
+  fNeutral:()=>FACEY(`<ellipse cx="48" cy="54" rx="5" ry="6" fill="${IOL}"/><ellipse cx="80" cy="54" rx="5" ry="6" fill="${IOL}"/>`,iLN('M46,80 H82',IOL,5)),
+  fAngry:()=>iSH()+iC(64,60,44,'red')+iLN('M36,40 L56,50 M92,40 L72,50',IOL,5)+`<ellipse cx="48" cy="58" rx="5" ry="6" fill="${IOL}"/><ellipse cx="80" cy="58" rx="5" ry="6" fill="${IOL}"/>`+iLN('M44,86 Q64,70 84,86',IOL,5),
+  fRelax:()=>FACEY(iLN('M38,54 Q48,62 58,54 M70,54 Q80,62 90,54',IOL,4.5),iLN('M50,78 Q64,88 78,78',IOL,4.5),`<ellipse cx="38" cy="68" rx="6" ry="4" fill="#ff7b7b" opacity=".45"/><ellipse cx="90" cy="68" rx="6" ry="4" fill="#ff7b7b" opacity=".45"/>`),
+  fThink:()=>FACEY(`<ellipse cx="48" cy="52" rx="5" ry="6" fill="${IOL}"/><ellipse cx="80" cy="50" rx="5" ry="6" fill="${IOL}"/>`+iLN('M38,38 L56,42 M72,36 L90,34',IOL,4),iLN('M52,80 H78',IOL,4.5),iP('M66,92 C66,84 80,80 86,88 C90,96 84,108 72,108 C62,108 58,98 66,92Z','gold',4)),
+  fSweat:()=>FACEY(iLN('M38,54 Q48,46 58,54 M70,54 Q80,46 90,54',IOL,4.5),`<path d="M42,74 Q64,96 86,74Z" fill="#fff" ${o_(4)}/>`,iP('M98,28 C104,38 108,44 104,50 C100,56 92,52 92,46 C92,40 96,34 98,28Z','sky',3.5)),
+  fCool:()=>FACEY(`<path d="M28,48 H100 L96,62 C94,68 80,70 76,62 L70,54 H58 L52,62 C48,70 34,68 32,62Z" fill="${IOL}"/>`,iLN('M48,82 Q64,90 82,78',IOL,4.5)),
+  fCelebrate:()=>IC.fHappy()+iSPK(106,20,.8,'#ffcc33')+iSPK(22,24,.6,'#ffcc33'),
+});
+const FACES={'👨‍💼':{g:0,hair:3,hairC:1,skin:2,outfit:0,outC:0},'👩‍💼':{g:1,hair:8,hairC:0,skin:1,outfit:0,outC:1},'🧔‍♂️':{g:0,hair:2,hairC:2,beard:4,skin:3,outfit:2,outC:3},'🧔':{g:0,hair:2,hairC:2,beard:4,skin:3,outfit:2,outC:3},
+  '👱‍♀️':{g:1,hair:10,hairC:4,skin:0,outfit:4,outC:6},'👨‍🦰':{g:0,hair:5,hairC:6,skin:1,outfit:1,outC:2},'👩‍🦰':{g:1,hair:7,hairC:6,skin:1,outfit:2,outC:5},'🧑‍💼':{g:0,hair:4,hairC:0,skin:6,outfit:0,outC:1,glasses:2},
+  '👴':{g:0,hair:0,skin:2,beard:2,hairC:9,glasses:1,outfit:4,outC:7},'👵':{g:1,hair:9,hairC:8,skin:1,glasses:1,outfit:4,outC:5},'🕴️':{g:0,hair:3,hairC:0,skin:4,glasses:3,hat:4,outfit:0,outC:0},
+  '🧑‍🏭':{g:0,hair:2,skin:3,hat:3,outfit:5},'👷':{g:0,hair:2,skin:2,hat:3,outfit:5},'🧑‍✈️':{g:0,hair:3,skin:2,outfit:0,outC:1,hat:1},'🧑‍🦱':{g:0,hair:5,hairC:0,skin:5},'👱‍♂️':{g:0,hair:3,hairC:4,skin:0},'🦸':{g:0,hair:4,hairC:0,skin:2,outfit:4,outC:2},
+  '👨':{g:0,hair:2,hairC:1,skin:2},'👩':{g:1,hair:7,hairC:2,skin:1},'🧑‍🍳':{g:0,hair:2,skin:2,outfit:6,outC:6}};
+Object.keys(FACES).forEach((e,i)=>{ const k='f_'+i; FACES[e].__k=k; IC[k]=()=>`<svg x="4" y="2" width="120" height="120" viewBox="0 0 120 120">${avatarSVG(FACES[e],'#e9eef6').replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'')}</svg>`; EMOICON[e]=k; });
+Object.assign(EMOICON,{'🇩🇪':'fl_de','🇸🇪':'fl_se','🇳🇴':'fl_no','🇩🇰':'fl_dk','🇫🇮':'fl_fi','🇦🇹':'fl_at','🇨🇭':'fl_ch','🇵🇱':'fl_pl','🇳🇱':'fl_nl','🇫🇷':'fl_fr','🇪🇸':'fl_es','🇬🇧':'fl_gb','🇺🇸':'fl_us','🇨🇦':'fl_ca','🇯🇵':'fl_jp','🇪🇺':'fl_eu',
+  '☀️':'sun','🌙':'moon','🌅':'sunset','🌧️':'rain','🌦️':'suncloud','☁️':'cloud','🛋️':'sofa','👥':'people','✊':'fist','🤳':'phone','📱':'phone','✍️':'pen','🔴':'dotRed','🟢':'dotGreen','🟡':'dotYellow','🟠':'dotOrange','⛽':'fuel','✈️':'plane',
+  '❤️':'heart','💛':'heartG','🖤':'heartK','📺':'tv','🔑':'key','👕':'shirt','👟':'shoe','🥂':'cheers','🎟️':'ticket','➕':'plus','📤':'outbox','🔍':'search','❔':'question','❓':'question','🌱':'sprout','🥤':'drink','🧱':'brick','🔊':'speaker','🔄':'refresh',
+  '🌗':'halfmoon','📋':'clipboard','💾':'floppy','👆':'pointer','💨':'wind','🧢':'cap','✅':'check','✔':'check','❌':'cross','↔':'arrows','😊':'fHappy','😀':'fHappy','😃':'fHappy','😐':'fNeutral','😠':'fAngry','😤':'fAngry','😌':'fRelax','🤔':'fThink','😅':'fSweat','😎':'fCool','🥳':'fCelebrate','🙂':'fHappy'});
+// Gesichter nicht cachen (eindeutige IDs je Einsatz)
+const _icoInner15=icoInner; icoInner=function(k){ if(k.startsWith('f_')) return IC[k](); return _icoInner15(k); };
+// Regex neu aufbauen
+const EMORE2=new RegExp('('+Object.keys(EMOICON).sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\uFE0F?','g');
+const EMOSTART=new RegExp('^('+Object.keys(EMOICON).sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\uFE0F?\\s?');
+function fixIcons(root){ if(!root||root.nodeType!==1&&root.nodeType!==9) return; if(root.closest&&root.closest('svg,textarea,input')) return;
+  const tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{ const p=n.parentNode; if(!p||/^(TEXTAREA|INPUT|SCRIPT|STYLE|text|textPath|tspan)$/.test(p.nodeName)||(p.closest&&p.closest('svg'))) return NodeFilter.FILTER_REJECT; return NodeFilter.FILTER_ACCEPT; }}), hits=[]; let n;
+  while((n=tw.nextNode())){ EMORE2.lastIndex=0; if(EMORE2.test(n.nodeValue)) hits.push(n); }
+  hits.forEach(t=>{ const parts=t.nodeValue.split(EMORE2), frag=document.createDocumentFragment(); parts.forEach(p=>{ if(!p) return; const k=EMOICON[p]||EMOICON[p.replace('️','')]; if(k&&IC[k]){ const s=document.createElement('span'); s.className='icow'+(k.startsWith('f_')?' face':''); s.innerHTML=ico(k); frag.appendChild(s); } else frag.appendChild(document.createTextNode(p)); }); t.parentNode.replaceChild(frag,t); }); }
+fixCans=fixIcons; icoTick=function(){};
+const ICOMO=new MutationObserver(ms=>{ const set=new Set(); for(const m of ms){ if(m.type==='characterData'){ if(m.target.parentNode) set.add(m.target.parentNode); } else m.addedNodes.forEach(nd=>{ if(nd.nodeType===3){ if(nd.parentNode) set.add(nd.parentNode); } else if(nd.nodeType===1&&nd.className!=='icow'&&!(nd.classList&&nd.classList.contains('icow'))) set.add(nd); }); } set.forEach(e=>{ if(e.isConnected) fixIcons(e); }); });
+ICOMO.observe(document.body,{childList:true,subtree:true,characterData:true}); fixIcons(document.body);
+// Canvas: Emojis am Textanfang als Icon zeichnen
+const _cFT=ctx.fillText.bind(ctx), _cST=ctx.strokeText.bind(ctx);
+function emoDraw(fill,t,x,y,mw){ const fn=fill?_cFT:_cST; if(typeof t!=='string'){ return fn(t,x,y,mw); } const m=t.match(EMOSTART); if(!m) return mw!=null?fn(t,x,y,mw):fn(t,x,y);
+  const k=EMOICON[m[1]]||EMOICON[m[1].replace('️','')], im=icoImg(k); const fs=parseFloat((ctx.font.match(/([\d.]+)px/)||[0,14])[1]); const s=fs*1.22, rest=t.slice(m[0].length), gap=rest?fs*.22:0, rw=rest?ctx.measureText(rest).width:0, W=s+gap+rw, al=ctx.textAlign;
+  const x0=al==='center'?x-W/2:(al==='right'||al==='end')?x-W:x, bl=ctx.textBaseline, yc=bl==='middle'?y:(bl==='top'?y+s/2:y-fs*.36);
+  if(fill&&im.complete&&im.naturalWidth) ctx.drawImage(im,x0,yc-s/2,s,s); if(rest){ ctx.save(); ctx.textAlign='left'; fn(rest,x0+s+gap,y); ctx.restore(); } }
+ctx.fillText=(t,x,y,mw)=>emoDraw(true,t,x,y,mw); ctx.strokeText=(t,x,y,mw)=>emoDraw(false,t,x,y,mw);
+const _measure15=ctx.measureText.bind(ctx); ctx.measureText=t=>{ if(typeof t==='string'){ const m=t.match(EMOSTART); if(m){ const fs=parseFloat((ctx.font.match(/([\d.]+)px/)||[0,14])[1]); const rest=t.slice(m[0].length); const r=_measure15(rest); return {width:fs*1.22+(rest?fs*.22:0)+r.width}; } } return _measure15(t); };
+Object.values(EMOICON).forEach(k=>{ try{ icoImg(k); }catch(e){} });
+
+// ---------- Nachtlicht: stabil & dezent ----------
+const LT={pick:0};
+updateLights=function(){ const tx=target.x, tz=target.z, t=TIME;
+  const lf=(L)=>{ if(L.th==null){ const h=Math.abs(Math.sin(L[0]*12.9898+L[1]*78.233)*43758.5453)%1; L.th=h*.22; L.fl=h>.93; L.ph=h*50; }
+    let f=Math.max(0,Math.min(1,(NIGHT-.15-L.th)/.32)); if(L.fl&&f>0){ const n=Math.sin(t*23+L.ph)*Math.sin(t*7.3+L.ph*2); if(n>.82) f*=.4; else f*=.92+.08*Math.sin(t*40+L.ph); } return f; };
+  const N=gfxLights();
+  if(NIGHT>=.15&&N>0&&(t-LT.pick>1.2||!LT.cur)){ LT.pick=t; const cur=new Set(PLS.map(l=>l.userData.L).filter(Boolean));
+    const list=LAMPS.slice().sort((a,b)=>((a[0]-tx)**2+(a[1]-tz)**2-(cur.has(a)?40:0))-((b[0]-tx)**2+(b[1]-tz)**2-(cur.has(b)?40:0))).slice(0,N); LT.cur=true;
+    const want=new Set(list), free=PLS.filter(l=>!l.userData.L||!want.has(l.userData.L)); list.forEach(L=>{ if(PLS.some(l=>l.userData.L===L)) return; const l=free.shift(); if(l) l.userData.next=L; }); }
+  PLS.forEach(l=>{ const u=l.userData; if(u.next&&l.intensity<.04){ u.L=u.next; u.next=null; l.position.set(u.L[0],u.L[2],u.L[1]); l.color.set(u.L[3]); const hi=u.L[2]>2.5; l.distance=hi?10:6; l.decay=1.8; }
+    const L=u.L, goal=(!L||u.next||NIGHT<.15)?0:lf(L)*(L[2]>2.5?1.5:.75); l.intensity+=(goal-l.intensity)*.06; if(l.intensity<.002) l.intensity=0; });
+  CONES9.forEach(c=>{ const f=lf(c.m.position.x!=null?Object.assign(c,{0:c.m.position.x,1:c.m.position.z}):c); c.m.material.opacity=c.op*f*(gfx().lights?1:.6); c.m.visible=f>.01; });
+  if(FL9&&FL9.light){ const b=FL9.beacon; FL9.light.intensity=b*(.4+1.4*NIGHT); FL9.light.position.copy(FL9.bpos); } };
+const _roomLights15=roomLights9; roomLights9=function(){ const n=CONES9.length; _roomLights15(); CONES9.slice(n).forEach(c=>c.op=.04); };
+
+// ---------- Neuer Standort: Tokio ----------
+CITIES.push({n:'Tokio',em:'🇯🇵',cost:2e22,mult:243,wx:{rain:.4,snow:.12},desc:'Neon, Kirschblüten & Preise ×243'});
+
+// ---------- Regionen-Landschaften ----------
+let REGANIM=[];
+const RB=(x,y,z,sx,sy,sz,m,par,ry)=>{ const o=mesh(G.box,m,par); o.scale.set(sx,sy,sz); o.position.set(x,z,y); if(ry) o.rotation.y=ry; return o; };
+const RC=(x,y,z,r,h,m,par,geo)=>{ const o=mesh(geo||G.cyl,m,par); o.scale.set(r,h,r); o.position.set(x,z,y); return o; };
+const WATER=()=>M('#3c9be0',{r:.12,m:.15});
+function rGroup(x,y,ry){ const g=new THREE.Group(); g.position.set(x,0,y); if(ry) g.rotation.y=ry; STAT.add(g); return g; }
+function rHouse(x,y,w,d,h,wall,roof,ry,o){ o=o||{}; const g=rGroup(x,y,ry); RB(0,0,h/2,w,h,d,M(wall,{r:.8}),g);
+  if(o.flat){ RB(0,0,h+.08,w+.2,.16,d+.2,M(roof),g); } else { const r1=RB(0,0,h+d*.18,w+.25,d*.72,d*.72,M(roof,{r:.7}),g); r1.rotation.x=Math.PI/4; r1.scale.set(w+.25,d*.71,d*.71); }
+  if(o.trim){ [[-w/2,-d/2],[w/2,-d/2],[-w/2,d/2],[w/2,d/2]].forEach(([a,b])=>RB(a,b,h/2,.12,h,.12,M(o.trim),g)); }
+  const win=nightMat('#9fc4e6','#ffd88a',1.1); const nw=Math.max(1,Math.floor(w/1.1));
+  for(let i=0;i<nw;i++){ const wx=-w/2+w*(i+.5)/nw; RB(wx,d/2+.02,h*.55,.42,.5,.04,win,g); RB(wx,-d/2-.02,h*.55,.42,.5,.04,win,g); }
+  RB(o.doorX||0,d/2+.03,.45,.42,.9,.05,M(o.door||'#5b3a24'),g); if(o.chimney) RB(w*.28,0,h+d*.45,.3,.8,.3,M('#6b4630'),g); return g; }
+function rPine(x,y,s){ s=s||1; const g=rGroup(x,y); RC(0,0,.35*s,.12*s,.7*s,M('#5a3d26'),g,G2.trunk); [[.8,1.0,.9],[.62,.9,1.55],[.42,.8,2.1]].forEach(([r,h,z])=>{ const c=mesh(G2.coneT,M('#2f6b3a',{flat:true,r:.85}),g); c.scale.set(r*s,h*s,r*s); c.position.y=z*s; c.rotation.y=Math.random()*3; }); SWAY.push({g:g.children[1]||g,p:Math.random()*6}); }
+function rBirch(x,y,s){ s=s||1; const g=rGroup(x,y); RC(0,0,.6*s,.07*s,1.2*s,M('#efece4',{r:.7}),g,G2.trunk); for(let k=0;k<3;k++) RB(0,.07*s,(.3+k*.3)*s,.05*s,.03*s,.1*s,M('#2b2b2b'),g); const cr=new THREE.Group(); g.add(cr);
+  [[0,1.4,0,.5],[.25,1.2,.1,.36],[-.2,1.25,-.1,.38],[0,1.7,0,.34]].forEach(([a,b,c,r])=>{ const m=mesh(G2.ico1,M(LC('#8fcf5c'),{flat:true}),cr); m.scale.setScalar(r*s); m.position.set(a*s,b*s,c*s); }); SWAY.push({g:cr,p:Math.random()*6}); }
+function rSakura(x,y,s){ s=s||1; const g=rGroup(x,y); const t=RC(0,0,.5*s,.12*s,1*s,M('#4a2c22'),g,G2.trunk); const cr=new THREE.Group(); g.add(cr); const cols=['#f9a8d4','#fbcfe8','#f472b6','#fce7f3'];
+  [[0,1.3,0,.7],[.45,1.15,.2,.5],[-.4,1.2,-.15,.55],[.1,1.65,.1,.5],[-.2,1.5,.35,.42],[.3,1.45,-.35,.45]].forEach(([a,b,c,r],i)=>{ const m=mesh(G2.ico1,M(cols[i%4],{flat:true,r:.85}),cr); m.scale.setScalar(r*s); m.position.set(a*s,b*s,c*s); }); SWAY.push({g:cr,p:Math.random()*6}); }
+function rRock(x,y,s,c){ const m=mesh(G.ico,M(c||'#8a8f98',{flat:true,r:.95})); m.scale.set(s,s*.6,s*.85); m.position.set(x,s*.2,y); m.rotation.set(Math.random(),Math.random()*6,0); }
+function rLake(x,y,rx,ry,col){ const sh=mesh(G.cyl,M('#d9c79a',{r:.95})); sh.scale.set(rx+.7,.04,ry+.7); sh.position.set(x,.02,y); sh.castShadow=false;
+  const w=mesh(G.cyl,col?M(col,{r:.12,m:.15}):WATER()); w.scale.set(rx,.06,ry); w.position.set(x,.05,y); w.castShadow=false; REGANIM.push({t:'water',m:w,b:w.material}); return w; }
+function rMountain(x,y,r,h,snow,col){ const m=mesh(new THREE.ConeGeometry(1,1,7),M(col||'#7c8a7a',{flat:true,r:.95})); m.scale.set(r,h,r); m.position.set(x,h/2-.2,y); m.rotation.y=Math.random()*6;
+  if(snow){ const s=mesh(new THREE.ConeGeometry(1,1,7),M('#f5f8fb',{flat:true,r:.8})); s.scale.set(r*.36,h*.36,r*.36); s.position.set(x,h-.2-h*.18+.02,y); s.rotation.y=m.rotation.y; } }
+function rHill(x,y,r,h,col){ const m=mesh(G2.ico1,M(col||'#5fa64a',{flat:true,r:.95})); m.scale.set(r,h,r); m.position.set(x,-h*.25,y); m.receiveShadow=true; }
+function rBoat(x,y,ry,col){ const g=rGroup(x,y,ry); RB(0,0,.18,.7,.3,1.8,M(col||'#f8fafc'),g); RB(0,-.2,.45,.5,.25,.6,M('#1e3a8a'),g); REGANIM.push({t:'bob',g,p:Math.random()*6}); }
+function rWindmill(x,y){ const g=rGroup(x,y); RC(0,0,1.6,.9,3.2,M('#f5f0e6',{r:.8}),g,new THREE.CylinderGeometry(.55,1,1,8)); const cap=mesh(G.cone,M('#7c2d12'),g); cap.scale.set(.75,.8,.75); cap.position.y=3.6;
+  const hub=new THREE.Group(); hub.position.set(0,3.2,.75); g.add(hub); for(let k=0;k<4;k++){ const b=mesh(G.box,M('#e7e1d4'),hub); b.scale.set(.32,2.2,.06); b.position.y=1.1; const pv=new THREE.Group(); pv.rotation.z=k*Math.PI/2; pv.add(b); hub.add(pv); } REGANIM.push({t:'spin',g:hub,s:.8}); }
+function rTurbine(x,y){ const g=rGroup(x,y); RC(0,0,3,.1,6,M('#f1f5f9'),g); const hub=new THREE.Group(); hub.position.set(0,6,.2); g.add(hub); RB(0,0,0,.3,.3,.6,M('#e2e8f0'),hub); for(let k=0;k<3;k++){ const pv=new THREE.Group(); pv.rotation.z=k*2.094; const b=mesh(G.box,M('#f8fafc'),pv); b.scale.set(.16,2.6,.05); b.position.y=1.3; hub.add(pv); } REGANIM.push({t:'spin',g:hub,s:1.4}); }
+function rTorii(x,y,ry){ const g=rGroup(x,y,ry); const R=M('#d6332a',{r:.6}); [-1.1,1.1].forEach(a=>RC(a,0,1.3,.13,2.6,R,g)); RB(0,0,2.7,3.2,.2,.32,M('#1f1f1f'),g); RB(0,0,2.35,2.7,.16,.22,R,g); RB(0,0,2.55,.18,.3,.18,R,g); }
+function rPagoda(x,y){ const g=rGroup(x,y); const W=M('#f3ece0'), R=M('#2b2b30',{r:.6}), RD=M('#d6332a'); for(let i=0;i<5;i++){ const s=1-i*.15, z=i*1.05; RB(0,0,z+.4,2*s,.8,2*s,i?RD:W,g); const rf=RB(0,0,z+.92,2.9*s,.14,2.9*s,R,g); }
+  RC(0,0,5.9,.05,1.2,M('#c9a227',{m:.6}),g); }
+function rLantern(x,y){ const g=rGroup(x,y); const S_=M('#a8a29e',{flat:true}); RB(0,0,.15,.4,.3,.4,S_,g); RB(0,0,.55,.18,.6,.18,S_,g); RB(0,0,.95,.36,.3,.36,nightMat('#e7e5e4','#ffd27a',1.5),g); RB(0,0,1.18,.5,.12,.5,S_,g); LAMPS.push([x,y,1,'#ffd27a']); }
+function rJHouse(x,y,ry){ const g=rGroup(x,y,ry); RB(0,0,.75,3,1.5,2.2,M('#f5f1e8'),g); for(let k=-1;k<=1;k++) RB(k*1,1.11,.75,.06,1.5,.04,M('#3f2a1e'),g); RB(0,0,1.62,3.6,.14,2.8,M('#2b2b30',{r:.6}),g); const r=RB(0,0,1.9,3.2,.5,2.2,M('#33333a',{r:.6}),g); RB(0,1.12,.7,.9,.8,.04,nightMat('#e8dcc2','#ffd27a',1),g); }
+function rSauna(x,y){ const g=rGroup(x,y,.4); RB(0,0,.7,1.8,1.4,1.4,M('#8b5a33',{r:.9}),g); const r=RB(0,0,1.55,2,.7,.7,M('#3f3f46'),g); r.rotation.x=Math.PI/4; r.scale.set(2,1.05,1.05); RB(.5,0,1.9,.25,.8,.25,M('#57534e'),g); LIFE.smoke.push([x+.5,y,2.4]); RB(-.6,.71,.6,.5,.9,.05,M('#5b3a24'),g); RB(.3,.71,.85,.4,.35,.05,nightMat('#9fc4e6','#ffb86b',1.4),g); }
+function rCathedral(x,y){ const g=rGroup(x,y); RB(0,0,2,6,4,4,M('#f5f5f4'),g); RC(0,0,5,1.4,2,M('#f5f5f4'),g); const d=mesh(G.hemi,M('#5aa087',{r:.5}),g); d.scale.set(1.5,1.6,1.5); d.position.y=6; [[-2.6,-1.6],[2.6,-1.6],[-2.6,1.6],[2.6,1.6]].forEach(([a,b])=>{ RC(a,b,4.3,.5,.6,M('#f5f5f4'),g); const s=mesh(G.hemi,M('#5aa087'),g); s.scale.set(.55,.6,.55); s.position.set(a,4.6,b); });
+  for(let k=-2;k<=2;k++) RC(k*1.1,2.05,1.4,.18,2.8,M('#fafaf9'),g); }
+function rTVTower(x,y){ const g=rGroup(x,y); RC(0,0,6,.35,12,M('#d6d3d1'),g,new THREE.CylinderGeometry(.6,1,1,12)); const b=mesh(G2.head,M('#9ca3af',{m:.6,r:.3}),g); b.scale.setScalar(1.4); b.position.y=12.4; RC(0,0,15,.1,4,M('#e5e7eb'),g); RB(0,0,15.6,.05,.05,.05,M('#ef4444',{e:'#ef4444',ei:2}),g); }
+function rCanalHouses(x0,y,n,ry){ const cols=['#f2b134','#e05a3a','#3b82c4','#f4e2b8','#c0392b','#2f9e8f','#f59e0b','#8e5cf7']; for(let i=0;i<n;i++){ const h=2.6+((i*7)%3)*.5, w=1.6; const g=rHouse(x0+i*1.75,y,w,2.2,h,cols[i%cols.length],'#7c2d12',ry,{door:'#1f2937'}); RB(0,0,h+.9,w*.5,.5,.1,M(cols[i%cols.length]),g); } }
+function buildRegion(){ REGANIM=[]; const c={Berlin:0,Stockholm:1,Oslo:2,Kopenhagen:3,Helsinki:4,Tokio:5}[CITIES[S.city||0].n]||0; const S_=(Math.random);
+  if(c===0){ rTVTower(-36,-40); [[-32,42,'#e8d9b8'],[-24,42,'#d9c4a0'],[-16,42,'#f0e6d2'],[-8,42,'#c9b18a'],[0,42,'#e8d9b8']].forEach(([x,y,col])=>rHouse(x,y,6,3.2,4.2,col,'#8a3b2b',0,{flat:false,trim:'#fff',chimney:true}));
+    rLake(-34,-8,6,16,'#4a8fc4'); for(let k=0;k<6;k++) rBirch(-26+Math.random()*2,-24+k*6,1); }
+  else if(c===1){ rLake(-36,-12,9,15); [[-38,-20,1.6],[-33,-4,1.2]].forEach(([x,y,s])=>{ rHill(x,y,s*1.6,s*.7,'#6fae55'); rPine(x,y,s*.8); }); for(let k=0;k<8;k++) rRock(-27+Math.random()*2,-26+k*4,.5+Math.random()*.5);
+    for(let i=0;i<7;i++) rHouse(-30+i*8,44,4.2,3,2.6,'#9e2b25','#2f2f35',0,{trim:'#f5f5f4',chimney:i%2===0,door:'#f5f5f4'});
+    for(let i=0;i<4;i++) rHouse(56,-30+i*12,3.6,2.8,2.4,'#9e2b25','#2f2f35',Math.PI/2,{trim:'#f5f5f4'});
+    for(let k=0;k<26;k++) rPine(-32+Math.random()*60,-34-Math.random()*10,.9+Math.random()*.6); for(let k=0;k<14;k++) rPine(52+Math.random()*10,-40+Math.random()*90,.9+Math.random()*.5); rBoat(-34,-6,.4,'#9e2b25'); }
+  else if(c===2){ [[-40,-46,12,15],[-26,-48,10,12],[-10,-50,13,17],[8,-48,10,13],[24,-50,12,16],[-46,-30,10,13],[-48,-12,9,11]].forEach(([x,y,r,h])=>rMountain(x,y,r,h,true,'#6f7d74'));
+    rLake(64,0,9,46,'#2f86c9'); for(let k=0;k<5;k++) RB(55,-30+k*14,.25,4,.2,.8,M('#8a6a3c')); rBoat(62,-20,0); rBoat(66,12,.3,'#c0392b');
+    const cols=['#e8b94a','#f5f5f4','#c0392b','#d08b3e','#3b6ea8']; for(let i=0;i<9;i++){ const x=-34+(i%3)*6, y=-26+Math.floor(i/3)*12; rHill(x,y,4.5,1.6,'#5f9e4a'); rHouse(x,y,3,2.4,2.2,cols[i%5],'#2f2f35',Math.random()*.6,{trim:'#fff'}); }
+    for(let k=0;k<22;k++) rPine(-40+Math.random()*70,-36-Math.random()*4,.9+Math.random()*.6); for(let i=0;i<6;i++) rHouse(-30+i*8,44,3.4,2.6,2.4,cols[(i+2)%5],'#2f2f35',0,{trim:'#fff'}); }
+  else if(c===3){ rLake(-6,46,36,3.2,'#2f7fc0'); RB(-6,42.4,.3,72,.3,.8,M('#9ca3af',{flat:true})); rCanalHouses(-40,51,22,0); rBoat(-20,46,Math.PI/2,'#f59e0b'); rBoat(4,46,Math.PI/2,'#1e3a8a'); rBoat(18,46,Math.PI/2);
+    rWindmill(-34,-22); [0,1,2,3].forEach(k=>rTurbine(60,-34+k*16)); rLake(64,0,7,48,'#3c9be0'); for(let k=0;k<10;k++) rBirch(-38+Math.random()*12,-10+Math.random()*24,.9); }
+  else if(c===4){ rLake(-36,-18,9,10,'#2c6fa8'); rLake(-30,6,6,7,'#2c6fa8'); rLake(4,-44,14,5,'#2c6fa8'); rSauna(-27,-26); for(let k=0;k<10;k++) rRock(-44+Math.random()*16,-30+Math.random()*44,.5+Math.random()*.7,'#9a9fa8');
+    for(let k=0;k<30;k++) rBirch(-42+Math.random()*16,-36+Math.random()*58,.9+Math.random()*.4); for(let k=0;k<14;k++) rBirch(52+Math.random()*10,-40+Math.random()*88,.9+Math.random()*.4); rCathedral(14,-46);
+    for(let i=0;i<6;i++) rHouse(-30+i*8,44,4,3,3,['#f5e6c8','#e8d0a8','#d6e4f0'][i%3],'#3f3f46',0,{trim:'#fff',chimney:true}); }
+  else if(c===5){ rMountain(-40,-46,18,20,true,'#6b7b93'); rMountain(-18,-50,10,9,false,'#5f8a5a'); rMountain(4,-50,12,10,false,'#5a8456');
+    rPagoda(-34,-20); rTorii(-26,2,Math.PI/2); rTorii(-31,2,Math.PI/2); [[-28,-6],[-28,10],[-36,-8],[-36,10]].forEach(([x,y])=>rLantern(x,y)); rLake(-36,24,5,4,'#2c8fb0'); { const g=rGroup(-36,24); const br=RB(0,0,.45,1.2,.15,8,M('#d6332a'),g); }
+    for(let k=0;k<26;k++){ const a=Math.random(); rSakura(a<.5?-44+Math.random()*16:(-30+Math.random()*58), a<.5?-36+Math.random()*60:(-34-Math.random()*8),.9+Math.random()*.4); }
+    for(let i=0;i<7;i++) rJHouse(-30+i*7,44,0); for(let k=0;k<12;k++) rSakura(52+Math.random()*10,-40+Math.random()*88,1); for(let i=0;i<4;i++) rJHouse(56,-24+i*12,Math.PI/2); }
+}
+function regionTick(dt){ REGANIM.forEach(a=>{ if(a.t==='spin') a.g.rotation.z+=dt*a.s; else if(a.t==='bob'){ a.g.position.y=Math.sin(TIME*1.3+a.p)*.04; a.g.rotation.z=Math.sin(TIME+a.p)*.04; } }); }
+const _buildLife15=buildLife; buildLife=function(){ _buildLife15(); try{ buildRegion(); }catch(e){ console.warn('region',e); } };
+const _world6_15=world6; world6=function(dt){ _world6_15(dt); regionTick(dt); };
+
+// ---------- Weltkarte: Topografie & Wahrzeichen ----------
+const MTN=(lo,la,s,snow)=>{ const [x,y]=pW([lo,la]); return `<g transform="translate(${x} ${y}) scale(${s})"><path d="M-6,3 L0,-6 L6,3Z" fill="#b9a77a" stroke="#8a7650" stroke-width=".6" vector-effect="non-scaling-stroke"/>${snow?'<path d="M-2,-3 L0,-6 L2,-3 L1,-2.4 L0,-3 L-1,-2.4Z" fill="#fff"/>':''}</g>`; };
+const TREEM=(lo,la,s)=>{ const [x,y]=pW([lo,la]); return `<g transform="translate(${x} ${y}) scale(${s})"><path d="M-2.5,2 L0,-4 L2.5,2Z" fill="#7fa86a"/><rect x="-.4" y="2" width=".8" height="1.2" fill="#8a6a3c"/></g>`; };
+const LAKE=(lo,la,rx,ry)=>{ const [x,y]=pW([lo,la]); return `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="#8ccbe8" stroke="#6aa9cc" stroke-width=".5" vector-effect="non-scaling-stroke"/>`; };
+const LM=(lo,la,em)=>{ const [x,y]=pW([lo,la]); return `<g class="wpin" data-x="${x}" data-y="${y}" transform="translate(${x} ${y})"><g class="ws"><g class="lm">${ICODEFS.replace(/id="ig_/g,'id="igw_').replace(/url\(#ig_/g,'url(#igw_')}<svg x="-8" y="-8" width="16" height="16" viewBox="0 0 128 128" opacity=".95">${icoInner(em).replace(/url\(#ig_/g,'url(#igw_')}</svg></g></g></g>`; };
+function worldDeco(){ let s='<g class="wdeco" pointer-events="none">';
+  // Gebirge
+  [[7,46.5,.9,1],[10,46.8,1,1],[13,47.2,.8,1],[8.5,46,.7,1]].forEach(a=>s+=MTN(...a));
+  [[8,61,.9,1],[10,63,1,1],[13,65.5,.9,1],[16,68,.8,1],[7,59.5,.7,0]].forEach(a=>s+=MTN(...a));
+  [[-115,48,1.4,1],[-112,44,1.3,1],[-108,40,1.2,0],[-120,52,1.2,1],[-106,36,1,0],[-125,56,1.1,1]].forEach(a=>s+=MTN(...a));
+  [[80,32,1.4,1],[86,29,1.5,1],[92,29,1.2,1],[74,36,1,1]].forEach(a=>s+=MTN(...a));
+  [[-70,-20,1.2,1],[-68,-30,1.1,1],[-71,-38,1,1]].forEach(a=>s+=MTN(...a)); [[42,42.5,.8,1],[2,42.7,.6,1]].forEach(a=>s+=MTN(...a));
+  // Seen & Wälder
+  [[27,62,2.2,1.4],[25,61,1.6,1],[29,63.5,1.4,1],[14.5,58.6,2.2,1],[13.3,58.9,1.2,.7],[-84,46,5,2.5],[-80,43.5,4,1.6]].forEach(a=>s+=LAKE(...a));
+  [[15,62,1],[18,64,1],[25,64,1],[28,66,1],[21,61.5,.8],[11,60,.8],[-75,50,1.4],[-90,52,1.4],[-100,58,1.3],[90,60,1.6],[110,58,1.6],[60,58,1.4]].forEach(a=>s+=TREEM(...a));
+  // Wahrzeichen
+  s+=LM(13.4,53.6,'tvtower')+LM(2.35,49.2,'eiffel')+LM(-0.1,52.4,'bigben')+LM(138.7,36.4,'fuji')+LM(-74,41.6,'liberty')+LM(18.1,60.2,'stockholm')+LM(12.6,56.4,'mermaid');
+  return s+'</g>'; }
+Object.assign(IC,{
+  tvtower:()=>iLN('M64,120 V30',IOL,12)+iLN('M64,120 V30','#d6d3d1',7)+iC(64,40,16,'steel')+iLN('M64,24 V4',IOL,4)+iRR(42,112,44,10,3,'gray',4),
+  eiffel:()=>iP('M64,4 L70,40 L84,80 L100,122 H84 Q64,92 44,122 H28 L44,80 L58,40Z','brown')+iLN('M46,78 H82 M54,44 H74',IOL,4),
+  bigben:()=>iRR(46,30,36,92,3,'tan')+iP('M42,30 L64,4 L86,30Z','#5b6576')+iC(64,52,12,'cream',4)+iLN('M64,52 V44 M64,52 L70,56',IOL,3),
+  fuji:()=>iP('M4,110 L50,30 Q64,22 78,30 L124,110Z','#6b7b93')+iP('M40,48 L50,30 Q64,22 78,30 L88,48 L78,44 L70,52 L64,44 L56,52 L48,44Z','#fff',3.5),
+  liberty:()=>iRR(44,96,40,26,3,'gray')+iP('M50,96 V56 C50,44 78,44 78,56 V96Z','teal')+iC(64,40,10,'teal',4)+iLN('M78,60 L92,22',IOL,8)+iLN('M78,60 L92,22','#5fc7b7',4)+iP('M86,22 C86,10 98,10 98,22Z','flame',3.5),
+  stockholm:()=>iRR(30,56,68,62,3,'#c0392b')+iP('M30,56 L64,30 L98,56Z','#2f2f35')+iRR(56,10,16,46,2,'#c0392b',4)+iP('M52,12 L64,0 L76,12Z','gold',3.5),
+  mermaid:()=>iRR(30,96,68,22,8,'gray')+iP('M50,96 C46,80 56,72 64,72 C80,72 88,82 82,96Z','teal')+iC(66,58,12,'#7fc4a8',4),
+});
+
+// =====================================================================
+//  v16: größerer Boden · Skandinavien als schwerster Markt (zuletzt) · Tokio vor den Nordic-Standorten
+// =====================================================================
+const texGrassL=()=>canvasTex('grassL',256,256,(g,w,h)=>{ g.fillStyle='#5aa03f'; g.fillRect(0,0,w,h); for(let k=0;k<900;k++){ g.fillStyle=`hsla(${95+Math.random()*25},${45+Math.random()*20}%,${30+Math.random()*25}%,.35)`; g.fillRect(Math.random()*w,Math.random()*h,2,3+Math.random()*4); } noise(g,w,h,14); },[120,120]);
+const _buildRegion16=buildRegion; buildRegion=function(){ const pl=mesh(G.plane,new THREE.MeshStandardMaterial({map:texGrassL(),roughness:1})); pl.rotation.x=-Math.PI/2; pl.scale.set(300,300,1); pl.position.set(15,-.03,0); pl.castShadow=false; pl.receiveShadow=true; _buildRegion16();
+  const nm=CITIES[S.city||0].n, f=nm==='Tokio'?rSakura:nm==='Helsinki'||nm==='Kopenhagen'?rBirch:nm==='Berlin'?((x,y,s)=>tree(x,y,s)):rPine; const n=gfx().lights?70:35;
+  for(let k=0;k<n;k++){ let x,y; if(k%2){ x=-40+Math.random()*110; y=52+Math.random()*40; } else { x=70+Math.random()*30; y=-50+Math.random()*130; } f(x,y,.9+Math.random()*.6); }
+  for(let k=0;k<12;k++) rRock(-40+Math.random()*140,54+Math.random()*36,.4+Math.random()*.6); };
+// --- Märkte neu ordnen: Skandinavien zuletzt ---
+const REG_OLD=REGIONS.map(r=>r.n);
+const REG_NEW=['Berlin','Deutschland','Österreich','Schweiz','Osteuropa','Großbritannien','Benelux','Frankreich','Südeuropa','USA','Kanada','Japan','Skandinavien'];
+const regMap=o=>REG_NEW.indexOf(REG_OLD[o]);
+{ const R0=REGIONS.slice(), G0=WGEO.slice(); REG_NEW.forEach((n,i)=>{ const j=REG_OLD.indexOf(n); REGIONS[i]=R0[j]; WGEO[i]=G0[j]; });
+  REGIONS.forEach((r,i)=>{ if(i>0) r.cost=3e5*Math.pow(100,i-1); }); const sk=REGIONS[12]; sk.pr=2.2; sk.cities=['Stockholm','Göteborg','Oslo','Kopenhagen','Helsinki'];
+  OVERSEA.splice(0,OVERSEA.length,...['USA','Kanada','Japan'].map(n=>REG_NEW.indexOf(n)));
+  COMP_HOME.forEach(a=>{ const m=a.map(o=>regMap(o)); a.splice(0,a.length,...m); if(!a.includes(12)) a.push(12); }); }
+const _compPow16=compPow; compPow=function(ci,r){ return _compPow16(ci,r)*(REGIONS[r]&&REGIONS[r].n==='Skandinavien'?1.6:1); };
+// --- Standorte neu ordnen: Tokio zuerst, Nordic danach ---
+const CITY_OLD=CITIES.map(c=>c.n), CITY_NEW=['Berlin','Tokio','Kopenhagen','Stockholm','Oslo','Helsinki'];
+const CITYGEO={Berlin:[13.4,52.5],Stockholm:[18.1,59.3],Oslo:[10.75,59.9],Kopenhagen:[12.6,55.7],Helsinki:[24.9,60.2],Tokio:[139.7,35.7]};
+{ const C0=CITIES.slice(), costs=[0,2e10,2e13,2e16,2e19,2e22], mults=[1,3,9,27,81,243]; CITY_NEW.forEach((n,i)=>{ CITIES[i]=C0[CITY_OLD.indexOf(n)]; CITIES[i].cost=costs[i]; CITIES[i].mult=mults[i]; });
+  const d={Tokio:'Neon & Kirschblüten – Preise ×3',Kopenhagen:'Der Einstieg in den Norden – Preise ×9',Stockholm:'Die Snus-Hauptstadt – Preise ×27',Oslo:'Fjorde & Premium-Kunden – Preise ×81',Helsinki:'Der härteste Markt – Preise ×243'}; CITIES.forEach(c=>{ if(d[c.n]) c.desc=d[c.n]; }); }
+const cityMap=o=>CITY_NEW.indexOf(CITY_OLD[o]);
+{ const a=ACH.find(x=>x.id==='ct5'); if(a){ a.t='Alle Standorte eröffnet'; a.n=6; } }
+function migrate16(){ if(!S.onboarded||S.perm16) return; S.perm16=1;
+  const mo=o=>{ const r={}; Object.keys(o||{}).forEach(k=>{ const n=regMap(+k); if(n>=0) r[n]=o[k]; }); return r; };
+  S.mk=mo(S.mk); S.camp=mo(S.camp); if(S.off) S.off.r=regMap(S.off.r); [S.contracts,S.offers].forEach(L=>(L||[]).forEach(c=>{ const n=regMap(c.region); c.region=n>=0?Math.min(n,S.regions-1):0; })); sub.map=null; S.wmv=null;
+  const cm=k=>cityMap(+k); S.city=cm(S.city||0); S.citiesOpen=(S.citiesOpen||[0]).map(cm); const cd={}; Object.keys(S.cdata||{}).forEach(k=>cd[cm(k)]=S.cdata[k]); S.cdata=cd; sceneDirty=true; save(); }
+const _world6_16=world6; world6=function(dt){ _world6_16(dt); if(!S.perm16) migrate16(); };
 
 function shade(hex,amt){ const n=parseInt(hex.slice(1),16);
   const c=[n>>16,(n>>8)&255,n&255].map(v=>Math.max(0,Math.min(255,Math.round(v+amt))));
@@ -4096,7 +4336,7 @@ function hydrate(d){
   s.research=d.research||{}; s.lvl=Math.max(s.lvl||1,1); s.managers=Array.isArray(d.managers)?d.managers:[]; s.mgrAssign=d.mgrAssign||{}; s.store=Object.assign(freshStore(),d.store||{}); s.store.d=ST_DEPTS.map((_,i)=>Object.assign({l:0,s:0},(d.store&&d.store.d||[])[i]));
   if(!Array.isArray(s.brands)||!s.brands.length) s.brands=['haus'];
   if(!Array.isArray(s.flavors)||!s.flavors.length) s.flavors=[0];
-  if(d.fleetLv==null&&d.onboarded) s._mig=1; if(!Array.isArray(s.citiesOpen)||!s.citiesOpen.length) s.citiesOpen=[0]; s.cdata=d.cdata||{}; s.ach=d.ach||{}; s.look=lookOf(d); s.boss=Object.assign({lv:0,items:{}},d.boss||{}); s.boss.items=s.boss.items||{}; s.mk=d.mk||{}; s.camp=d.camp||{}; s.qual=d.qual||{}; if(!d.qual&&d.onboarded) s._qmig=1; s.snd=Object.assign({m:.35,s:.7},d.snd||{});
+  if(d.fleetLv==null&&d.onboarded) s._mig=1; if(!Array.isArray(s.citiesOpen)||!s.citiesOpen.length) s.citiesOpen=[0]; s.cdata=d.cdata||{}; s.ach=d.ach||{}; s.look=lookOf(d); if(d.perm16==null&&d.onboarded) s.perm16=0; s.boss=Object.assign({lv:0,items:{}},d.boss||{}); s.boss.items=s.boss.items||{}; s.mk=d.mk||{}; s.camp=d.camp||{}; s.qual=d.qual||{}; if(!d.qual&&d.onboarded) s._qmig=1; s.snd=Object.assign({m:.35,s:.7},d.snd||{});
   return s;
 }
 function save(){ S.last=Date.now(); try{ localStorage.setItem(SAVE_KEY,JSON.stringify(S)); }catch(e){} }
