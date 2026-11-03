@@ -564,6 +564,13 @@ details.hint{margin:4px 0 2px}details.hint summary{list-style:none;cursor:pointe
 .chilling .hud{filter:saturate(.7);opacity:.85}
 .bosscard{display:flex;gap:12px;align-items:center}.bc-av{width:76px;height:76px;flex:0 0 76px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 3px #ffc83d}.bosscard p{margin:2px 0;font-size:12.5px;color:var(--muted)}
 .chillcard .cc-row{display:flex;gap:12px;align-items:center}.chillcard p{font-size:12.5px;margin:2px 0 8px;color:var(--muted)}.cc-can{width:52px;height:52px;flex:0 0 52px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff 0 30%,#e6ebf0 31% 62%,var(--brand) 63% 72%,#cfd8e0 73%);box-shadow:0 3px 0 rgba(0,0,0,.15)}
+nav button.locked{opacity:.45;filter:grayscale(1);position:relative}nav button.locked::after{content:'🔒';position:absolute;top:2px;right:18%;font-size:12px;filter:none}
+.tutf{position:fixed;z-index:95;font-size:40px;pointer-events:none;display:none;margin:0 0 0 -16px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.4));animation:tutbob 1s ease-in-out infinite}.tutf.on{display:block}@keyframes tutbob{50%{transform:translateY(10px)}}
+.tutb{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 150px);z-index:94;max-width:86%;background:#2b2350;color:#fff;font-weight:800;font-size:14px;line-height:1.3;padding:9px 14px;border-radius:16px;box-shadow:0 0 0 3px #ffc83d,0 6px 16px rgba(0,0,0,.3);display:none;text-align:center;pointer-events:none}.tutb.on{display:block}
+.sheet-open .tutb{top:auto;bottom:calc(env(safe-area-inset-bottom) + 76px)}
+.icanw{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em}.ican{width:100%;height:100%;display:block}.sheet .hd .big .icanw{width:34px;height:34px}nav .i .icanw{width:26px;height:26px}
+.ordc{box-shadow:0 0 0 2px #38bdf8,0 3px 0 var(--line)}.wev{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#fff7e0,#ffe9b0)}.wev-em{font-size:34px}.wev p{margin:2px 0;font-size:12.5px}
+#wmap2.mid .wpin:not(.sel) .wl{display:none}
 </style>
 </head>
 <body>
@@ -635,6 +642,7 @@ details.hint{margin:4px 0 2px}details.hint summary{list-style:none;cursor:pointe
 
   <button class="bossfab" id="bossFab"><span class="bfa" id="bfAv"></span><span class="bfz">😌</span></button>
   <div class="chillov" id="chillOv"></div>
+  <div class="tutf" id="tutF">👆</div><div class="tutb" id="tutB"></div>
   <button class="fab" id="fab">📦<small>Packen</small></button>
   <div class="packer" id="packer">
     <div class="pk-hd">📦 Packtisch <span style="font-size:13px;color:var(--muted);font-weight:700" id="pkSub">Handarbeit</span><button class="x" id="pkX">✕</button></div>
@@ -781,7 +789,7 @@ function freshState(){
     company:'', avatar:0, look:null, color:0, onboarded:false, lvl:1,
     floors:newFloors(true), research:{}, packed:0, pk:0, boostUntil:0, boostMult:1, taxWarned:false,
     resets:0, switches:0, drones:0, started:Date.now(), last:Date.now(), buyMode:0, cid:0,
-    store:freshStore(), mission:0, coins:0, daily:{last:'',streak:0}, managers:[], mgrAssign:{}, mid:0, event:null, eventNext:0, fleetLv:0, whLv:0, stock:0, city:0, citiesOpen:[0], cdata:{}, cansTotal:0, ach:{}, vips:0, orders:0, order:null, tmp:null, decNext:0, orderNext:0, snd:{m:.35,s:.7}, qual:{}, gfx:'hoch', wx:'auto', seenV6:false, wasLeader:false, boss:{lv:0,items:{}}, chill:null, focus:null, wmv:null, mk:{}, off:null, offNext:0, camp:{}, hudMin:true}, freshSales());
+    store:freshStore(), mission:0, coins:0, daily:{last:'',streak:0}, managers:[], mgrAssign:{}, mid:0, event:null, eventNext:0, fleetLv:0, whLv:0, stock:0, city:0, citiesOpen:[0], cdata:{}, cansTotal:0, ach:{}, vips:0, orders:0, order:null, tmp:null, decNext:0, orderNext:0, snd:{m:.35,s:.7}, qual:{}, gfx:'hoch', wx:'auto', seenV6:false, wasLeader:false, feat:{}, tut:0, seenV11:false, q:null, chillN:0, gfxSet:false, sndHint:0, boss:{lv:0,items:{}}, chill:null, focus:null, wmv:null, mk:{}, off:null, offNext:0, camp:{}, hudMin:true}, freshSales());
 }
 let S = freshState();
 const rl = id => S.research[id]||0;
@@ -822,7 +830,7 @@ function unitPrice(){   // Großhandelspreis pro Dose (Basis 1 €)
 function cPrice(c){ return c.price*(hasFlavor(c.flavor)?1.25:1)*eventContract(c); }
 function econ(){
   const P=shipRate(), vm=volMult();
-  const ch=S.contracts.map(c=>({c, vol:c.vol*vm, price:cPrice(c), filled:0}));
+  const ch=S.contracts.map(c=>({c, vol:hasFlavor(c.flavor)?c.vol*vm:0, price:cPrice(c), filled:0}));
   if(S.online>0) ch.push({online:true, vol:P*ONLINE.share*S.online*demandMult()*eventOnline(), price:ONLINE.price, filled:0});
   ch.sort((a,b)=>b.price-a.price);
   let rem=P, rev=0;
@@ -835,7 +843,7 @@ function income(){ return (incomeLocal()+OTHER_INC)*tmpMult()*leaderMult()*qualM
 function avgCanValue(){ const e=econ(); return e.P>0 ? e.rev/e.P*unitPrice() : unitPrice(); }
 const potStars = () => Math.max(0, Math.floor(Math.sqrt(S.lifetime/1e9)) - S.stars);
 const startCash = () => rl('start') ? 1000*Math.pow(10,rl('start')-1) : 0;
-const offlineCap = () => (2+rl('offline'))*3600;
+const offlineCap = () => (3+rl('offline'))*3600;
 
 // ---------- Format ----------
 const SUF=['','Tsd','Mio','Mrd','Bio','Brd','Trio','Trd','Quad','Qard','Quin','Qind'];
@@ -1641,7 +1649,7 @@ const ST_DEPTS=[
 const ST_POS=[[14.2,2],[9.6,2],[14.2,1],[9.6,1],[5.0,2],[5.0,1]];
 const ST_LANES=[29.5,31.9,28.2,33.2,26.9,34.5];
 const ST_OPEN=3e5, ST_MAXCHK=6, ST_STEP=25, ST_STAFF=5;
-const storeLocked=()=>S.floors[2].m===0;
+const storeLocked=()=>S.floors[2].m===0||!featOn('store');
 function freshStore(){ return {open:false, d:[0,1,2,3,4,5].map(()=>({l:0,s:0})), chk:1, chkLv:0, mkt:0}; }
 function deptRect(i){ const [x0,row]=ST_POS[i]; return row===1?{x0,y0:26.5,x1:x0+3.4,y1:28.1,row,sy:28.65}:{x0,y0:33.0,x1:x0+3.4,y1:34.6,row,sy:32.45}; }
 const stOpenDepts=()=>S.store.d.filter(d=>d.l>0).length;
@@ -1825,7 +1833,7 @@ let stDept=0;
 function renderStore(){ const st=S.store;
   if(!st.open){ BD().innerHTML=`<div class="info hero"><div class="n">🏪</div><b>Eigener Flagship-Store</b>
       <p>Direkt neben der Fabrik: Kunden kommen mit dem Auto, kaufen in deinen Abteilungen ein und zahlen an der Kasse. Ein zweites Standbein neben Verträgen und Onlineshop.</p>
-      <button class="btn wide gold" id="soB" ${(S.money<ST_OPEN||storeLocked())?'disabled':''}>${storeLocked()?'🔒 Freischaltung mit der Hitzebehandlung':'Store eröffnen · '+eur(ST_OPEN)}</button></div>`;
+      <button class="btn wide gold" id="soB" ${(S.money<ST_OPEN||storeLocked())?'disabled':''}>${storeLocked()?'🔒 Ab Hitzebehandlung & 2 Mio € Umsatz':'Store eröffnen · '+eur(ST_OPEN)}</button></div>`;
     const b=$('soB'); if(b) b.onclick=openStore; return; }
   const arr=stArrival(), cap=stCapacity(), sat=stSat();
   let h=`<div class="info"><div class="statrow"><span>Umsatz Store</span><b style="color:var(--green2)">+${eur(storeIncome())}/s</b></div>
@@ -1920,13 +1928,13 @@ function drawLabels(){
   ROOMS.forEach(R=>{ const F=FLOORS[R.i], f=S.floors[R.i], cx=(R.x0+R.x1)/2;
     if(R.unlocked&&bRemain(R.i)>0){ const [bx,by]=P(cx,(R.y0+R.y1)/2,1.4), rem=bRemain(R.i); const r1=badge(bx,by,'🏗️',R0*1.1,'#fde68a','#fff'); tag(bx,by+R0*1.1+fs*.65,fmtTime(rem),'rgba(43,35,64,.9)','#fff',fs*.85);
       const r2=pill(bx,by+R0*1.1+fs*2.3,'⚡ '+skipCost(rem)+' 🪙','#f5a623','#fff',fs*.85); LHITS.push({r:r1,act:()=>speedUp(R.i)},{r:r2,act:()=>speedUp(R.i)}); }
-    else if(R.unlocked){ const [bx,by]=P(cx,R.y0+.7,1.9); const r1=badge(bx,by,F.em,R0); LHITS.push({r:r1,act:()=>openFloor(R.i)});
+    else if(R.unlocked){ const [bx,by]=P(cx,R.y0+.7,1.9); TUTPT['b'+R.i]=[bx,by]; const r1=badge(bx,by,F.em,R0); LHITS.push({r:r1,act:()=>openFloor(R.i)});
       { const nm=nextMs(f.m), pm=MILESTONES.filter(x=>x<=f.m).pop()||0, pr=nm?(f.m-pm)/(nm-pm):1, lw=Math.max(2.5,R0*.2), rr_=R0+lw*.6; ctx.lineCap='round'; ctx.lineWidth=lw; ctx.strokeStyle='rgba(43,35,64,.35)'; ctx.beginPath(); ctx.arc(bx,by,rr_,0,7); ctx.stroke();
         ctx.strokeStyle='#ffc83d'; ctx.beginPath(); ctx.arc(bx,by,rr_,-Math.PI/2,-Math.PI/2+Math.max(.04,pr)*Math.PI*2); ctx.stroke(); ctx.lineCap='butt'; }
       tag(bx,by+R0+fs*.45,String(f.m),'rgba(43,35,64,.92)','#fff',fs*.7);
       if(mgrOf(R.i)){ ctx.font=`${Math.round(R0*.75)}px serif`; ctx.textAlign='center'; ctx.fillText('👔',bx-R0*.85,by-R0*.7); }
       if(floorCanUpgrade(R.i)){ const r=upArrow(bx+R0*.82,by-R0*.82+1.5*Math.sin(TIME*5),R0*.44); LHITS.push({r,act:()=>openFloor(R.i)}); } }
-    else if(R.next){ const [bx,by]=P(cx,(R.y0+R.y1)/2,1.0), ok=S.money>=F.unlock;
+    else if(R.next){ const [bx,by]=P(cx,(R.y0+R.y1)/2,1.0), ok=S.money>=F.unlock; TUTPT['r'+R.i]=[bx,by];
       const r=badge(bx,by,R.i===0?'📦':'🔨',R0*1.15,ok?'#3cc46b':'#cfc6b6','#fff'); tag(bx,by+R0*1.15+fs*.6,eur(F.unlock),ok?'#2ea158':'rgba(43,35,64,.75)','#fff',fs*.85);
       LHITS.push({r,act:()=>buildFloor(R.i)}); }
     else { const [bx,by]=P(cx,(R.y0+R.y1)/2,.6); badge(bx,by,'🔒',R0*.7,'rgba(255,255,255,.8)',null,.75); } });
@@ -1976,7 +1984,7 @@ function shipRate(){ const p=prodRate(), c=fleetCap(); return (p>=c||S.stock>1)?
 let WH_WARNED=false;
 function ecoTick(dt){ if(!S.onboarded) return; const p=prodRate(), sh=shipRate(); S.cansTotal=(S.cansTotal||0)+p*dt;
   S.stock=Math.max(0,Math.min(whCap(),(S.stock||0)+(p-sh)*dt));
-  if(p>fleetCap()*1.02 && !WH_WARNED && !handPhase()){ WH_WARNED=true; toast('🚚 Deine LKW kommen nicht hinterher! Tippe auf 📦 und bau die Flotte aus'); }
+  if(p>fleetCap()*1.02 && !WH_WARNED && !handPhase() && featOn('lager') && S.stock>=whCap()*.98){ WH_WARNED=true; toast('🚚 Lager voll – Ware geht verloren! Tippe oben auf 📦 und bau die LKW-Flotte aus'); }
   if(S.order){ S.order.got+=sh*dt; if(S.order.got>=S.order.need){ const r=S.order; S.order=null; S.orders=(S.orders||0)+1; S.gold+=r.gold; const v=income()*r.secs; earn(v);
       fireworks(DOCKX+2,6); SFX.fanfare(); toast(`📦 Großauftrag erfüllt! +${r.gold} 🪙 +${eur(v)}`); }
     else if(Date.now()>S.order.until){ S.order=null; toast('⌛ Großauftrag verpasst – nächstes Mal mehr Flotte!'); } } }
@@ -2264,7 +2272,7 @@ function lifeTick(dt){
 let slow6=0, slow6b=0;
 function world6(dt){ ecoTick(dt); wxTick(dt); lifeTick(dt); fxTick(dt);
   slow6+=dt; if(slow6>.5){ slow6=0;
-    const p=prodRate(), c=fleetCap(), fill=S.stock/whCap(); $('cWhV').textContent=p>c*1.02?(fill>.98?'⚠️ voll':'🔴 '+Math.round(fill*100)+' %'):Math.round(fill*100)+' %'; $('cWh').classList.toggle('warn',p>c*1.02&&!handPhase());
+    const p=prodRate(), c=fleetCap(), fill=S.stock/whCap(); $('cWhV').textContent=p>c*1.02?(fill>.98?'⚠️ voll':'🔴 '+Math.round(fill*100)+' %'):Math.round(fill*100)+' %'; $('cWh').classList.toggle('warn',p>c*1.02&&fill>.98&&featOn('lager'));
     $('cTax').style.display=taxRate()>0?'':'none'; $('cCityE').textContent=CITIES[S.city||0].em+(WX.type==='rain'?'🌧️':WX.type==='snow'?'❄️':'');
     const ob=$('ordBar'); if(S.order){ ob.classList.add('on'); ob.textContent=`📦 ${S.order.shop}: ${Math.min(100,Math.round(S.order.got/S.order.need*100))} % · ${fmtTime((S.order.until-Date.now())/1000)}`; } else ob.classList.remove('on');
     const tb=$('tmpBar'); if(S.tmp&&Date.now()<S.tmp.until){ tb.classList.add('on'); tb.textContent=`${S.tmp.label} · ${fmtTime((S.tmp.until-Date.now())/1000)}`; } else tb.classList.remove('on'); }
@@ -2272,13 +2280,13 @@ function world6(dt){ ecoTick(dt); wxTick(dt); lifeTick(dt); fxTick(dt);
 function migrate6(){ if(S._qmig){ const b=compBase(); QATTR.forEach(q=>S.qual[q.k]=b+3); delete S._qmig; } if(S._mig){ const P=prodRate(); S.fleetLv=Math.max(0,Math.ceil(Math.log(Math.max(1,P*1.2)/6)/Math.log(2))); delete S._mig; }
   if(!S.seenV6 && S.onboarded){ S.seenV6=true; setTimeout(()=>modal(`<div class="em">🚀</div><h2>Großes Update!</h2><p style="text-align:left">🚚 <b>Lieferkette</b> mit Lager & LKW-Flotte (📦 oben)<br>📍 <b>Standorte</b> in Skandinavien (Flagge oben)<br>🏆 <b>Konkurrenz</b> & Marktführer-Bonus<br>🤔 <b>Entscheidungen</b> & 📦 Großaufträge<br>⭐ <b>VIP-Kunden</b> im Store<br>🧪 <b>Rezeptur</b>: Pouches, Geschmack, Geruch & Intensität (Sortiment)<br>🏅 <b>Erfolge, Album & Statistik</b> (Profil antippen)<br>🎵 <b>Musik & Sound</b><br>🌧️ <b>Wetter & Jahreszeiten</b>, mehr Leben in der Welt<br>⚙️ <b>Grafikstufen</b> unter „Mehr“</p><button class="btn wide gold" id="mOk">Los geht’s!</button>`,()=>$('mOk').onclick=closeModal),1500); } }
 function renderSettings6(){ const s=S.snd||{m:.35,s:.7};
-  return `<div class="info"><b>🎵 Sound</b><div class="srow"><span>Musik</span><input type="range" min="0" max="1" step=".05" value="${s.m}" id="vM" style="flex:1"></div><div class="srow"><span>Effekte</span><input type="range" min="0" max="1" step=".05" value="${s.s}" id="vS" style="flex:1"></div></div>
+  return `<div class="info"><b>🎵 Sound</b><p style="font-size:12px;margin:2px 0">Kein Ton? Prüfe den Lautlos-Schalter deines iPhones.</p><div class="srow"><span>Musik</span><input type="range" min="0" max="1" step=".05" value="${s.m}" id="vM" style="flex:1"></div><div class="srow"><span>Effekte</span><input type="range" min="0" max="1" step=".05" value="${s.s}" id="vS" style="flex:1"></div></div>
   <div class="info"><b>⚙️ Grafik</b><p>Niedriger = flüssiger & akkuschonender</p><div class="seg" id="gfxSeg">${['hoch','mittel','niedrig'].map(k=>`<button data-gfx="${k}" class="${(S.gfx||'hoch')===k?'on':''}">${k[0].toUpperCase()+k.slice(1)}</button>`).join('')}</div></div>
   <div class="info"><b>🌦️ Wetter</b><div class="seg">${[['auto','Wechselnd'],['clear','Immer schön']].map(([k,n])=>`<button data-wx="${k}" class="${(S.wx||'auto')===k?'on':''}">${n}</button>`).join('')}</div></div>`; }
 function renderMore(){ renderMoreBase(); BD().insertAdjacentHTML('afterbegin',renderSettings6());
   $('vM').oninput=e=>{ S.snd=Object.assign({m:.35,s:.7},S.snd,{m:+e.target.value}); auVol(); }; $('vS').oninput=e=>{ S.snd=Object.assign({m:.35,s:.7},S.snd,{s:+e.target.value}); auVol(); };
   $('vM').onchange=$('vS').onchange=()=>save();
-  BD().querySelectorAll('[data-gfx]').forEach(b=>b.onclick=()=>{ S.gfx=b.dataset.gfx; applyGfx(); save(); renderMore(); });
+  BD().querySelectorAll('[data-gfx]').forEach(b=>b.onclick=()=>{ S.gfx=b.dataset.gfx; S.gfxSet=true; applyGfx(); save(); renderMore(); });
   BD().querySelectorAll('[data-wx]').forEach(b=>b.onclick=()=>{ S.wx=b.dataset.wx; WX.next=0; save(); renderMore(); }); }
 
 // ---------- v7: Rezeptur & Qualität (Pouches · Geschmack · Geruch · Intensität) ----------
@@ -2290,7 +2298,7 @@ const QATTR=[
 ];
 const COMP_Q={'Frostbite Inc.':{kick:3,geruch:-1},'Kraken Group':{geschmack:3,kissen:-1},'Vela AB':{kissen:2,geruch:2,kick:-2}};
 const qLv=k=>(S.qual&&S.qual[k])||0;
-const qCost=k=>50*Math.pow(5,qLv(k));
+const qCost=k=>2000*Math.pow(6,qLv(k));
 const qSum=()=>QATTR.reduce((a,q)=>a+qLv(q.k),0);
 const compBase=()=>Math.max(0,Math.floor(1.5*Math.log10(Math.max(1,S.lifetime)))-5);
 const compLv=(c,k)=>{ const b=compBase(); return b>0?Math.max(0,b+((COMP_Q[c.n]||{})[k]||0)):0; };
@@ -2442,7 +2450,7 @@ function updateMini(){ const el=$('mini'); if(!el) return; const cn=$('hCn'); if
   if($('cWh').classList.contains('warn')) h+=`<span class="mp warn" data-mp="wh">📦 ${$('cWhV').textContent}</span>`;
   if(offOn()) h+=`<span class="mp warn" data-mp="off">⚔️ ${REGIONS[S.off.r].em}</span>`;
   ['boostBar','evBar','ordBar','tmpBar'].forEach(id=>{ const b=$(id); if(b&&b.classList.contains('on')) h+=`<span class="mp ${id}" data-mp="${id}">${hudShort(b.textContent)}</span>`; });
-  try{ const m=mission(); if(m&&m.n){ const p=Math.min(m.n,m.p()), done=p>=m.n; h+=`<span class="mp mis ${done?'done':''}" data-mp="mis">🎯 ${done?'Belohnung!':(m.n>=1000?fmt(p)+'/'+fmt(m.n):Math.floor(p)+'/'+m.n)}<i style="width:${p/m.n*100}%"></i></span>`; } }catch(e){}
+  try{ const m=mission(); if(m&&m.n){ const p=Math.min(m.n,m.p()), done=p>=m.n||qClaimable(); h+=`<span class="mp mis ${done?'done':''}" data-mp="mis">🎯 ${done?'Belohnung!':(m.n>=1000?fmt(p)+'/'+fmt(m.n):Math.floor(p)+'/'+m.n)}<i style="width:${p/m.n*100}%"></i></span>`; } }catch(e){}
   el.innerHTML=h; el.querySelectorAll('[data-mp]').forEach(s=>s.onclick=()=>{ const k=s.dataset.mp; if(k==='wh') openLager(); else if(k==='off'){ sub.export=0; sub.map=S.off.r; setNav('export'); openSheet('export','<span class="big">🌍</span><div><h2>Export</h2><div class="sub">Weltmarkt</div></div>'); } else if(k==='mis') $('mCard').click(); else if(k==='ordBar') openLager(); else setHudMin(false); }); }
 
 // ---------- Mehr Umgebungsdetails ----------
@@ -2635,9 +2643,9 @@ function avatarSVG(L,bg){ L=Object.assign({},LOOK0,L||{}); const id='a'+(++AVID)
   if(!hatOn){ switch(L.hair){
     case 0: s+=`<ellipse cx="52" cy="33" rx="7" ry="3.5" fill="#fff" opacity=".22"/>`; break;
     case 1: s+=F('M38,47 Q37,24 60,23 Q83,24 82,47 Q79,35 60,34 Q41,35 38,47Z',.6); break;
-    case 2: s+=F('M36,50 Q34,21 60,20 Q86,21 84,50 Q82,37 74,33 Q62,40 46,34 Q39,39 36,50Z'); break;
-    case 3: s+=F('M35,53 Q32,19 62,18 Q89,21 85,50 Q84,33 70,30 Q55,29 47,38 Q40,41 35,53Z')+`<path d="M47,37 Q55,29 69,29" stroke="${hcD}" stroke-width="1.2" fill="none" opacity=".6"/>`; break;
-    case 4: s+=F('M37,48 Q37,32 40,30 L40,46Z M83,48 Q83,32 80,30 L80,46Z',.45)+F('M40,40 Q41,13 66,14 Q90,17 84,40 Q76,28 62,29 Q50,30 40,40Z'); break;
+    case 2: s+=F('M36,49 Q35,20 60,19 Q85,20 84,49 Q82,36 76,33 Q68,37 60,33 Q52,37 44,33 Q38,36 36,49Z'); break;
+    case 3: s+=F('M36,50 Q34,19 60,18 Q86,19 84,50 Q83,35 76,32 Q62,29 50,37 Q42,42 36,50Z')+`<path d="M50,36 Q60,29 74,31" stroke="${hcD}" stroke-width="1.2" fill="none" opacity=".6"/>`; break;
+    case 4: s+=F('M37,48 Q37,32 41,29 L41,46Z M83,48 Q83,32 79,29 L79,46Z',.45)+F('M40,38 Q39,12 61,12 Q83,13 80,37 Q72,27 60,27 Q48,28 40,38Z'); break;
     case 5: for(const [x,y,r] of [[40,40,7],[45,30,8],[54,24,8.5],[65,23,8.5],[75,28,8],[81,38,7],[49,34,6],[70,32,6],[60,30,6]]) s+=`<circle cx="${x}" cy="${y}" r="${r}" fill="${H}"/>`; break;
     case 6: for(const [x,y,r] of [[42,36,8],[50,28,9],[60,25,9],[70,28,9],[78,36,8]]) s+=`<circle cx="${x}" cy="${y}" r="${r}" fill="${H}"/>`; break;
     case 7: s+=F('M36,52 Q36,23 60,21 Q84,23 84,52 Q80,34 64,32 Q57,41 44,38 Q38,43 36,52Z'); break;
@@ -2956,7 +2964,7 @@ const pW=([lo,la])=>[(lo+180)*4,(MIL0-MILY(Math.max(-60,Math.min(83,la))))*MILK]
 const WMV={x:0,y:0,w:0,h:0,el:null};
 function wmPath(pts){ return 'M'+pts.map(p=>pW(p).map(v=>v.toFixed(1)).join(',')).join('L')+'Z'; }
 function wmPin(r){ const [x,y]=pW(WGEO[r]); const R=REGIONS[r], own=r<S.regions, next=r===S.regions, L=regShares(r), sel=sub.map===r, o=offOn(), att=o&&o.r===r, lead=L[0], rad=own?16:13;
-  let s=`<g class="wpin" data-mr="${r}" data-x="${x}" data-y="${y}" transform="translate(${x} ${y})"><g class="ws">`;
+  let s=`<g class="wpin${sel?' sel':''}" data-mr="${r}" data-x="${x}" data-y="${y}" transform="translate(${x} ${y})"><g class="ws">`;
   if(sel) s+=`<circle r="${rad+9}" fill="#fff" opacity=".55"><animate attributeName="r" values="${rad+6};${rad+11};${rad+6}" dur="1.6s" repeatCount="indefinite"/></circle>`;
   if(att) s+=`<circle r="${rad+5}" fill="none" stroke="#ef4444" stroke-width="3"><animate attributeName="opacity" values="1;.2;1" dur=".9s" repeatCount="indefinite"/></circle>`;
   s+=`<circle cy="2.5" r="${rad+2}" fill="rgba(0,0,0,.25)"/>`;
@@ -2973,19 +2981,20 @@ function worldSVG(){ const land='fill="#f3ead2" stroke="#b9a77a" stroke-width="1
     <rect x="-400" y="-300" width="2300" height="1400" fill="url(#oc2)"/><rect x="-400" y="-300" width="2300" height="1400" fill="url(#wv2)"/>`;
   for(let lo=-150;lo<=180;lo+=30){ const [x]=pW([lo,0]); s+=`<line x1="${x}" y1="-300" x2="${x}" y2="1100" stroke="#fff" stroke-opacity=".12" stroke-dasharray="3 5" vector-effect="non-scaling-stroke"/>`; }
   for(let la=-50;la<=80;la+=15){ const [,y]=pW([0,la]); s+=`<line x1="-400" y1="${y}" x2="1900" y2="${y}" stroke="#fff" stroke-opacity=".12" stroke-dasharray="3 5" vector-effect="non-scaling-stroke"/>`; }
-  s+=`<g filter="url(#lsh2)"><path d="${WORLD_LAND}" ${land} fill-rule="evenodd"/></g><path d="${WORLD_BORDERS}" fill="none" stroke="#c9b88e" stroke-width=".7" stroke-dasharray="2 2" vector-effect="non-scaling-stroke" opacity=".9"/>`;
-  for(let r=1;r<S.regions;r++){ const [a,b]=pW(WGEO[0]), [c,d]=pW(WGEO[r]); const lift=Math.min(60,Math.hypot(c-a,d-b)*.25); s+=`<path d="M${a},${b} Q${(a+c)/2},${Math.min(b,d)-lift} ${c},${d}" fill="none" stroke="${COLORS[S.color]}" stroke-width="2" stroke-dasharray="5 4" opacity=".8" vector-effect="non-scaling-stroke"><animate attributeName="stroke-dashoffset" values="18;0" dur="1.2s" repeatCount="indefinite"/></path>`; }
+  s+=`<path d="${WORLD_LAND}" transform="translate(0,1.4)" fill="#2f6f9e" opacity=".35"/><path d="${WORLD_LAND}" ${land} fill-rule="evenodd"/><path d="${WORLD_BORDERS}" fill="none" stroke="#c9b88e" stroke-width=".7" stroke-dasharray="2 2" vector-effect="non-scaling-stroke" opacity=".9"/>`;
+  for(let r=1;r<S.regions;r++){ const [a,b]=pW(WGEO[0]), [c,d]=pW(WGEO[r]); const lift=Math.min(60,Math.hypot(c-a,d-b)*.25); s+=`<path d="M${a},${b} Q${(a+c)/2},${Math.min(b,d)-lift} ${c},${d}" fill="none" stroke="${COLORS[S.color]}" stroke-width="2" stroke-dasharray="5 4" opacity=".8" vector-effect="non-scaling-stroke"/>`; }
   COMP_HQ.forEach(([lo,la,n],ci)=>{ const [x,y]=pW([lo,la]), c=COMPS[ci]; s+=`<g class="wpin" data-x="${x}" data-y="${y}" transform="translate(${x} ${y})"><g class="ws"><rect x="-9" y="-9" width="18" height="18" rx="5" fill="${c.c}" stroke="#fff" stroke-width="2"/><text y="4.5" text-anchor="middle" font-size="11">${c.em}</text><text y="20" text-anchor="middle" font-size="8" font-weight="800" fill="${c.c}" stroke="#fff" stroke-width="2.5" paint-order="stroke">${c.n.split(' ')[0]}</text></g></g>`; });
   const FG=[[13.4,52.5],[18.1,59.3],[10.75,59.9],[12.6,55.7],[24.9,60.2]];
   (S.citiesOpen||[0]).forEach(k=>{ const [x,y]=pW(FG[k]); const ox=k?0:-19, oy=k?0:-12; s+=`<g class="wpin" data-city="${k}" data-x="${x}" data-y="${y}" transform="translate(${x} ${y})"><g class="ws"><circle cx="${ox}" cy="${oy}" r="8" fill="#2b2340" stroke="#fff" stroke-width="1.5"/><text x="${ox}" y="${oy+3.5}" text-anchor="middle" font-size="9">🏭</text></g></g>`; });
   REGIONS.forEach((_,r)=>s+=wmPin(r));
   return s+'</svg>'; }
-function wmApply(){ const v=WMV, el=v.el; if(!el) return; v.w=Math.max(110,Math.min(1440,(WORLD_H+60)/v.ar,v.w)); v.h=v.w*v.ar; v.x=Math.max(-40,Math.min(1480-v.w,v.x)); v.y=Math.max(-30,Math.min(WORLD_H+30-v.h,v.y));
-  el.setAttribute('viewBox',`${v.x.toFixed(1)} ${v.y.toFixed(1)} ${v.w.toFixed(1)} ${v.h.toFixed(1)}`); const far=v.w>480, s=(v.w/440*(far?.62:1)).toFixed(3); el.classList.toggle('far',far); el.querySelectorAll('.ws').forEach(g=>g.setAttribute('transform',`scale(${s})`)); S.wmv={x:v.x,y:v.y,w:v.w}; }
+let wmRaf=0, wmLastW=0; function wmApply(){ if(wmRaf) return; wmRaf=requestAnimationFrame(()=>{ wmRaf=0; wmApplyNow(); }); }
+function wmApplyNow(){ const v=WMV, el=v.el; if(!el) return; v.w=Math.max(110,Math.min(1440,(WORLD_H+60)/v.ar,v.w)); v.h=v.w*v.ar; v.x=Math.max(-40,Math.min(1480-v.w,v.x)); v.y=Math.max(-30,Math.min(WORLD_H+30-v.h,v.y));
+  el.setAttribute('viewBox',`${v.x.toFixed(1)} ${v.y.toFixed(1)} ${v.w.toFixed(1)} ${v.h.toFixed(1)}`); const far=v.w>480; if(Math.abs(v.w-wmLastW)>.5){ wmLastW=v.w; const s=(v.w/440*(far?.62:1)).toFixed(3); el.classList.toggle('far',far); el.classList.toggle('mid',!far&&v.w>=170); el.querySelectorAll('.ws').forEach(g=>g.setAttribute('transform',`scale(${s})`)); } S.wmv={x:v.x,y:v.y,w:v.w}; }
 function wmFly(x,y,w){ const v=WMV, fx=v.x, fy=v.y, fw=v.w, tw=w||Math.min(v.w,320), tx=x-tw/2, ty=y-tw*v.ar/2, t0=performance.now();
   const st=()=>{ const p=Math.min(1,(performance.now()-t0)/550), e=1-Math.pow(1-p,3); v.w=fw+(tw-fw)*e; v.x=fx+(tx-fx)*e; v.y=fy+(ty-fy)*e; wmApply(); if(p<1) requestAnimationFrame(st); }; requestAnimationFrame(st); }
-function wmBind(){ const el=$('wmap2'), box=$('wmbox'); if(!el) return; WMV.el=el; const rc=box.getBoundingClientRect(); WMV.ar=rc.height/rc.width;
-  const sv=S.wmv; if(sv&&sv.w){ WMV.x=sv.x; WMV.y=sv.y; WMV.w=sv.w; } else { const [ex,ey]=pW([11,51]); WMV.w=240; WMV.x=ex-120; WMV.y=ey-120*WMV.ar; } wmApply();
+function wmBind(){ const el=$('wmap2'), box=$('wmbox'); if(!el) return; WMV.el=el; wmLastW=0; const rc=box.getBoundingClientRect(); WMV.ar=rc.height/rc.width;
+  const sv=S.wmv; if(sv&&sv.w){ WMV.x=sv.x; WMV.y=sv.y; WMV.w=sv.w; } else { const [ex,ey]=pW([11,51]); WMV.w=240; WMV.x=ex-120; WMV.y=ey-120*WMV.ar; } wmApplyNow();
   const P=new Map(); let moved=0, pinch=null, down=null;
   const toW=(cx,cy)=>{ const r=box.getBoundingClientRect(); return [WMV.x+(cx-r.left)/r.width*WMV.w, WMV.y+(cy-r.top)/r.height*WMV.h]; };
   box.onpointerdown=e=>{ box.setPointerCapture(e.pointerId); P.set(e.pointerId,{x:e.clientX,y:e.clientY}); moved=0; down={x:e.clientX,y:e.clientY,t:e.target};
@@ -3019,6 +3028,186 @@ const _collectCoin10=collectCoin; collectCoin=function(c,sx,sy){ _collectCoin10(
 
 // ---------- Tick ----------
 const _world6_10=world6; world6=function(dt){ _world6_10(dt); chillTick(dt); bossTick(dt); if(!CONSTR||CONSTR.dur>4.3) constrResume(); };
+
+// =====================================================================
+//  v11: Tutorial & Freischaltungen · Grind-Balance · Aufgaben & Wochen-Events · neue Produkte · Store-Tiefe
+//       Bugfixes (Frisuren, Dosen-Icon, Wunschsorten, Großauftrag) · Performance
+// =====================================================================
+
+// ---------- Dosen-Icon statt Tomaten-Emoji ----------
+const CANI='<svg class="ican" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.4" r="10" fill="#9aa6b2"/><circle cx="12" cy="12" r="10" fill="#fff" stroke="#c4ccd5" stroke-width="1"/><circle cx="12" cy="12" r="7.2" fill="var(--brand)"/><circle cx="12" cy="12" r="5.6" fill="none" stroke="#fff" stroke-width=".9" opacity=".7"/><ellipse cx="9.6" cy="9.2" rx="3" ry="1.6" fill="#fff" opacity=".45" transform="rotate(-25 9.6 9.2)"/></svg>';
+function fixCans(root){ if(!root) return; const tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null), hits=[]; let n; while((n=tw.nextNode())) if(n.nodeValue.indexOf('🥫')>=0) hits.push(n);
+  hits.forEach(t=>{ const parts=t.nodeValue.split('🥫'), frag=document.createDocumentFragment(); parts.forEach((p,i)=>{ if(i){ const s=document.createElement('span'); s.className='icanw'; s.innerHTML=CANI; frag.appendChild(s); } if(p) frag.appendChild(document.createTextNode(p)); }); t.parentNode.replaceChild(frag,t); }); }
+const _renderSheet11=renderSheet; renderSheet=function(){ _renderSheet11(); fixCans(BD()); };
+const _openSheet11=openSheet; openSheet=function(k,h){ _openSheet11(k,h); fixCans($('sheetHd')); fixCans(BD()); };
+const _modal11=modal; modal=function(h,b){ _modal11(h,b); fixCans($('modalBox')); };
+const _toast11=toast; toast=function(m){ _toast11(m); fixCans($('toast')); };
+const _badge11=badge; badge=function(sx,sy,em,r,bg,ring,alpha){ if(em!=='🥫') return _badge11(sx,sy,em,r,bg,ring,alpha); const res=_badge11(sx,sy,'',r,bg,ring,alpha);
+  ctx.save(); ctx.globalAlpha=alpha??1; const k=r*.62; ctx.fillStyle='#9aa6b2'; ctx.beginPath(); ctx.arc(sx,sy+k*.14,k,0,7); ctx.fill(); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(sx,sy,k,0,7); ctx.fill();
+  ctx.fillStyle=COLORS[S.color]; ctx.beginPath(); ctx.arc(sx,sy,k*.72,0,7); ctx.fill(); ctx.fillStyle='rgba(255,255,255,.45)'; ctx.beginPath(); ctx.ellipse(sx-k*.25,sy-k*.3,k*.3,k*.16,-.4,0,7); ctx.fill(); ctx.restore(); return res; };
+
+// ---------- Freischaltungen ----------
+const FEATS=[
+  {id:'sortiment',em:'🏷️',t:'Sortiment freigeschaltet',d:'Nimm fremde Marken in Lizenz auf und entwickle neue Sorten. Viele Läden wollen eine bestimmte Wunschsorte.',c:()=>S.lifetime>=3e4&&S.floors[1].m>0,nav:'sortiment',lock:'ab 30 Tsd € Umsatz und dem Mahlwerk'},
+  {id:'aufgaben',em:'🎯',t:'Tägliche Aufgaben',d:'Jeden Tag drei neue Aufgaben, jede Woche drei große – mit Gold als Belohnung. Tippe oben auf 🎯.',c:()=>S.lifetime>=1e5,go:()=>openQuests()},
+  {id:'imperium',em:'⭐',t:'Imperium freigeschaltet',d:'Hier findest du Forschung, Manager-Kisten, Boosts und später die Neugründung mit Sternen.',c:()=>S.lifetime>=3e5,nav:'imperium',lock:'ab 300 Tsd € Umsatz'},
+  {id:'export',em:'🌍',t:'Export freigeschaltet',d:'Erschließe neue Regionen – jede bringt einen Vertragsplatz mehr. Später kommt ein Onlineshop dazu.',c:()=>S.lifetime>=1e6,nav:'export',lock:'ab 1 Mio € Umsatz'},
+  {id:'lager',em:'🚚',t:'Lager & LKW-Flotte',d:'Ab jetzt muss deine Ware auch ausgeliefert werden. Schafft die Flotte nicht alles, füllt sich das Lager – oben bei 📦 baust du aus.',c:()=>S.floors[2].m>0&&bRemain(2)<=0,go:()=>openLager()},
+  {id:'store',em:'🏪',t:'Flagship-Store möglich',d:'Eröffne deinen eigenen Laden gegenüber der Fabrik – Kunden kaufen direkt bei dir.',c:()=>S.floors[2].m>0&&S.lifetime>=2e6,go:()=>{ focusStore(); }},
+  {id:'auftraege',em:'📦',t:'Großaufträge',d:'Ab und zu bestellen Festivals oder Häfen riesige Mengen. Liefere rechtzeitig und kassiere Gold.',c:()=>S.lifetime>=1e7},
+  {id:'markt',em:'🏆',t:'Konkurrenz & Rezeptur',d:'Drei Konkurrenten kämpfen um den Markt. Verbessere Pouches, Geschmack, Geruch und Intensität im Sortiment unter „Rezeptur“.',c:()=>S.lifetime>=3e7,go:()=>{ sub.sortiment=3; setNav('sortiment'); openSheet('sortiment','<span class="big">🥫</span><div><h2>Sortiment</h2><div class="sub">Rezeptur</div></div>'); }},
+  {id:'entscheidungen',em:'🤔',t:'Entscheidungen',d:'Influencer, Investoren, Streiks: Manchmal musst du als Chef eine Entscheidung treffen.',c:()=>S.lifetime>=1e8},
+  {id:'boss',em:'🏡',t:'Dein Chef-Büro',d:'Du hast jetzt ein eigenes Büro. Mach Chef-Pausen, sammle Luxus und zieh irgendwann in die Villa. Tippe unten links auf dein Bild.',c:()=>S.lifetime>=5e8,go:()=>openBoss()},
+  {id:'weltkarte',em:'🗺️',t:'Weltmarkt',d:'Auf der Weltkarte kämpfst du jetzt um Marktanteile – mit Marketing und Kampagnen. Die Konkurrenz greift auch an!',c:()=>S.lifetime>=5e9&&S.regions>=3,go:()=>{ sub.export=0; setNav('export'); openSheet('export','<span class="big">🌍</span><div><h2>Export</h2><div class="sub">Weltmarkt</div></div>'); }},
+  {id:'standorte',em:'📍',t:'Neue Standorte',d:'Eröffne Fabriken in Skandinavien – sie produzieren parallel weiter. Tippe oben auf die Uhrzeit mit der Flagge.',c:()=>S.lifetime>=5e10,go:()=>openCities()},
+];
+const featOn=id=>!!(S.feat&&S.feat[id]);
+const FNAV={sortiment:'Sortiment',export:'Export',imperium:'Imperium'};
+let FEATQ=[];
+function featTick(){ if(!S.onboarded) return; S.feat=S.feat||{}; FEATS.forEach(f=>{ if(!S.feat[f.id]&&f.c()){ S.feat[f.id]=Date.now(); FEATQ.push(f.id); save(); } }); navLocks();
+  if(FEATQ.length&&!sheetKind&&!$('modal').classList.contains('on')&&!chillOn()&&(S.tut||0)>=99){ const f=FEATS.find(x=>x.id===FEATQ.shift()); if(!f) return; SFX.ach();
+    modal(`<div class="em">${f.em}</div><h2>${f.t}</h2><p>${f.d}</p>${(f.nav||f.go)?'<button class="btn wide gold" id="ftGo">Zeig’s mir</button>':''}<button class="btn wide" id="ftOk">${(f.nav||f.go)?'Später':'Alles klar'}</button>`,()=>{
+      $('ftOk').onclick=closeModal; const g=$('ftGo'); if(g) g.onclick=()=>{ closeModal(); if(f.nav){ TUTX={sel:`nav [data-p="${f.nav}"]`,txt:`Tippe auf „${FNAV[f.nav]}“`,until:Date.now()+12000}; } else f.go(); }; }); } }
+function navLocks(){ document.querySelectorAll('nav button').forEach(b=>{ const id=b.dataset.p, lk=FNAV[id]&&!featOn(id); b.classList.toggle('locked',lk); });
+  const cw=$('cWh'); if(cw) cw.style.display=featOn('lager')?'':'none'; const ci=$('cIdx'); if(ci) ci.style.display=featOn('sortiment')?'':'none';
+  const cs=$('cStore'); if(cs) cs.style.display=featOn('store')||S.store.open?'':'none'; const bf=$('bossFab'); if(bf&&S.onboarded) bf.style.display=featOn('boss')?'':'none'; }
+document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('nav button.locked'); if(!b) return; e.stopImmediatePropagation(); e.preventDefault(); const f=FEATS.find(x=>x.id===b.dataset.p); SFX.thud(); toast(`🔒 ${FNAV[b.dataset.p]} gibt es ${f?f.lock:'später'}`); },true);
+// Gates
+const _shipRate11=shipRate; shipRate=function(){ return featOn('lager')?_shipRate11():prodRate(); };
+const _qualMult11=qualMult; qualMult=function(){ return featOn('markt')?_qualMult11():1; };
+const _qualTick11=qualTick; qualTick=function(){ if(featOn('markt')) _qualTick11(); };
+const _updateMarket11=updateMarket; updateMarket=function(){ if(!featOn('markt')){ RANK=4; MARKET=[]; return; } _updateMarket11(); };
+const _stealCheck11=stealCheck; stealCheck=function(){ if(featOn('markt')) _stealCheck11(); };
+const _decisionTick11=decisionTick; decisionTick=function(){ if(featOn('entscheidungen')) _decisionTick11(); };
+const _offenseTick11=offenseTick; offenseTick=function(){ if(featOn('weltkarte')) _offenseTick11(); };
+const _marketMult11=marketMult; marketMult=function(){ return featOn('weltkarte')?_marketMult11():1; };
+const _renderExport11=renderExport; renderExport=function(){ if(!featOn('weltkarte')) return renderExportBase(); _renderExport11(); };
+const _renderQuali11=renderQuali; renderQuali=function(){ if(featOn('markt')) return _renderQuali11(); BD().innerHTML=indexPanel()+segHTML('sortiment',['Marken','Sorten','Stärken','Rezeptur'])+`<div class="info hero"><div class="n">🔒</div><p>Die Rezeptur kommt mit der Konkurrenz – ab 30 Mio € Gesamtumsatz.</p></div>`; bindSeg(); };
+const _openCities11=openCities; openCities=function(){ if(!featOn('standorte')){ toast('🔒 Weitere Standorte gibt es ab 50 Mrd € Umsatz'); return; } _openCities11(); };
+const _openBoss11=openBoss; openBoss=function(){ if(!featOn('boss')){ toast('🔒 Dein Chef-Büro gibt es ab 500 Mio € Umsatz'); return; } _openBoss11(); };
+
+// ---------- Tutorial mit Zeigefinger ----------
+let TUTPT={}, TUTX=null;
+const TUT=[
+  {txt:'Tippe auf die Dose und lege Pouches ein. Jede volle Dose bringt Geld.',sel:'#pkCan',done:()=>S.money>=FLOORS[0].unlock||S.floors[0].m>0},
+  {txt:'Genug gespart! Kauf deine erste Maschine im Tabaklager.',pt:'r0',done:()=>S.floors[0].m>0},
+  {txt:'Jetzt brauchst du Kunden: Schließ deinen ersten Vertrag mit einem Laden.',sel:()=>sheetKind==='vertraege'?'[data-sign]':'nav [data-p="vertraege"]',done:()=>S.contracts.length>0},
+  {txt:'Bau das Tabaklager aus: Tippe auf die Abteilung und kauf Maschinen bis Level 5.',sel:()=>sheetKind==='floor'?'#bM':null,pt:'b0',done:()=>S.floors[0].m>=5},
+  {txt:'Stark! Spar jetzt auf die nächste Abteilung: das Mahlwerk.',pt:'r1',sel:()=>sheetKind?'.sheet .x':null,done:()=>S.floors[1].m>0},
+];
+function tutTick(){ const f=$('tutF'), bb=$('tutB'); if(!f) return; let step=null, txt='', sel=null, pt=null;
+  if(TUTX&&Date.now()<TUTX.until){ txt=TUTX.txt; sel=TUTX.sel; const el=document.querySelector(sel); if(el&&el.classList.contains('active')) TUTX=null; }
+  else if(S.onboarded&&(S.tut||0)<99){ TUTX=null; step=TUT[S.tut||0]; if(!step){ S.tut=99; save(); } else if(step.done()){ S.tut=(S.tut||0)+1; SFX.up(); if(S.tut>=TUT.length){ S.tut=99; toast('🎓 Grundlagen geschafft! Neue Funktionen schalten sich nach und nach frei'); } save(); return; }
+    else { txt=step.txt; sel=typeof step.sel==='function'?step.sel():step.sel; pt=step.pt; } }
+  if(!txt||chillOn()){ f.classList.remove('on'); bb.classList.remove('on'); return; }
+  let x=null,y=null; const el=sel&&document.querySelector(sel);
+  if(el&&el.offsetParent!==null){ const r=el.getBoundingClientRect(); x=r.left+r.width/2; y=r.top+r.height*.7; }
+  else if(pt&&TUTPT[pt]&&!sheetKind){ const r=cvs.getBoundingClientRect(); x=r.left+TUTPT[pt][0]; y=r.top+TUTPT[pt][1]+8; if(y<r.top+120||y>r.bottom-90||x<r.left||x>r.right){ x=null; } }
+  bb.textContent=txt; bb.classList.add('on'); if(x!=null){ f.style.left=x+'px'; f.style.top=y+'px'; f.classList.add('on'); } else f.classList.remove('on'); }
+
+// ---------- Bugfix: Großauftrag gut sichtbar ----------
+orderTick=function(){ if(!featOn('auftraege')||!S.onboarded||handPhase()||S.order) return; const now=Date.now(), fest=weekEv()==='festival';
+  if(!S.orderNext) S.orderNext=now+rnd(4,8)*60000; if(now<S.orderNext) return; S.orderNext=now+rnd(fest?6:12,fest?10:20)*60000; if(sheetKind||$('modal').classList.contains('on')||chillOn()){ S.orderNext=now+30000; return; }
+  const sh=Math.max(1,shipRate()); const shop=pick(['Festival Roskilde','Hafen Göteborg','Skigebiet Åre','Messe Stockholm','Stadion Oslo']); const gold=Math.round((3+Math.floor(Math.random()*3))*(fest?1.5:1));
+  S.order={need:sh*rnd(140,200),got:0,until:now+300000,gold,secs:120,shop}; SFX.ding();
+  modal(`<div class="em">📦</div><h2>Großauftrag!</h2><p><b>${shop}</b> braucht <b>${fmt(S.order.need)} Dosen</b> in 5 Minuten. Deine LKW liefern automatisch – du musst nur genug produzieren.</p><div class="reward">🪙 ${gold} + 2 min Einkommen</div><p style="font-size:12px">Den Fortschritt siehst du oben im blauen Balken 📦.</p><button class="btn wide gold" id="oOk">Los geht’s</button>`,()=>$('oOk').onclick=closeModal); };
+function orderCard(){ if(!S.order) return ''; return `<div class="info ordc"><b>📦 Großauftrag: ${S.order.shop}</b><div class="pr g" style="height:10px;margin:6px 0"><i style="width:${Math.min(100,S.order.got/S.order.need*100)}%"></i></div><div class="t2">${fmt(S.order.got)} / ${fmt(S.order.need)} Dosen · noch ${fmtTime((S.order.until-Date.now())/1000)} · Belohnung ${S.order.gold} 🪙</div></div>`; }
+const _renderContracts11=renderContracts; renderContracts=function(){ _renderContracts11(); if(S.order) BD().insertAdjacentHTML('afterbegin',orderCard()); };
+// Wunschsorte: neue Angebote meist mit Sorten, die du schon hast
+var genOffer=function(){ const o=genOfferBase(); const own=S.flavors; if(Math.random()<.7||own.length>=FLAVORS.length) o.flavor=pick(own); else o.flavor=Math.min(FLAVORS.length-1,own.length+(Math.random()<.7?0:1)); return o; };
+
+// ---------- Balance ----------
+BUILD_T.splice(0,BUILD_T.length,0,120,600,1800,3600,7200,14400,21600,36000,57600);
+FLOORS.forEach((F,i)=>{ F.mc*=1.5; if(i>0) F.unlock*=2.5; });
+
+// ---------- Aufgaben ----------
+const dayKey=()=>{ const d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); };
+const weekNo=()=>{ const d=new Date(), t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())), dn=t.getUTCDay()||7; t.setUTCDate(t.getUTCDate()+4-dn); const y0=new Date(Date.UTC(t.getUTCFullYear(),0,1)); return Math.ceil(((t-y0)/864e5+1)/7)+t.getUTCFullYear()*100; };
+const QT={
+  pack:{n:'Packe {g} Dosen von Hand',em:'✋',m:()=>S.packed,ok:()=>S.floors[2].m===0,g:[25,120]},
+  coins:{n:'Sammle {g} Geldbündel ein',em:'💵',m:()=>S.coins||0,ok:()=>true,g:[5,30]},
+  earn:{n:'Verdiene {g}',em:'💶',m:()=>S.lifetime,ok:()=>true,g:'earn',money:1},
+  mach:{n:'Kaufe {g} Maschinen-Stufen',em:'⚙️',m:()=>S.floors.reduce((a,f)=>a+f.m,0),ok:()=>true,g:[15,90]},
+  vip:{n:'Bediene {g} VIP-Kunden',em:'⭐',m:()=>S.vips||0,ok:()=>S.store.open,g:[3,15]},
+  store:{n:'Baue {g} Store-Stufen aus',em:'🏪',m:()=>S.store.d.reduce((a,d)=>a+d.l,0),ok:()=>S.store.open,g:[10,60]},
+  orders:{n:'Erfülle {g} Großaufträge',em:'📦',m:()=>S.orders||0,ok:()=>featOn('auftraege'),g:[1,4]},
+  qual:{n:'Verbessere die Rezeptur {g}×',em:'🧪',m:()=>qSum(),ok:()=>featOn('markt'),g:[2,8]},
+  chill:{n:'Mach {g} Chef-Pausen',em:'😌',m:()=>S.chillN||0,ok:()=>featOn('boss'),g:[1,4]},
+};
+function mkQuests(week){ const pool=Object.keys(QT).filter(k=>QT[k].ok()); const out=[]; while(out.length<3&&pool.length){ const k=pool.splice(Math.floor(Math.random()*pool.length),1)[0], q=QT[k];
+    const goal=q.g==='earn'?Math.max(1000,income()*(week?5400:900)):q.g[week?1:0]; out.push({k,base:q.m(),goal,cl:false}); } return out; }
+function questTick(){ if(!featOn('aufgaben')) return; S.q=S.q||{}; const dk=dayKey(), wk=weekNo();
+  if(S.q.day!==dk){ S.q.day=dk; S.q.d=mkQuests(false); S.q.dAll=false; } if(S.q.week!==wk){ S.q.week=wk; S.q.w=mkQuests(true); S.q.wAll=false; S.q.evSeen=false; } }
+const qProg=q=>Math.max(0,Math.min(q.goal,QT[q.k].m()-q.base));
+const qDone=q=>qProg(q)>=q.goal;
+const qClaimable=()=>S.q&&[...(S.q.d||[]),...(S.q.w||[])].some(q=>qDone(q)&&!q.cl);
+function qReward(week){ const g=(week?8:2)*(weekEv()==='gold'?2:1); return {gold:g,money:income()*(week?900:240)}; }
+function openQuests(){ setNav(''); openSheet('quests',`<span class="big">🎯</span><div><h2>Aufgaben</h2><div class="sub">Mission · Täglich · Wöchentlich</div></div>`); }
+function renderQuests(){ questTick(); let h=''; const m=mission(), mp=Math.min(m.n,m.p()), md=mp>=m.n;
+  h+=`<div class="sect">Mission</div><div class="card ${md?'own':''}"><div class="ic">🎯</div><div class="tx"><div class="t1">${m.t}</div><div class="pr"><i style="width:${mp/m.n*100}%"></i></div><div class="t2">${m.n>=1000?fmt(mp)+' / '+fmt(m.n):Math.floor(mp)+' / '+m.n} · 🎁 ${rewardText(m.r)}</div></div>${md?'<button class="btn gold" id="qMis">Abholen</button>':''}</div>`;
+  if(!featOn('aufgaben')){ h+=`<div class="info"><p>🔒 Tägliche und wöchentliche Aufgaben gibt es ab 100 Tsd € Umsatz.</p></div>`; BD().innerHTML=h; const b=$('qMis'); if(b) b.onclick=()=>{ MCLICK(); renderQuests(); }; return; }
+  const ev=WEVENTS.find(e=>e.id===weekEv()); if(ev) h+=`<div class="info wev"><div class="wev-em">${ev.em}</div><div><b>Wochen-Event: ${ev.n}</b><p>${ev.d}</p><div class="t2">noch ${fmtTime(weekLeft())}</div></div></div>`;
+  const list=(arr,week)=>{ let s=''; arr.forEach((q,i)=>{ const Q=QT[q.k], p=qProg(q), d=p>=q.goal, r=qReward(week);
+    s+=`<div class="card ${q.cl?'own':''}"><div class="ic">${Q.em}</div><div class="tx"><div class="t1">${Q.n.replace('{g}',Q.money?eur(q.goal):fmt(q.goal))}</div><div class="pr ${d?'g':''}"><i style="width:${p/q.goal*100}%"></i></div><div class="t2">${Q.money?eur(p)+' / '+eur(q.goal):fmt(p)+' / '+fmt(q.goal)} · 🪙 ${r.gold} + ${eur(r.money)}</div></div>
+      ${q.cl?'<b style="color:var(--green2)">✓</b>':d?`<button class="btn gold" data-q="${week?'w':'d'}${i}">Abholen</button>`:''}</div>`; }); return s; };
+  h+=`<div class="sect"><span>Heute</span><span class="t2">neu in ${fmtTime(dayLeft())}</span></div>`+list(S.q.d,false);
+  if(S.q.d.every(q=>q.cl)) h+=`<div class="info"><b>${S.q.dAll?'✓ Tagesbonus abgeholt':'🎁 Alle erledigt!'}</b>${S.q.dAll?'':'<button class="btn wide gold" id="qDA">Tagesbonus: 3 🪙</button>'}</div>`;
+  h+=`<div class="sect"><span>Diese Woche</span><span class="t2">neu in ${fmtTime(weekLeft())}</span></div>`+list(S.q.w,true);
+  if(S.q.w.every(q=>q.cl)) h+=`<div class="info"><b>${S.q.wAll?'✓ Wochenbonus abgeholt':'🎁 Woche geschafft!'}</b>${S.q.wAll?'':'<button class="btn wide gold" id="qWA">Wochenbonus: Premium-Manager-Kiste</button>'}</div>`;
+  BD().innerHTML=h; const b=$('qMis'); if(b) b.onclick=()=>{ MCLICK(); renderQuests(); };
+  BD().querySelectorAll('[data-q]').forEach(btn=>btn.onclick=e=>{ const w=btn.dataset.q[0]==='w', q=(w?S.q.w:S.q.d)[+btn.dataset.q.slice(1)]; if(!q||q.cl||!qDone(q)) return; q.cl=true; const r=qReward(w); S.gold+=r.gold; earn(r.money); fx(e.clientX,e.clientY,'🪙 +'+r.gold); SFX.reward(); save(); renderQuests(); });
+  const da=$('qDA'); if(da) da.onclick=()=>{ S.q.dAll=true; S.gold+=3; SFX.reward(); toast('🎁 Tagesbonus: +3 🪙'); save(); renderQuests(); };
+  const wa=$('qWA'); if(wa) wa.onclick=()=>{ S.q.wAll=true; save(); closeSheet(); setTimeout(()=>openCrate('premium',true),300); }; }
+const dayLeft=()=>{ const d=new Date(), e=new Date(d); e.setHours(24,0,0,0); return (e-d)/1000; };
+const weekLeft=()=>{ const d=new Date(), e=new Date(d); e.setHours(24,0,0,0); e.setDate(e.getDate()+((7-(d.getDay()||7))%7)); return (e-d)/1000; };
+let MCLICK=()=>{};
+
+// ---------- Wochen-Events ----------
+const WEVENTS=[
+  {id:'store',em:'🛍️',n:'Store-Woche',d:'Dein Flagship-Store verdient 50 % mehr.'},
+  {id:'price',em:'💶',n:'Preis-Woche',d:'Alle Verkaufspreise sind 20 % höher.'},
+  {id:'festival',em:'🎪',n:'Festival-Saison',d:'Doppelt so viele Großaufträge mit 50 % mehr Gold.'},
+  {id:'vip',em:'⭐',n:'VIP-Woche',d:'Viel mehr VIP-Kunden kommen in deinen Store.'},
+  {id:'hand',em:'✋',n:'Handwerks-Woche',d:'Von Hand gepackte Dosen sind fünfmal so viel wert.'},
+  {id:'gold',em:'🪙',n:'Gold-Woche',d:'Doppeltes Gold für alle Aufgaben.'},
+];
+const weekEv=()=>featOn('aufgaben')?WEVENTS[weekNo()%WEVENTS.length].id:null;
+const _storeIncome11=storeIncome; storeIncome=function(){ return _storeIncome11()*(weekEv()==='store'?1.5:1); };
+const _unitPrice11=unitPrice; unitPrice=function(){ return _unitPrice11()*(weekEv()==='price'?1.2:1); };
+const _packValue11=packValue; packValue=function(){ return _packValue11()*(weekEv()==='hand'?5:1); };
+const _custSpawn11=custSpawn; custSpawn=function(){ const n=CUSTS.length; _custSpawn11(); if(CUSTS.length>n&&weekEv()==='vip'){ const c=CUSTS[CUSTS.length-1]; if(!c.vip&&Math.random()<.14) c.vip=true; } };
+const _startChill11=startChill; startChill=function(){ const was=chillOn(); _startChill11(); if(!was&&chillOn()) S.chillN=(S.chillN||0)+1; };
+
+// ---------- Neue Produktstufen ----------
+PRODUCTS[PRODUCTS.length-1].req=1.2e20;
+PRODUCTS.push({name:'Platinum Ice',em:'🧊',color:'#cfe8f5',value:2187,req:1.2e22,desc:'Eiskalte Premium-Pouches mit Kristall-Kühlung'},
+  {name:'Diamond Edition',em:'💠',color:'#9fd8ff',value:6561,req:1.2e24,desc:'Limitierte Sammleredition in der Glasdose'},
+  {name:'Nordlicht Signature',em:'🌌',color:'#7c3aed',value:19683,req:Infinity,desc:'Das Meisterstück deines Imperiums'});
+ACH.push({id:'pt9',em:'🌌',t:'Nordlicht Signature erreicht',p:()=>S.maxTier,n:9,g:25});
+
+// ---------- Store-Tiefe ----------
+const stAdCost=()=>2e5*Math.pow(3.2,S.store.ad||0), stLoyCost=()=>5e5*Math.pow(3.5,S.store.loy||0), stSecCost=()=>1e6*Math.pow(4,S.store.sec||0);
+const _stArrival11=stArrival; stArrival=function(){ return _stArrival11()*(1+.15*(S.store.ad||0)); };
+const _stBasket11=stBasket; stBasket=function(){ return _stBasket11()*(1+.08*(S.store.loy||0))*(1+.05*(S.store.sec||0)); };
+const _renderStore11=renderStore; renderStore=function(){ _renderStore11(); if(!S.store.open) return; const st=S.store, row=(id,em,t,d,lv,max,c)=>`<div class="card"><div class="ic">${em}</div><div class="tx"><div class="t1">${t} · Lv ${lv}</div><div class="t2">${d}</div></div>${lv>=max?'<b style="color:var(--green2)">MAX</b>':`<button class="btn" id="${id}" ${S.money<c?'disabled':''}>Ausbauen<small>${eur(c)}</small></button>`}</div>`;
+  BD().insertAdjacentHTML('beforeend',`<div class="sect">Store ausbauen</div>`+row('stAd','🪧','Schaufenster-Werbung','+15 % Kunden pro Minute je Stufe',st.ad||0,15,stAdCost())+row('stLoy','💳','Stammkunden-Karte','+8 % Einkauf pro Kunde je Stufe',st.loy||0,15,stLoyCost())+row('stSec','🧑‍✈️','Service & Security','+5 % Einkauf, zufriedenere Kunden',st.sec||0,10,stSecCost()));
+  const bind=(id,k,cf)=>{ const b=$(id); if(b) b.onclick=()=>{ const c=cf(); if(S.money<c) return; S.money-=c; S.store[k]=(S.store[k]||0)+1; SFX.up(); save(); renderSheet(); }; };
+  bind('stAd','ad',stAdCost); bind('stLoy','loy',stLoyCost); bind('stSec','sec',stSecCost); fixCans(BD()); };
+
+// ---------- Performance ----------
+let FPSN=0, FPST=0, FPSDONE=false;
+function fpsTick(dt){ if(FPSDONE||S.gfxSet||!S.onboarded) return; FPST+=dt; FPSN++; if(FPST>8){ FPSDONE=true; const fps=FPSN/FPST; if(fps<28&&(S.gfx||'hoch')==='hoch'){ S.gfx='mittel'; applyGfx(); save(); toast('⚙️ Grafik auf „Mittel“ gestellt, damit es flüssig läuft (änderbar unter Mehr)'); } } }
+let DWFLIP=0, DWACC=0; const _drawWorld11=drawWorld; drawWorld=function(dt){ if(sheetKind&&!CAMT){ DWFLIP^=1; DWACC+=dt; if(DWFLIP) return; dt=DWACC; DWACC=0; } else DWACC=0; _drawWorld11(dt); };
+
+// ---------- Migration & Tick ----------
+function migrate11(){ if(!S.onboarded||S.seenV11) return; S.seenV11=true; S.feat=S.feat||{};
+  if(S.lifetime<200){ S.tut=0; save(); return; }
+  FEATS.forEach(f=>{ try{ if(f.c()) S.feat[f.id]=Date.now(); }catch(e){} }); if(S.feat.markt===undefined&&S.lifetime>=3e7) S.feat.markt=1;
+  S.tut=S.floors[1].m>0?99:(S.contracts.length?3:(S.floors[0].m>0?2:0)); save();
+  setTimeout(()=>modal(`<div class="em">🛠️</div><h2>Update 11</h2><p style="text-align:left">🎓 Neues Tutorial & Funktionen, die sich nach und nach freischalten<br>🎯 Tägliche & wöchentliche Aufgaben + Wochen-Events<br>🌌 Drei neue Produktstufen nach Gold Reserve<br>🏪 Store ausbauen: Werbung, Stammkunden, Service<br>⏳ Alles dauert etwas länger – es wird ein echter Grind<br>🏷️ Wunschsorten: Läden kaufen nur noch, wenn du ihre Sorte hast</p><button class="btn wide gold" id="mOk">Weiter</button>`,()=>$('mOk').onclick=closeModal),900); }
+let slow11=0; const _world6_11=world6; world6=function(dt){ _world6_11(dt); tutTick(); fpsTick(dt); slow11+=dt; if(slow11>1){ slow11=0; migrate11(); featTick(); questTick();
+  const fb=$('fab'); if(fb){ let pk=false; try{ pk=/Hand/.test(mission().t)||(S.q&&(S.q.d||[]).concat(S.q.w||[]).some(q=>q.k==='pack'&&!q.cl)); }catch(e){} fb.style.display=(S.floors[2].m>0&&!pk&&!$('packer').classList.contains('on'))?'none':''; }
+  if(S.onboarded&&!S.sndHint&&S.lifetime>500&&!sheetKind&&!$('modal').classList.contains('on')){ S.sndHint=1; toast('🔊 Kein Ton? Prüfe den Lautlos-Schalter deines iPhones'); } } };
 
 function shade(hex,amt){ const n=parseInt(hex.slice(1),16);
   const c=[n>>16,(n>>8)&255,n&255].map(v=>Math.max(0,Math.min(255,Math.round(v+amt))));
@@ -3063,7 +3252,7 @@ function openSheet(kind,hd){
 function closeSheet(){ $('app').classList.remove('sheet-open'); $('sheet').classList.remove('on'); $('shade').classList.remove('on'); sheetKind=null; sheetFloor=-1; setNav('fabrik'); }
 function renderSheet(){
   const keep=$('sheetBd').scrollTop;
-  ({store:renderStore,sdept:renderSDept,floor:renderFloorSheet,vertraege:renderContracts,sortiment:renderSortiment,export:renderExport,imperium:renderImperium,mehr:renderMore,profil:renderProfile,lager:renderLager,cities:renderCities,boss:renderBoss}[sheetKind]||(()=>{}))();
+  ({store:renderStore,sdept:renderSDept,floor:renderFloorSheet,vertraege:renderContracts,sortiment:renderSortiment,export:renderExport,imperium:renderImperium,mehr:renderMore,profil:renderProfile,lager:renderLager,cities:renderCities,boss:renderBoss,quests:renderQuests}[sheetKind]||(()=>{}))();
   $('sheetBd').scrollTop=keep;
 }
 const BD = () => $('sheetBd');
@@ -3105,7 +3294,7 @@ function renderFloorSheet(){
 }
 
 // ----- Verträge -----
-function genOffer(){
+function genOfferBase(){
   const r=Math.min(S.regions-1, Math.floor(Math.pow(Math.random(),0.6)*S.regions));
   const R=REGIONS[r], types=SHOPS.filter(t=>t.minReg<=S.regions-1), t=pick(types);
   const maxFl=Math.min(FLAVORS.length, S.flavors.length+3);
@@ -3117,13 +3306,13 @@ const shopOf = c => SHOPS.find(t=>t.id===c.shop);
 function contractCard(c,x,u,isOffer){
   const t=shopOf(c), R=REGIONS[c.region], F=FLAVORS[c.flavor], has=hasFlavor(c.flavor);
   const P=Math.max(prodRate(),1), vol=(isOffer?c.share*P:c.vol)*volMult(), pr=cPrice(c);
-  const canReneg=!isOffer && c.share && c.share*P>c.vol*1.25, cool=Math.max(0,((c.reneg||0)+600000-Date.now())/1000);
+  const canReneg=!isOffer && c.share && c.share*P>c.vol*1.25, cool=Math.max(0,((c.reneg||0)+7200000-Date.now())/1000);
   const filled = x? x.filled : 0;
   return `<div class="card"><div class="ic">${t.em}</div><div class="tx">
       <div class="t1">${esc(c.name)}</div>
       <div class="t2">${R.em} ${R.n} · 🥫 <b>${fmt(vol)}</b>/s · Preis <b>${x2(pr)}</b></div>
-      <div><span class="tag ${has?'g':'r'}">Wunschsorte: ${F.em} ${F.n} ${has?'✓ +25 %':'✗'}</span>${isOffer?'':`<span class="tag g">+${eur(filled*pr*u)}/s</span>`}</div>
-      ${isOffer?'':`<div class="pr g"><i style="width:${vol>0?Math.min(100,filled/vol*100):0}%"></i></div><div class="t2">${vol>0&&filled<vol*0.999?`Nur ${Math.round(filled/vol*100)} % geliefert – mehr produzieren!`:'Voll beliefert ✓'}</div>`}
+      <div><span class="tag ${has?'g':'r'}">Wunschsorte: ${F.em} ${F.n} ${has?'✓ +25 %':'✗ fehlt'}</span>${isOffer||!has?'':`<span class="tag g">+${eur(filled*pr*u)}/s</span>`}</div>
+      ${isOffer?'':`<div class="pr g"><i style="width:${vol>0?Math.min(100,filled/vol*100):0}%"></i></div><div class="t2">${!has?`<b style="color:#d23b4a">Kauft erst, wenn du ${F.n} entwickelst (Sortiment → Sorten)</b>`:vol>0&&filled<vol*0.999?`Nur ${Math.round(filled/vol*100)} % geliefert – mehr produzieren!`:'Voll beliefert ✓'}</div>`}
     </div>${isOffer?`<button class="btn" data-sign="${c.id}" ${S.contracts.length>=slots()?'disabled':''}>Unter-<br>schreiben</button>`:
       `<div style="display:flex;flex-direction:column;gap:6px">${canReneg?`<button class="btn blue" style="min-width:0;font-size:12px;padding:5px 8px" data-reneg="${c.id}" ${cool>0?'disabled':''}>📈 ${cool>0?fmtTime(cool):'Mehr<br>Menge'}</button>`:''}<button class="btn ghost" data-cancel="${c.id}">Kündigen</button></div>`}</div>`;
 }
@@ -3140,7 +3329,7 @@ function renderContracts(){
     ${onl?`<div class="statrow"><span>Onlineshop</span><b>${fmt(onl.filled)} Dosen/s · ${x2(onl.price)}</b></div>`:''}
     <div class="statrow"><span>Rest an Großhandel (1,00×)</span><b>${fmt(e.whole)} Dosen/s</b></div>
     <div class="statrow"><span>Grundpreis pro Dose</span><b>${eur(u)}</b></div>
-    <p style="font-size:12px;margin-top:6px">Läden mit dem besten Preis werden zuerst beliefert. Was übrig bleibt, kauft der Großhandel zum Grundpreis. Wenn deine Produktion wächst, kannst du Verträge alle 10 min nachverhandeln (📈).</p></div>`;
+    <p style="font-size:12px;margin-top:6px">Läden mit dem besten Preis werden zuerst beliefert. Was übrig bleibt, kauft der Großhandel zum Grundpreis. Wenn deine Produktion wächst, kannst du Verträge alle 2 Stunden nachverhandeln (📈). Läden mit Wunschsorte kaufen nur, wenn du diese Sorte entwickelt hast.</p></div>`;
   h+=`<div class="sect"><span>Aktive Verträge · ${S.contracts.length}/${slots()}</span></div>`;
   if(!S.contracts.length) h+=`<div class="info"><p>Noch keine Verträge. Unterschreib unten ein Angebot – Spätis zahlen am meisten pro Dose!</p></div>`;
   S.contracts.slice().sort((a,b)=>cPrice(b)-cPrice(a)).forEach(c=>h+=contractCard(c,map.get(c.id),u,false));
@@ -3155,7 +3344,7 @@ function renderContracts(){
     S.contracts.push(c); S.offers=S.offers.filter(o=>o.id!==id); if(!S.offers.length) refreshOffers();
     fx(e.clientX,e.clientY,'✍️'); toast(`✍️ Vertrag mit ${c.name} unterschrieben!`); save(); renderMap(); renderContracts(); });
   BD().querySelectorAll('[data-reneg]').forEach(b=>b.onclick=e=>{
-    const c=S.contracts.find(o=>o.id===+b.dataset.reneg); if(!c||Date.now()<(c.reneg||0)+600000) return;
+    const c=S.contracts.find(o=>o.id===+b.dataset.reneg); if(!c||Date.now()<(c.reneg||0)+7200000) return;
     c.vol=c.share*Math.max(prodRate(),1); c.reneg=Date.now(); fx(e.clientX,e.clientY,'📈'); toast(`📈 ${c.name} bestellt jetzt mehr!`); save(); renderContracts(); });
   BD().querySelectorAll('[data-cancel]').forEach(b=>b.onclick=()=>{
     const c=S.contracts.find(o=>o.id===+b.dataset.cancel);
@@ -3170,21 +3359,21 @@ function indexPanel(){
   const t=idxTarget(), tax=taxRate();
   return `<div class="info"><div style="display:flex;justify-content:space-between;align-items:baseline"><b>🧠 Abhängigkeits-Index</b><b style="font-size:20px">${Math.round(S.index)} %</b></div>
     <div class="meter"><i style="width:${Math.min(100,S.index)}%"></i><span class="th" style="left:${TAX_FREE}%"></span><span class="tgt" style="left:calc(${Math.min(100,t)}% - 1px)"></span></div>
-    <div class="statrow"><span>Ziel (durch Sortiment)</span><b>${Math.round(t)} %</b></div>
-    <div class="statrow"><span>Nachfrage der Läden</span><b style="color:var(--green2)">+${Math.round(S.index)} %</b></div>
+    <div class="statrow"><span>Dein Sortiment zielt auf</span><b>${Math.round(t)} %</b></div>
+    <div class="statrow"><span>Mehr Bestellungen</span><b style="color:var(--green2)">+${Math.round(S.index)} %</b></div>
     <div class="statrow"><span>🏛️ Regulierung (ab ${TAX_FREE} %)</span><b style="color:${tax>0?'#d23b4a':'inherit'}">${tax>0?'−'+Math.round(tax*100)+' % Abgabe':'keine'}</b></div>
-    <p style="font-size:12px">Stärkere Produkte und bestimmte Marken erhöhen den Index – die Läden bestellen mehr. Ab ${TAX_FREE} % reagiert der Staat mit einer Sonderabgabe auf jeden Umsatz.</p></div>`;
+    ${hint(`Je stärker dein Sortiment, desto mehr bestellen die Läden. Ab ${TAX_FREE} % greift der Staat ein und kassiert eine Abgabe auf jeden Umsatz.`)}</div>`;
 }
 function renderSortimentBase(){
   let h=indexPanel()+segHTML('sortiment',['Marken','Sorten','Stärken','Rezeptur']);
   if(sub.sortiment===0){
-    h+=`<div class="info"><p>Jede Marke im Sortiment erhöht den <b>Preis pro Dose</b> und/oder die <b>Bestellmengen</b> aller Läden.</p></div>`;
+    h+=`<div class="info"><p><b>Deine eigene Marke</b> verkaufst du von Anfang an. Zusätzlich kannst du <b>fremde Marken in Lizenz</b> mit anbieten – jede bringt dauerhaft mehr Geld pro Dose oder größere Bestellungen.</p></div>`;
     BRANDS.forEach(b=>{ const own=hasBrand(b.id), lockS=b.needStr && S.str<b.needStr;
       const fx=[b.price?`<span class="tag g">Preis +${Math.round(b.price*100)} %</span>`:'', b.vol?`<span class="tag g">Menge +${Math.round(b.vol*100)} %</span>`:'', b.idx?`<span class="tag r">🧠 +${b.idx}</span>`:''].join('');
       h+=`<div class="card ${own?'own':''}"><div class="ic">${b.em}</div><div class="tx"><div class="t1">${esc(brandName(b))}</div><div class="t2">${b.desc}</div><div>${fx}${lockS?`<span class="tag r">benötigt Stärke „${STRENGTHS[b.needStr].n}"</span>`:''}</div></div>
         ${own?'<b style="color:var(--green2)">✓</b>':`<button class="btn gold" data-brand="${b.id}" ${(S.money<b.cost||lockS)?'disabled':''}>Aufnehmen<small>${eur(b.cost)}</small></button>`}</div>`; });
   } else if(sub.sortiment===1){
-    h+=`<div class="info"><p>Jede Sorte steigert die Bestellmengen um <b>+3 %</b>. Läden mit passender <b>Wunschsorte</b> zahlen <b>+25 %</b> mehr.</p></div>`;
+    h+=`<div class="info"><p>Mehr Sorten = die Läden bestellen mehr. <b>Wichtig:</b> Viele Läden haben eine <b>Wunschsorte</b> – sie kaufen nur, wenn du diese Sorte hast, und zahlen dann 25 % mehr.</p></div>`;
     FLAVORS.forEach((f,k)=>{ const own=hasFlavor(k), next=!own && FLAVORS.slice(0,k).every((_,j)=>hasFlavor(j));
       const want=S.contracts.filter(c=>c.flavor===k).length+S.offers.filter(c=>c.flavor===k).length;
       h+=`<div class="card ${own?'own':''} ${(!own&&!next)?'dim':''}"><div class="ic">${f.em}</div><div class="tx"><div class="t1">${f.n}</div>
@@ -3710,7 +3899,7 @@ function offline(){
   earn(gain);
   modal(`<div class="em">🌙</div><h2>Willkommen zurück!</h2><p>${esc(S.company)} hat ${fmtTime(away)} weiterproduziert und geliefert.</p>
     <div class="reward">+${eur(gain)}</div>${away>secs?`<p style="font-size:13px">Angerechnet: max. ${fmtTime(secs)} – mehr mit Forschung „Nachtschicht"</p>`:''}
-    <button class="btn wide" id="mOk">Einsammeln</button>`, ()=>$('mOk').onclick=closeModal);
+    <button class="btn wide" id="mOk">Einsammeln</button>`, ()=>{ $('mOk').onclick=closeModal; const bb=document.createElement('button'); bb.className='btn wide gold'; bb.textContent='×2 kassieren · 3 🪙'; bb.disabled=S.gold<3; $('mOk').before(bb); bb.onclick=()=>{ if(S.gold<3) return; S.gold-=3; earn(gain); SFX.reward(); closeModal(); toast('💶 Doppelt kassiert: +'+eur(gain)); save(); }; });
 }
 function scrollBottom(){ centerCam(); }
 
@@ -3729,7 +3918,7 @@ window.addEventListener('resize',()=>{ resizeCanvas(); clampCam(); });
 // ---------- Start ----------
 load(); migrate6(); resizeCanvas(); centerCam(); if(S.gfx&&S.gfx!=='hoch') setTimeout(applyGfx,50);
 { const mo=document.querySelector('.hud .money'), hr=document.querySelector('.hud .hrow'); hr.insertBefore(mo,hr.querySelector('.res')); }
-$('cWh').onclick=openLager; $('bossFab').onclick=()=>openBoss(); $('hudT').onclick=()=>{ setHudMin(!S.hudMin); save(); }; setHudMin(S.hudMin!==false); $('cTime').onclick=openCities; $('ordBar').onclick=openLager;
+$('cWh').onclick=openLager; MCLICK=$('mCard').onclick; $('mCard').onclick=()=>openQuests(); fixCans(document.querySelector('nav')); navLocks(); $('bossFab').onclick=()=>openBoss(); $('hudT').onclick=()=>{ setHudMin(!S.hudMin); save(); }; setHudMin(S.hudMin!==false); $('cTime').onclick=openCities; $('ordBar').onclick=openLager;
 renderMap(); updateHUD(); updateMap(); updateProfile(); scrollBottom(); buildCan();
 if(!S.onboarded) onboarding(); else { if(handPhase()) openPacker(); else updatePacker(); offline(); }
 requestAnimationFrame(frame);
