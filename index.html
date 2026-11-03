@@ -571,7 +571,7 @@ nav button.locked{opacity:.45;filter:grayscale(1);position:relative}nav button.l
 .icanw{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em}.ican{width:100%;height:100%;display:block}.sheet .hd .big .icanw{width:34px;height:34px}nav .i .icanw{width:26px;height:26px}
 .ordc{box-shadow:0 0 0 2px #38bdf8,0 3px 0 var(--line)}.wev{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#fff7e0,#ffe9b0)}.wev-em{font-size:34px}.wev p{margin:2px 0;font-size:12.5px}
 #wmap2.mid .wpin:not(.sel) .wl{display:none}
-</style>
+.ccg{margin-bottom:6px}.ccg button{font-size:13px}</style>
 </head>
 <body>
 <div id="app">
@@ -712,8 +712,8 @@ const PRODUCTS = [
 // ---------- Sortiment (alle Marken fiktiv) ----------
 const BRANDS = [
   {id:'haus',   name:null,                 em:'🏷️', desc:'Deine eigene Hausmarke',            cost:0,     price:0,   vol:0,   idx:0},
-  {id:'gbg',    name:'Göteborgs Original', em:'⚓', desc:'Traditions-Snus nach altem Rezept',  cost:2e3,   price:.15, vol:0,   idx:2},
-  {id:'vela',   name:'Vela Nord',          em:'🌊', desc:'Der saubere Mainstream-Bestseller',  cost:1.5e5, price:.05, vol:.25, idx:3},
+  {id:'gbg',    name:'Hafen Original', em:'⚓', desc:'Traditions-Snus nach altem Rezept',  cost:2e3,   price:.15, vol:0,   idx:2},
+  {id:'vela',   name:'Nordvind Pure',          em:'🌊', desc:'Der saubere Mainstream-Bestseller',  cost:1.5e5, price:.05, vol:.25, idx:3},
   {id:'kraken', name:'Kraken Pouch',       em:'🐙', desc:'Laut, frech – Liebling im Späti',    cost:8e6,   price:.25, vol:.10, idx:5},
   {id:'aurora', name:'Aurora Slim',        em:'✨', desc:'Premium-Slim für Genießer',          cost:4e8,   price:.35, vol:.05, idx:2},
   {id:'frost',  name:'Frostbite',          em:'🥶', desc:'Die extrem starke Kult-Marke',       cost:2e10,  price:.50, vol:.20, idx:12, needStr:3},
@@ -2031,7 +2031,7 @@ function renderCities(){ let h=`<div class="info">${hint(`Jeder Standort hat eig
   BD().innerHTML=h; BD().querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>switchCity(+b.dataset.go)); BD().querySelectorAll('[data-oc]').forEach(b=>b.onclick=()=>openCity(+b.dataset.oc)); }
 
 // ---------- 3) Konkurrenz ----------
-const COMPS=[{n:'Frostbite Inc.',em:'🥶',c:'#38bdf8',f:1.7},{n:'Kraken Group',em:'🐙',c:'#a855f7',f:1.25},{n:'Vela AB',em:'🌊',c:'#14b8a6',f:.85}];
+const COMPS=[{n:'Frostbite Inc.',em:'🥶',c:'#38bdf8',f:1.7},{n:'Kraken Group',em:'🐙',c:'#a855f7',f:1.25},{n:'Nordvind AB',em:'🌊',c:'#14b8a6',f:.85}];
 let RANK=4, MARKET=[];
 function updateMarket(){ const you=Math.max(1,incomeLocal()+OTHER_INC);
   const breadth=1+.12*(S.brands.length-1)+.06*(S.regions-1)+.05*S.stars+.15*S.maxTier+.04*(S.flavors.length-1)+(S.store.open?.2:0)+.25*((S.citiesOpen||[0]).length-1)+.02*Object.keys(S.mgrAssign||{}).length;
@@ -2296,7 +2296,7 @@ const QATTR=[
   {k:'geruch',em:'👃',n:'Geruch',d:'Frischer Duft beim Öffnen der Dose'},
   {k:'kick',em:'⚡',n:'Intensität',d:'Wie kräftig und spürbar die Wirkung ist'},
 ];
-const COMP_Q={'Frostbite Inc.':{kick:3,geruch:-1},'Kraken Group':{geschmack:3,kissen:-1},'Vela AB':{kissen:2,geruch:2,kick:-2}};
+const COMP_Q={'Frostbite Inc.':{kick:3,geruch:-1},'Kraken Group':{geschmack:3,kissen:-1},'Nordvind AB':{kissen:2,geruch:2,kick:-2}};
 const qLv=k=>(S.qual&&S.qual[k])||0;
 const qCost=k=>2000*Math.pow(6,qLv(k));
 const qSum=()=>QATTR.reduce((a,q)=>a+qLv(q.k),0);
@@ -2571,9 +2571,10 @@ const SKINS=['#ffe3cc','#f7d0ae','#ecbb8f','#dca26e','#c68642','#a8693a','#8d552
 const HAIRC=['#1c1714','#3b2417','#6b4226','#a0703f','#e3b866','#efe3c4','#b4472a','#8f98a3','#f1f2f4','#3b82f6','#ec4899'];
 const OUTC=['#1f2937','#2f6fed','#e5484d','#2bb673','#f5a623','#8e5cf7','#f8fafc','#7c4a2d'];
 const LOOKCAT=[
+  {k:'g',n:'Typ',opts:['Mann','Frau']},
   {k:'skin',n:'Haut',col:SKINS},
   {k:'face',n:'Gesicht',opts:['Oval','Rund','Kantig']},
-  {k:'hair',n:'Frisur',opts:['Glatze','Buzzcut','Kurz','Seitenscheitel','Undercut','Locken','Afro','Lang','Bob','Dutt','Zopf','Irokese']},
+  {k:'hair',n:'Frisur',opts:['Glatze','Buzzcut','Kurz','Seitenscheitel','Undercut','Locken','Afro','Lang','Bob','Dutt','Pferdeschwanz','Irokese','Wellig','Pixie','Zöpfe','Lange Locken']},
   {k:'hairC',n:'Haarfarbe',col:HAIRC},
   {k:'beard',n:'Bart',opts:['Ohne','Stoppeln','Schnurrbart','Ziegenbart','Vollbart','Wikinger']},
   {k:'eyes',n:'Augen',opts:['Normal','Fröhlich','Cool','Wimpern']},
@@ -2583,11 +2584,12 @@ const LOOKCAT=[
   {k:'outC',n:'Farbe',col:OUTC},
   {k:'acc',n:'Extra',opts:['Ohne','Goldkette','Ohrringe','Uhr & Kette']},
 ];
-const LOOK0={skin:1,face:0,hair:2,hairC:2,beard:0,eyes:0,glasses:0,hat:0,outfit:0,outC:0,acc:0};
+const HAIR_M=[2,3,1,4,5,6,9,11,7,0], HAIR_F=[7,12,8,10,9,13,14,15,6,5];
+const LOOK0={g:0,skin:1,face:0,hair:2,hairC:2,beard:0,eyes:0,glasses:0,hat:0,outfit:0,outC:0,acc:0};
 const OLD_AV=[{beard:4},{hair:8,eyes:3,outC:1},{hair:3},{hairC:6},{hair:7,hairC:6,eyes:3},{hair:5},{hair:3,hairC:4},{hair:10,hairC:4,eyes:3},{hat:4,glasses:3},{outfit:4,outC:2,hair:4}];
-function lookOf(s){ return Object.assign({},LOOK0,(s&&s.look)||OLD_AV[(s&&s.avatar)||0]||{}); }
+function lookOf(s){ const L=Object.assign({},LOOK0,(s&&s.look)||OLD_AV[(s&&s.avatar)||0]||{}); if(!(s&&s.look&&s.look.g!=null)) L.g=[7,8,10].includes(L.hair)&&!L.beard?1:0; if(L.g===1) L.beard=0; return L; }
 let AVID=0;
-function avatarSVG(L,bg){ L=Object.assign({},LOOK0,L||{}); const id='a'+(++AVID), sk=SKINS[L.skin]||SKINS[1], skD=shade(sk,-28), skL=shade(sk,18), hc=HAIRC[L.hairC]||HAIRC[0], hcD=shade(hc,-30), oc=OUTC[L.outC]||OUTC[0], ocD=shade(oc,-35), ocL=shade(oc,25);
+function avatarSVG(L,bg){ L=Object.assign({},LOOK0,L||{}); if(L.g===1){ L.beard=0; if(L.eyes===0) L.eyes=3; } const id='a'+(++AVID), sk=SKINS[L.skin]||SKINS[1], skD=shade(sk,-28), skL=shade(sk,18), hc=HAIRC[L.hairC]||HAIRC[0], hcD=shade(hc,-30), oc=OUTC[L.outC]||OUTC[0], ocD=shade(oc,-35), ocL=shade(oc,25);
   const hatOn=L.hat>=1&&L.hat<=4; let s=`<svg viewBox="0 0 120 120" class="avsvg" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="${id}c"><circle cx="60" cy="60" r="60"/></clipPath>
     <radialGradient id="${id}f" cx=".42" cy=".38" r=".7"><stop offset="0" stop-color="${skL}"/><stop offset=".7" stop-color="${sk}"/><stop offset="1" stop-color="${skD}"/></radialGradient>
     <linearGradient id="${id}h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${shade(hc,22)}"/><stop offset="1" stop-color="${hc}"/></linearGradient>
@@ -2595,10 +2597,7 @@ function avatarSVG(L,bg){ L=Object.assign({},LOOK0,L||{}); const id='a'+(++AVID)
   if(bg) s+=`<rect width="120" height="120" fill="${bg}"/><circle cx="60" cy="40" r="55" fill="#fff" opacity=".12"/>`;
   const H=`url(#${id}h)`;
   // Haare hinten
-  if(!hatOn||L.hair===7||L.hair===8||L.hair===10){ if(L.hair===6) s+=`<circle cx="60" cy="42" r="35" fill="${H}"/>`;
-    if(L.hair===7) s+=`<path d="M31,48 Q29,16 60,15 Q91,16 89,48 L92,100 Q60,108 28,100Z" fill="${H}"/>`;
-    if(L.hair===8) s+=`<path d="M32,50 Q30,17 60,16 Q90,17 88,50 L89,78 Q80,82 74,75 L46,75 Q40,82 31,78Z" fill="${H}"/>`;
-    if(L.hair===10) s+=`<path d="M78,34 Q104,44 96,92 Q92,76 84,62Z" fill="${H}"/>`; }
+  { const LONG=[7,8,10,12,14,15]; if(!hatOn||LONG.includes(L.hair)) s+=hairBack(L.hair,H,hcD); }
   // Körper & Outfit
   const body='M12,122 C14,97 33,86 60,86 C87,86 106,97 108,122Z';
   s+=`<rect x="50" y="68" width="20" height="24" rx="6" fill="${skD}"/>`;
@@ -2612,7 +2611,7 @@ function avatarSVG(L,bg){ L=Object.assign({},LOOK0,L||{}); const id='a'+(++AVID)
   // Ohren & Kopf
   s+=`<ellipse cx="37" cy="54" rx="4.8" ry="7.2" fill="${sk}"/><ellipse cx="83" cy="54" rx="4.8" ry="7.2" fill="${sk}"/><ellipse cx="37.5" cy="54" rx="2" ry="3.6" fill="${skD}" opacity=".5"/><ellipse cx="82.5" cy="54" rx="2" ry="3.6" fill="${skD}" opacity=".5"/>`;
   if(L.acc===2) s+=`<circle cx="37" cy="62.5" r="2" fill="#f5c542"/><circle cx="83" cy="62.5" r="2" fill="#f5c542"/>`;
-  const face=L.face===1?`<ellipse cx="60" cy="52" rx="23.5" ry="25" fill="url(#${id}f)"/>`:L.face===2?`<path d="M37,40 Q37,26 60,26 Q83,26 83,40 L83,62 Q82,78 66,80 L54,80 Q38,78 37,62Z" fill="url(#${id}f)"/>`:`<ellipse cx="60" cy="52" rx="22" ry="26.5" fill="url(#${id}f)"/>`;
+  const face=L.face===1?`<ellipse cx="60" cy="52" rx="23.5" ry="25" fill="url(#${id}f)"/>`:L.face===2?`<path d="M37,40 Q37,26 60,26 Q83,26 83,40 L83,62 Q82,78 66,80 L54,80 Q38,78 37,62Z" fill="url(#${id}f)"/>`:`<ellipse cx="60" cy="52" rx="${L.g===1?21:22}" ry="26.5" fill="url(#${id}f)"/>`;
   s+=face+`<ellipse cx="46" cy="64" rx="4" ry="2.6" fill="#ff7b7b" opacity=".22"/><ellipse cx="74" cy="64" rx="4" ry="2.6" fill="#ff7b7b" opacity=".22"/>`;
   // Bart (unter Mund)
   const bc=hc, mo=`<path d="M50,68.5 Q55,64.5 60,67.5 Q65,64.5 70,68.5 Q66,71.5 60,69.5 Q54,71.5 50,68.5Z" fill="${bc}"/>`;
@@ -2621,7 +2620,7 @@ function avatarSVG(L,bg){ L=Object.assign({},LOOK0,L||{}); const id='a'+(++AVID)
   if(L.beard===5) s+=`<path d="M37,53 Q35,102 60,110 Q85,102 83,53 Q80,72 72,74 Q60,67 48,74 Q40,72 37,53Z" fill="${bc}"/><path d="M55,92 L55,106 M65,92 L65,106" stroke="${hcD}" stroke-width="1.6"/><circle cx="55" cy="100" r="1.8" fill="#9ca3af"/><circle cx="65" cy="100" r="1.8" fill="#9ca3af"/>`;
   // Mund
   const happy=L.eyes===1;
-  s+=happy?`<path d="M52,70 Q60,79 68,70 Q60,73 52,70Z" fill="#7f1d1d"/><path d="M53.5,70.6 Q60,72.6 66.5,70.6 L66,72 Q60,73.6 54,72Z" fill="#fff"/>`:`<path d="M53,71 Q60,76 67,71" stroke="#8b3a3a" stroke-width="2.1" fill="none" stroke-linecap="round"/>`;
+  s+=happy?`<path d="M52,70 Q60,79 68,70 Q60,73 52,70Z" fill="#7f1d1d"/><path d="M53.5,70.6 Q60,72.6 66.5,70.6 L66,72 Q60,73.6 54,72Z" fill="#fff"/>`:(L.g===1?`<path d="M53.2,70.6 Q60,77.2 66.8,70.6 Q60,72.4 53.2,70.6Z" fill="#d9506f"/><path d="M53.2,70.6 Q60,72.4 66.8,70.6" stroke="#b83a58" stroke-width="1" fill="none" stroke-linecap="round"/>`:`<path d="M53,71 Q60,76 67,71" stroke="#8b3a3a" stroke-width="2.1" fill="none" stroke-linecap="round"/>`);
   if(L.beard===2||L.beard===3||L.beard===4||L.beard===5) s+=mo;
   if(L.beard===3) s+=`<path d="M54,75 Q60,73 66,75 Q66,85 60,87 Q54,85 54,75Z" fill="${bc}"/>`;
   // Nase
@@ -2633,26 +2632,14 @@ function avatarSVG(L,bg){ L=Object.assign({},LOOK0,L||{}); const id='a'+(++AVID)
     if(L.eyes===3) e+=`<path d="M${x-5},53.4 Q${x},50 ${x+5},53.4" stroke="#1c1714" stroke-width="1.6" fill="none"/><path d="M${x+4.4},52.6 l2.2,-1.6 M${x+3},51.6 l1.4,-2" stroke="#1c1714" stroke-width="1.1"/>`;
     return e; };
   s+=eye(51)+eye(69);
-  if(L.hair!==0||L.beard>0) s+=`<path d="M45.5,47.5 Q51,44.2 56.5,46.6" stroke="${hcD}" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M63.5,46.6 Q69,44.2 74.5,47.5" stroke="${hcD}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`;
+  if(L.g===1) s+=`<path d="M45.5,46.2 Q51,43.2 56.5,45" stroke="${hcD}" stroke-width="1.7" fill="none" stroke-linecap="round"/><path d="M63.5,45 Q69,43.2 74.5,46.2" stroke="${hcD}" stroke-width="1.7" fill="none" stroke-linecap="round"/>`; else if(L.hair!==0||L.beard>0) s+=`<path d="M45.5,47.5 Q51,44.2 56.5,46.6" stroke="${hcD}" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M63.5,46.6 Q69,44.2 74.5,47.5" stroke="${hcD}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`;
   // Brille
   if(L.glasses===1) s+=`<circle cx="51" cy="55" r="7" fill="#fff" fill-opacity=".12" stroke="#1f2937" stroke-width="2.2"/><circle cx="69" cy="55" r="7" fill="#fff" fill-opacity=".12" stroke="#1f2937" stroke-width="2.2"/><path d="M58,54 Q60,52.5 62,54" stroke="#1f2937" stroke-width="2" fill="none"/>`;
   if(L.glasses===2) s+=`<rect x="43" y="49" width="15.5" height="11.5" rx="3" fill="#fff" fill-opacity=".12" stroke="#111827" stroke-width="2.4"/><rect x="61.5" y="49" width="15.5" height="11.5" rx="3" fill="#fff" fill-opacity=".12" stroke="#111827" stroke-width="2.4"/><path d="M58.5,53 H61.5" stroke="#111827" stroke-width="2.2"/>`;
   if(L.glasses===3) s+=`<path d="M42,50 H58.5 Q58.5,62 50,61.5 Q42,61 42,50Z M61.5,50 H78 Q78,61 70,61.5 Q61.5,62 61.5,50Z" fill="#0f172a"/><path d="M58.5,51.5 H61.5" stroke="#0f172a" stroke-width="2.2"/><path d="M44.5,52.5 L49,52.5 M64,52.5 L68.5,52.5" stroke="#fff" stroke-width="1.6" opacity=".55" stroke-linecap="round"/>`;
   // Haare vorne
   const F=(d,op)=>`<path d="${d}" fill="${H}"${op?` opacity="${op}"`:''}/>`;
-  if(!hatOn){ switch(L.hair){
-    case 0: s+=`<ellipse cx="52" cy="33" rx="7" ry="3.5" fill="#fff" opacity=".22"/>`; break;
-    case 1: s+=F('M38,47 Q37,24 60,23 Q83,24 82,47 Q79,35 60,34 Q41,35 38,47Z',.6); break;
-    case 2: s+=F('M36,49 Q35,20 60,19 Q85,20 84,49 Q82,36 76,33 Q68,37 60,33 Q52,37 44,33 Q38,36 36,49Z'); break;
-    case 3: s+=F('M36,50 Q34,19 60,18 Q86,19 84,50 Q83,35 76,32 Q62,29 50,37 Q42,42 36,50Z')+`<path d="M50,36 Q60,29 74,31" stroke="${hcD}" stroke-width="1.2" fill="none" opacity=".6"/>`; break;
-    case 4: s+=F('M37,48 Q37,32 41,29 L41,46Z M83,48 Q83,32 79,29 L79,46Z',.45)+F('M40,38 Q39,12 61,12 Q83,13 80,37 Q72,27 60,27 Q48,28 40,38Z'); break;
-    case 5: for(const [x,y,r] of [[40,40,7],[45,30,8],[54,24,8.5],[65,23,8.5],[75,28,8],[81,38,7],[49,34,6],[70,32,6],[60,30,6]]) s+=`<circle cx="${x}" cy="${y}" r="${r}" fill="${H}"/>`; break;
-    case 6: for(const [x,y,r] of [[42,36,8],[50,28,9],[60,25,9],[70,28,9],[78,36,8]]) s+=`<circle cx="${x}" cy="${y}" r="${r}" fill="${H}"/>`; break;
-    case 7: s+=F('M36,52 Q36,23 60,21 Q84,23 84,52 Q80,34 64,32 Q57,41 44,38 Q38,43 36,52Z'); break;
-    case 8: s+=F('M36.5,47 Q37,21 60,20 Q83,21 83.5,47 L76,44 L68,46 L60,44 L52,46 L44,44Z'); break;
-    case 9: s+=F('M36,50 Q34,22 60,21 Q86,22 84,50 Q80,34 60,31 Q40,34 36,50Z')+`<circle cx="60" cy="15" r="10" fill="${H}"/><path d="M52,22 Q60,25 68,22" stroke="${hcD}" stroke-width="2" fill="none"/>`; break;
-    case 10: s+=F('M36,49 Q35,21 60,20 Q85,21 84,49 Q80,33 60,31 Q40,33 36,49Z')+`<circle cx="81" cy="35" r="3.2" fill="${L.outC===2?'#2f6fed':'#e5484d'}"/>`; break;
-    case 11: s+=F('M38,46 Q38,30 42,28 L42,44Z M82,46 Q82,30 78,28 L78,44Z',.45)+F('M53,40 L51,6 Q60,0 69,6 L67,40 Q60,36 53,40Z'); break; } }
+  if(!hatOn) s+=hairFront(L.hair,H,hcD);
   // Kopfbedeckung
   const hb=OUTC[L.outC===6?1:L.outC];
   if(L.hat===1) s+=`<path d="M35.5,42 Q35,14 60,13 Q85,14 84.5,42Z" fill="${hb}"/><path d="M35,40 Q62,35 92,41 Q98,44 93,47.5 Q66,42 35,44.5Z" fill="${shade(hb,-35)}"/><circle cx="60" cy="14" r="2.6" fill="${shade(hb,-35)}"/><path d="M60,14 L60,40" stroke="${shade(hb,-20)}" stroke-width="1"/>`;
@@ -2930,7 +2917,7 @@ function chillTick(dt){ const on=chillOn(), nw=Date.now(), ms=chillTs?Math.min(5
   if(on){ if(S.off) S.off.until+=ms; if(S.offNext) S.offNext+=ms; if(S.decNext) S.decNext+=ms; if(S.orderNext) S.orderNext+=ms; if(S.order) S.order.until+=ms;
     const el=$('chT'); if(el) el.textContent=fmtTime((S.chill.until-Date.now())/1000); if(!$('chillOv').classList.contains('on')){ $('app').classList.add('chilling'); showChillOv(); } }
   else if(chillWas) endChill(false);
-  chillWas=on; const fb=$('bossFab'); if(fb){ const r=chillReady()&&!on; fb.classList.toggle('ready',r); const cd=S.chill&&S.chill.cd>Date.now()?(S.chill.cd-Date.now())/1000/(chillDur()+chillCd()):0; fb.style.setProperty('--cd',Math.round(cd*100)); } }
+  chillWas=on; const fb=$('bossFab'); if(fb){ const r=chillReady()&&!on; fb.classList.toggle('ready',r&&!S.chillSeen); const cd=S.chill&&S.chill.cd>Date.now()?(S.chill.cd-Date.now())/1000/(chillDur()+chillCd()):0; fb.style.setProperty('--cd',Math.round(cd*100)); } }
 const _updateAgents10=updateAgents; updateAgents=function(dt){ return _updateAgents10(chillOn()?dt*.35:dt); };
 
 function openBoss(){ setNav(''); sub.boss=sub.boss||0; openSheet('boss',`<span class="big">${avatarHTML(42)}</span><div><h2>Chef-Büro</h2><div class="sub">${BOSS_LV[bossLv()].n} · Bonus ×${bossMult().toFixed(2).replace('.',',')}</div></div>`); }
@@ -3068,7 +3055,7 @@ function featTick(){ if(!S.onboarded) return; S.feat=S.feat||{}; FEATS.forEach(f
   if(FEATQ.length&&!sheetKind&&!$('modal').classList.contains('on')&&!chillOn()&&(S.tut||0)>=99){ const f=FEATS.find(x=>x.id===FEATQ.shift()); if(!f) return; SFX.ach();
     modal(`<div class="em">${f.em}</div><h2>${f.t}</h2><p>${f.d}</p>${(f.nav||f.go)?'<button class="btn wide gold" id="ftGo">Zeig’s mir</button>':''}<button class="btn wide" id="ftOk">${(f.nav||f.go)?'Später':'Alles klar'}</button>`,()=>{
       $('ftOk').onclick=closeModal; const g=$('ftGo'); if(g) g.onclick=()=>{ closeModal(); if(f.nav){ TUTX={sel:`nav [data-p="${f.nav}"]`,txt:`Tippe auf „${FNAV[f.nav]}“`,until:Date.now()+12000}; } else f.go(); }; }); } }
-function navLocks(){ document.querySelectorAll('nav button').forEach(b=>{ const id=b.dataset.p, lk=FNAV[id]&&!featOn(id); b.classList.toggle('locked',lk); });
+function navLocks(){ document.querySelectorAll('nav button').forEach(b=>{ const id=b.dataset.p, lk=!!(FNAV[id]&&!featOn(id)); b.classList.toggle('locked',lk); });
   const cw=$('cWh'); if(cw) cw.style.display=featOn('lager')?'':'none'; const ci=$('cIdx'); if(ci) ci.style.display=featOn('sortiment')?'':'none';
   const cs=$('cStore'); if(cs) cs.style.display=featOn('store')||S.store.open?'':'none'; const bf=$('bossFab'); if(bf&&S.onboarded) bf.style.display=featOn('boss')?'':'none'; }
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('nav button.locked'); if(!b) return; e.stopImmediatePropagation(); e.preventDefault(); const f=FEATS.find(x=>x.id===b.dataset.p); SFX.thud(); toast(`🔒 ${FNAV[b.dataset.p]} gibt es ${f?f.lock:'später'}`); },true);
@@ -3176,7 +3163,7 @@ const _storeIncome11=storeIncome; storeIncome=function(){ return _storeIncome11(
 const _unitPrice11=unitPrice; unitPrice=function(){ return _unitPrice11()*(weekEv()==='price'?1.2:1); };
 const _packValue11=packValue; packValue=function(){ return _packValue11()*(weekEv()==='hand'?5:1); };
 const _custSpawn11=custSpawn; custSpawn=function(){ const n=CUSTS.length; _custSpawn11(); if(CUSTS.length>n&&weekEv()==='vip'){ const c=CUSTS[CUSTS.length-1]; if(!c.vip&&Math.random()<.14) c.vip=true; } };
-const _startChill11=startChill; startChill=function(){ const was=chillOn(); _startChill11(); if(!was&&chillOn()) S.chillN=(S.chillN||0)+1; };
+const _startChill11=startChill; startChill=function(){ const was=chillOn(); _startChill11(); if(!was&&chillOn()){ S.chillN=(S.chillN||0)+1; S.chillSeen=1; } };
 
 // ---------- Neue Produktstufen ----------
 PRODUCTS[PRODUCTS.length-1].req=1.2e20;
@@ -3209,6 +3196,74 @@ let slow11=0; const _world6_11=world6; world6=function(dt){ _world6_11(dt); tutT
   const fb=$('fab'); if(fb){ let pk=false; try{ pk=/Hand/.test(mission().t)||(S.q&&(S.q.d||[]).concat(S.q.w||[]).some(q=>q.k==='pack'&&!q.cl)); }catch(e){} fb.style.display=(S.floors[2].m>0&&!pk&&!$('packer').classList.contains('on'))?'none':''; }
   if(S.onboarded&&!S.sndHint&&S.lifetime>500&&!sheetKind&&!$('modal').classList.contains('on')){ S.sndHint=1; toast('🔊 Kein Ton? Prüfe den Lautlos-Schalter deines iPhones'); } } };
 
+
+// ---------- v12: Frisuren neu (zentriert, Mann/Frau) ----------
+const CROWN='M35.6,50 C34.2,28 44.5,18.5 60,18.5 C75.5,18.5 85.8,28 84.4,50';
+function curls(cx,cy,rad,a0,a1,step,r,H){ let s=''; for(let a=a0;a<=a1+.01;a+=step){ const t=a*Math.PI/180; s+=`<circle cx="${(cx+Math.cos(t)*rad).toFixed(1)}" cy="${(cy+Math.sin(t)*rad).toFixed(1)}" r="${r}" fill="${H}"/>`; } return s; }
+function hairBack(k,H,D){ const P=d=>`<path d="${d}" fill="${H}"/>`;
+  switch(k){ case 6: return `<circle cx="60" cy="40" r="34" fill="${H}"/>`;
+    case 7: return P('M34,50 C32,22 45,15 60,15 C75,15 88,22 86,50 C87,70 89,88 92,106 L28,106 C31,88 33,70 34,50Z');
+    case 12: return P('M34,50 C32,22 45,15 60,15 C75,15 88,22 86,50 Q91,60 86,70 Q92,80 87,90 Q93,99 90,108 L30,108 Q27,99 33,90 Q28,80 34,70 Q29,60 34,50Z');
+    case 8: return P('M33.5,50 C32,22 45,15.5 60,15.5 C75,15.5 88,22 86.5,50 L87,74 C82,79 76,78 72,74 L48,74 C44,78 38,79 33,74Z');
+    case 10: return P('M74,24 C97,27 101,54 94,92 C91,72 87,54 79,41Z')+`<path d="M86,46 C90,58 91,72 92,84" stroke="${D}" stroke-width="1.2" fill="none" opacity=".5"/>`;
+    case 14: { let s=''; for(const x of [33.5,86.5]) for(let y=56;y<=100;y+=8) s+=`<ellipse cx="${x}" cy="${y}" rx="5.2" ry="5.6" fill="${H}" stroke="${D}" stroke-width=".7"/>`; return s+`<circle cx="33.5" cy="106" r="2.6" fill="#e5484d"/><circle cx="86.5" cy="106" r="2.6" fill="#e5484d"/>`; }
+    case 15: { let s=P('M33,50 C31,22 45,15 60,15 C75,15 89,22 87,50 L88,96 L32,96Z'); for(const x of [31,89]) for(let y=52;y<=100;y+=9) s+=`<circle cx="${x}" cy="${y}" r="7.5" fill="${H}"/>`; return s; }
+  } return ''; }
+function hairFront(k,H,D){ const F=(d,op)=>`<path d="${d}" fill="${H}"${op?` opacity="${op}"`:''}/>`, side=op=>F('M36.6,49 C36,38 38,32.5 41.5,30.5 L41.5,47Z M83.4,49 C84,38 82,32.5 78.5,30.5 L78.5,47Z',op);
+  switch(k){
+    case 0: return `<ellipse cx="53" cy="32" rx="7" ry="3.4" fill="#fff" opacity=".22"/>`;
+    case 1: return F('M36.6,49 C35.6,29 45,21 60,21 C75,21 84.4,29 83.4,49 C82,42 77,38.5 60,38.5 C43,38.5 38,42 36.6,49Z',.62);
+    case 2: return F(CROWN+' C83.4,42 80.5,37 76.5,35.2 C71,37 66,34.6 60,35.6 C54,34.6 49,37 43.5,35.2 C39.5,37 36.6,42 35.6,50Z');
+    case 3: return F(CROWN+' C83.5,41 80,34.5 73,32.5 C64,31 55,33.5 47.5,38.5 C42,42 38,45.5 35.6,50Z')+`<path d="M47,23 Q50.5,29 48.5,37" stroke="${D}" stroke-width="1.3" fill="none" opacity=".55"/>`;
+    case 4: return side(.42)+F('M39.5,39 C38.5,19 49,12.5 60,12.5 C71,12.5 81.5,19 80.5,39 C75,30.5 68,28.5 60,29.5 C52,28.5 45,30.5 39.5,39Z');
+    case 5: return F(CROWN+' C83,42 78,36 60,36 C42,36 37,42 35.6,50Z')+curls(60,46,24,195,345,25,7.5,H)+curls(60,46,16.5,216,324,27,6.5,H);
+    case 6: return curls(60,46,24,200,340,35,9,H)+curls(60,44,14,234,306,36,8,H);
+    case 7: return F('M35.6,62 C33.5,30 44.5,18.5 60,18.5 C75.5,18.5 86.5,30 84.4,62 C83,48 77,36 64,31.5 C62.5,33 61,34 60,34 C59,34 57.5,33 56,31.5 C43,36 37,48 35.6,62Z');
+    case 12: return F('M35.6,60 C33.5,30 44.5,18.5 60,18.5 C75.5,18.5 86.5,30 84.4,60 C82,44 74,33 52,32 C45,36 39,46 35.6,60Z')+`<path d="M52,32 Q66,33 78,42" stroke="${D}" stroke-width="1.1" fill="none" opacity=".45"/>`;
+    case 8: return F(CROWN+' C84.3,46 83,42.5 80,41 L40,41 C37,42.5 35.7,46 35.6,50Z')+`<path d="M46,41 L46,35 M53,41 L53,34 M60,41 L60,34 M67,41 L67,34 M74,41 L74,35" stroke="${D}" stroke-width=".9" opacity=".35"/>`;
+    case 9: return F('M36,50 C34.5,28 45,19.5 60,19.5 C75,19.5 85.5,28 84,50 C81,38 72,31.5 60,31.5 C48,31.5 39,38 36,50Z')+`<circle cx="60" cy="14" r="9.5" fill="${H}"/><path d="M51.5,20 Q60,23.5 68.5,20" stroke="${D}" stroke-width="2" fill="none"/>`;
+    case 10: return F('M36,50 C34.5,28 45,19.5 60,19.5 C75,19.5 85.5,28 84,50 C81,38 72,31.5 60,31.5 C48,31.5 39,38 36,50Z')+`<path d="M44,26 Q60,21 76,26" stroke="${D}" stroke-width="1" fill="none" opacity=".4"/><circle cx="80" cy="29" r="3.4" fill="#e5484d"/>`;
+    case 11: return side(.42)+F('M54,40 L52.5,6 Q60,0 67.5,6 L66,40 Q60,36.5 54,40Z');
+    case 13: return F(CROWN+' C84,43 81.5,38 77.5,36 C69,35.5 59,37.5 50,42.5 C44,45.5 39,47.5 35.6,50Z')+`<path d="M50,42 Q63,36 76,36" stroke="${D}" stroke-width="1" fill="none" opacity=".45"/>`;
+    case 14: return F('M35.6,52 C34.2,28 44.5,18.5 60,18.5 C75.5,18.5 85.8,28 84.4,52 C83,42 76,34 63,31 L60,34 L57,31 C44,34 37,42 35.6,52Z');
+    case 15: return F(CROWN+' C83,42 78,36 60,36 C42,36 37,42 35.6,50Z')+curls(60,46,24,195,345,25,7,H)+curls(60,44,15,225,315,30,6,H);
+  } return ''; }
+function lookCats(){ return LOOKCAT.filter(c=>!(c.k==='beard'&&S.look&&S.look.g===1)); }
+function profileEditor(prefix){ S.look=lookOf(S); CCTAB[prefix]=CCTAB[prefix]||'g';
+  return `<div class="lbl2">Firmenname</div><input type="text" id="${prefix}Name" maxlength="24" placeholder="z. B. Nordkap Snus" value="${esc(S.company)}">
+    <div class="lbl2">Dein Charakter</div><div class="cc"><div class="ccprev" id="${prefix}CC" style="background:${COLORS[S.color]}">${avatarSVG(S.look)}</div>
+      <div class="ccside"><div class="seg ccg" id="${prefix}G"><button type="button" data-g="0" class="${S.look.g!==1?'on':''}">👨 Mann</button><button type="button" data-g="1" class="${S.look.g===1?'on':''}">👩 Frau</button></div><button class="btn" id="${prefix}Rnd" type="button">🎲 Zufall</button></div></div>
+    <div class="cctabs" id="${prefix}Tabs"></div><div class="ccopts" id="${prefix}Opts"></div>
+    <div class="lbl2">Firmenfarbe</div><div class="colgrid" id="${prefix}Col">${COLORS.map((c,k)=>`<button data-k="${k}" class="${k===S.color?'on':''}" style="background:${c}"></button>`).join('')}</div>`; }
+function bindProfileEditor(prefix,onChange){ S.look=lookOf(S);
+  const prev=()=>{ const p=$(prefix+'CC'); if(p){ p.innerHTML=avatarSVG(S.look); p.style.background=COLORS[S.color]; } };
+  const tabs=()=>{ const cats=lookCats().filter(c=>c.k!=='g'); if(!cats.some(c=>c.k===CCTAB[prefix])) CCTAB[prefix]=cats[0].k; const el=$(prefix+'Tabs');
+    el.innerHTML=cats.map(c=>`<button type="button" data-ct="${c.k}" class="${c.k===CCTAB[prefix]?'on':''}">${c.n}</button>`).join('');
+    el.querySelectorAll('[data-ct]').forEach(b=>b.onclick=()=>{ CCTAB[prefix]=b.dataset.ct; tabs(); opts(); }); };
+  const opts=()=>{ const c=LOOKCAT.find(x=>x.k===CCTAB[prefix]), el=$(prefix+'Opts'); if(!el||!c) return;
+    if(c.col) el.innerHTML=`<div class="ccsw">${c.col.map((v,k)=>`<button type="button" data-cv="${k}" class="${S.look[c.k]===k?'on':''}" style="background:${v}"></button>`).join('')}</div>`;
+    else { const idx=c.k==='hair'?(S.look.g===1?HAIR_F:HAIR_M):c.opts.map((_,k)=>k);
+      el.innerHTML=`<div class="ccgrid">${idx.map(k=>{ const L=Object.assign({},S.look,{[c.k]:k}); return `<button type="button" data-cv="${k}" class="${S.look[c.k]===k?'on':''}"><span class="cct" style="background:${COLORS[S.color]}">${avatarSVG(L)}</span><small>${c.opts[k]}</small></button>`; }).join('')}</div>`; }
+    el.querySelectorAll('[data-cv]').forEach(b=>b.onclick=()=>{ S.look[c.k]=+b.dataset.cv; SFX.click&&SFX.click(); prev(); opts(); onChange&&onChange(); }); };
+  const setG=g=>{ S.look.g=g; const L=g===1?HAIR_F:HAIR_M; if(!L.includes(S.look.hair)) S.look.hair=L[0]; if(g===1) S.look.beard=0; if(g===1&&S.look.eyes===0) S.look.eyes=3;
+    $(prefix+'G').querySelectorAll('[data-g]').forEach(x=>x.classList.toggle('on',+x.dataset.g===g)); prev(); tabs(); opts(); onChange&&onChange(); };
+  $(prefix+'G').querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{ SFX.click&&SFX.click(); setG(+b.dataset.g); });
+  $(prefix+'Rnd').onclick=()=>{ const g=S.look.g; LOOKCAT.forEach(c=>{ if(c.k==='g') return; const n=(c.col||c.opts).length; S.look[c.k]=Math.floor(Math.random()*n); }); const HL=g===1?HAIR_F:HAIR_M; S.look.hair=pick(HL);
+    if(g===1||Math.random()<.5) S.look.beard=0; if(Math.random()<.55) S.look.glasses=0; if(Math.random()<.6) S.look.hat=0; if(Math.random()<.5) S.look.acc=0; if(Math.random()<.75) S.look.hairC=Math.floor(Math.random()*9);
+    SFX.pop&&SFX.pop(); prev(); opts(); onChange&&onChange(); };
+  $(prefix+'Col').querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.color=+b.dataset.k; $(prefix+'Col').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); prev(); opts(); onChange&&onChange(); });
+  $(prefix+'Name').oninput=()=>onChange&&onChange(); tabs(); opts(); }
+
+// ---------- v12: Tutorial-Finger nur wenn sinnvoll ----------
+let TUTHIDE=0, TUTSTEP=-1, TUTT0=0;
+document.addEventListener('pointerdown',()=>{ if((S.tut||0)<99) TUTHIDE=Date.now()+9000; },true);
+TUT[0].fing=()=>S.packed<1; TUT[1].fing=()=>S.money>=FLOORS[0].unlock; TUT[2].fing=()=>true;
+TUT[3].fing=()=>sheetKind==='floor'||S.money>=costM(0,1)*3; TUT[4].fing=()=>S.money>=FLOORS[1].unlock;
+TUT[4].sel=()=>null; TUT[3].sel=()=>sheetKind==='floor'?'#bM':null;
+const _tutTick12=tutTick; tutTick=function(){ _tutTick12(); if(TUTX&&Date.now()<TUTX.until) return; const st=S.tut||0; if(st>=99) return; if(st!==TUTSTEP){ TUTSTEP=st; TUTT0=Date.now(); TUTHIDE=0; }
+  const step=TUT[st]; if(!step) return; const f=$('tutF'), b=$('tutB'), want=step.fing&&step.fing(), fresh=Date.now()-TUTT0<7000;
+  if(Date.now()<TUTHIDE||!want) f.classList.remove('on'); if(!fresh&&!want) b.classList.remove('on'); if(Date.now()<TUTHIDE&&!fresh&&st!==2) b.classList.remove('on'); };
+
 function shade(hex,amt){ const n=parseInt(hex.slice(1),16);
   const c=[n>>16,(n>>8)&255,n&255].map(v=>Math.max(0,Math.min(255,Math.round(v+amt))));
   return '#'+c.map(v=>v.toString(16).padStart(2,'0')).join(''); }
@@ -3219,7 +3274,7 @@ function updateMap(){}
 
 // ---------- HUD ----------
 function updateProfile(){
-  $('hAv').querySelector('.avs').innerHTML=avatarSVG(S.look); const bf=$('bfAv'); if(bf){ bf.innerHTML=avatarSVG(S.look); bf.style.background=COLORS[S.color]; $('bossFab').style.display=(S.onboarded&&!handPhase())?'':'none'; }
+  $('hAv').querySelector('.avs').innerHTML=avatarSVG(S.look); const bf=$('bfAv'); if(bf){ bf.innerHTML=avatarSVG(S.look); bf.style.background=COLORS[S.color]; $('bossFab').style.display=(S.onboarded&&featOn('boss'))?'':'none'; }
   $('hAv').style.background=COLORS[S.color];
   $('hName').textContent=S.company||'Meine Firma';
   const L=levelOf(S.lifetime);
