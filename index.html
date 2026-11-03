@@ -3918,6 +3918,10 @@ window.addEventListener('resize',()=>{ resizeCanvas(); clampCam(); });
 // ---------- Start ----------
 load(); migrate6(); resizeCanvas(); centerCam(); if(S.gfx&&S.gfx!=='hoch') setTimeout(applyGfx,50);
 { const mo=document.querySelector('.hud .money'), hr=document.querySelector('.hud .hrow'); hr.insertBefore(mo,hr.querySelector('.res')); }
+try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+(function(){ const ios=/iPhone|iPad|iPod/.test(navigator.userAgent), standalone=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches, inapp=/FBAN|FBAV|Instagram|WhatsApp|Line\/|; wv\)/.test(navigator.userAgent);
+  if(!ios||standalone) return; setTimeout(()=>{ if(sessionStorage.getItem('pwaHint')) return; sessionStorage.setItem('pwaHint',1);
+    modal(`<div class="em">💾</div><h2>Spielstand sichern</h2><p style="text-align:left">${inapp?'Du spielst gerade im <b>WhatsApp-/App-Browser</b> – dort wird dein Spielstand oft <b>nicht gespeichert</b>. Öffne die Seite in <b>Safari</b>.<br><br>':''}Für sicheres Speichern: in Safari auf <b>Teilen → Zum Home-Bildschirm</b> und ab dann nur noch über das App-Icon spielen.<br><br>⚠️ Die App auf dem Home-Bildschirm hat einen <b>eigenen Speicher</b>. Hast du schon in Safari gespielt, kopiere vorher unter <b>Mehr → Spielstand sichern</b> deinen Code und lade ihn in der App wieder.</p><button class="btn wide gold" id="mOk">Verstanden</button>`,()=>$('mOk').onclick=closeModal); },S.onboarded?2500:600000); })();
 $('cWh').onclick=openLager; MCLICK=$('mCard').onclick; $('mCard').onclick=()=>openQuests(); fixCans(document.querySelector('nav')); navLocks(); $('bossFab').onclick=()=>openBoss(); $('hudT').onclick=()=>{ setHudMin(!S.hudMin); save(); }; setHudMin(S.hudMin!==false); $('cTime').onclick=openCities; $('ordBar').onclick=openLager;
 renderMap(); updateHUD(); updateMap(); updateProfile(); scrollBottom(); buildCan();
 if(!S.onboarded) onboarding(); else { if(handPhase()) openPacker(); else updatePacker(); offline(); }
