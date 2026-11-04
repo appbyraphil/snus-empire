@@ -4526,7 +4526,8 @@ Object.assign(IC,{
   sunrise:()=>iSH()+iC(64,78,30,'gold')+'<rect x="0" y="80" width="128" height="40" fill="#fff" opacity="0"/>'+iP('M14,86 H114 V100 H14Z','sky',4)+iLN('M64,30 V40 M34,44 L40,52 M94,44 L88,52 M22,66 L32,68 M106,66 L96,68',IOL,5)+iHL('M44,70 Q50,58 62,56',4,.7),
   dusk:()=>iSH()+iC(64,72,30,'orange')+iP('M14,82 H114 V100 H14Z','purple',4)+iLN('M30,62 L20,60 M98,62 L108,60 M40,44 L34,36 M88,44 L94,36',IOL,5)+iHL('M44,66 Q50,54 62,52',4,.7)
 });
-Object.assign(EMOICON,{'🌄':'sunrise','🌇':'dusk'});
+IC.umbrella=()=>iSH()+iP('M14,62 Q64,4 114,62 Q101,54 89,62 Q76,54 64,62 Q52,54 39,62 Q27,54 14,62Z','red')+iP('M64,13 Q50,34 39,62 Q52,54 64,62Z','#ffffff',3.5)+iLN('M64,62 V104 Q64,114 74,114 Q84,114 84,104',IOL,6)+iHL('M30,46 Q44,26 60,20',4,.6);
+Object.assign(EMOICON,{'🌄':'sunrise','🌇':'dusk','☔':'umbrella','☂️':'umbrella'});
 { const keys=Object.keys(EMOICON).sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'); EMORE2=new RegExp('('+keys+')\\uFE0F?','g'); EMOSTART=new RegExp('^('+keys+')\\uFE0F?\\s?'); }
 // ---------- Regenschirme ----------
 function mergeGeo20(parts){ const pos=[], nor=[]; parts.forEach(([geo,mtx])=>{ const g=geo.index?geo.toNonIndexed():geo.clone(); g.applyMatrix4(mtx); pos.push(...g.attributes.position.array); nor.push(...g.attributes.normal.array); });
