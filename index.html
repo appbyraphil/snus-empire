@@ -3942,7 +3942,7 @@ Object.assign(IC,{
   checkS:()=>iC(64,64,44,'green')+iP('M40,66 L58,82 L90,46','none',12)+iLN('M40,66 L58,82 L90,46','#fff',7),
   crossS:()=>iC(64,64,44,'red')+iLN('M44,44 L84,84 M84,44 L44,84','#fff',10)
 });
-Object.assign(EMOICON,{'☰':'menu','⛰️':'mountain','⛰':'mountain'});
+Object.assign(EMOICON,{'🚦':'sign','☰':'menu','⛰️':'mountain','⛰':'mountain'});
 // ---------- Canvas: Emojis überall im Text als Icon ----------
 function segs18(t){ EMORE2.lastIndex=0; const parts=t.split(EMORE2); const out=[]; parts.forEach(p=>{ if(!p) return; const k=EMOICON[p]||EMOICON[p.replace(/️/g,'')]; out.push(k&&IC[k]?{k}:{t:p}); }); return out; }
 function emoDraw18(fill,t,x,y,mw){ const fn=fill?_cFT:_cST; if(typeof t!=='string'){ return fn(t,x,y,mw); } EMORE2.lastIndex=0; if(!EMORE2.test(t)) return mw!=null?fn(t,x,y,mw):fn(t,x,y);
