@@ -3505,8 +3505,8 @@ Object.assign(EMOICON,{'🇩🇪':'fl_de','🇸🇪':'fl_se','🇳🇴':'fl_no',
 // Gesichter nicht cachen (eindeutige IDs je Einsatz)
 const _icoInner15=icoInner; icoInner=function(k){ if(k.startsWith('f_')) return IC[k](); return _icoInner15(k); };
 // Regex neu aufbauen
-const EMORE2=new RegExp('('+Object.keys(EMOICON).sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\uFE0F?','g');
-const EMOSTART=new RegExp('^('+Object.keys(EMOICON).sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\uFE0F?\\s?');
+let EMORE2=new RegExp('('+Object.keys(EMOICON).sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\uFE0F?','g');
+let EMOSTART=new RegExp('^('+Object.keys(EMOICON).sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\uFE0F?\\s?');
 function fixIcons(root){ if(!root||root.nodeType!==1&&root.nodeType!==9) return; if(root.closest&&root.closest('svg,textarea,input')) return;
   const tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{ const p=n.parentNode; if(!p||/^(TEXTAREA|INPUT|SCRIPT|STYLE|text|textPath|tspan)$/.test(p.nodeName)||(p.closest&&p.closest('svg'))) return NodeFilter.FILTER_REJECT; return NodeFilter.FILTER_ACCEPT; }}), hits=[]; let n;
   while((n=tw.nextNode())){ EMORE2.lastIndex=0; if(EMORE2.test(n.nodeValue)) hits.push(n); }
@@ -4381,6 +4381,143 @@ setTimeout(()=>{
   const _wb18=wmBind; wmBind=function(){ _wb18(); const box=$('wmbox'); if(!box) return; WMI.full=performance.now(); const el=$('wmap2'); el.style.transformOrigin='0 0'; el.style.willChange='transform'; const on=()=>{ if(!WMI.busy) WMI.base={x:WMV.x,y:WMV.y,w:WMV.w}; WMI.busy++; WMI.last=performance.now(); }, off=()=>{ WMI.busy=Math.max(0,WMI.busy-1); WMI.last=performance.now(); if(!WMI.busy){ el.style.transform=''; WMI.base=null; wmApplyNow(); } };
     box.addEventListener('pointerdown',on); box.addEventListener('pointerup',off); box.addEventListener('pointercancel',off); box.addEventListener('wheel',()=>{ WMI.last=performance.now(); },{passive:true}); };
 },0);
+
+// =====================================================================
+//  v19: Länder-Ziele · Fabrik-Tour · Sammelalbum · Umgebungs-Sound · Wochen-Rückblick
+// =====================================================================
+Object.assign(IC,{
+  medal1:()=>iSH()+iP('M44,14 L56,50 L72,50 L84,14Z','red')+iC(64,74,30,'#d08a4a')+iC(64,74,22,'#e9a866',3)+iHL('M50,64 Q56,54 66,52',4,.7),
+  medal2:()=>iSH()+iP('M44,14 L56,50 L72,50 L84,14Z','blue')+iC(64,74,30,'gray')+iC(64,74,22,'steel',3)+iHL('M50,64 Q56,54 66,52',4,.7),
+  medal3:()=>iSH()+iP('M44,14 L56,50 L72,50 L84,14Z','green')+iC(64,74,30,'goldD')+iC(64,74,22,'gold',3)+iCROWN(64,76,.42,'goldD')+iHL('M50,64 Q56,54 66,52',4,.7),
+  album:()=>iSH()+iRR(22,18,84,92,10,'purple')+iRR(30,26,68,76,6,'cream',3.5)+iRR(36,32,26,24,4,'sky',3)+iRR(66,32,26,24,4,'leaf',3)+iRR(36,62,26,24,4,'gold',3)+iRR(66,62,26,24,4,'pink',3)+iHL('M30,24 H98',4,.5),
+  bus:()=>iSH()+iRR(14,30,100,62,12,'orange')+iRR(22,40,22,20,4,'glass',3)+iRR(50,40,22,20,4,'glass',3)+iRR(78,40,26,20,4,'glass',3)+iC(38,94,11,'dark')+iC(92,94,11,'dark')+iC(38,94,4,'#d1d5db',2)+iC(92,94,4,'#d1d5db',2)+iHL('M22,36 H104',4,.6),
+  calendar:()=>iSH()+iRR(18,26,92,82,12,'white')+iRR(18,26,92,24,12,'red')+iRR(18,40,92,10,0,'red',0)+iLN('M40,18 V34 M88,18 V34',IOL,7)+iRR(32,60,16,14,3,'blue',3)+iRR(56,60,16,14,3,'gray',3)+iRR(80,60,16,14,3,'gray',3)+iRR(32,80,16,14,3,'gray',3)+iRR(56,80,16,14,3,'green',3),
+  speaker:()=>iSH()+iP('M22,50 H44 L72,26 V102 L44,78 H22Z','blue')+iLN('M84,46 Q96,64 84,82',IOL,6)+iLN('M94,34 Q114,64 94,94',IOL,6)
+});
+Object.assign(EMOICON,{'🥉':'medal1','🥈':'medal2','🥇':'medal3','📒':'album','📔':'album','🚌':'bus','📅':'calendar','🗓️':'calendar','🔊':'speaker'});
+function st19(){ S.lm18=S.lm18||{}; S.alb18=S.alb18||{}; S.vis18=S.vis18||{}; S.tour18=S.tour18||{n:0,g:0}; S.rec18=S.rec18||{inc:0}; }
+// ---------- 1) Länder-Ziele: Bronze / Silber / Gold ----------
+const MEDAL=[null,{n:'Bronze',em:'🥉',need:'20 % Marktanteil',share:.2,b:.01,g:2},{n:'Silber',em:'🥈',need:'35 % Marktanteil',share:.35,b:.015,g:4},{n:'Gold',em:'🥇',need:'Marktführer',share:1,b:.025,g:8}];
+const LMNAME={'Deutschland':'Schloss im Allgäu','Österreich':'Wiener Riesenrad','Schweiz':'Matterhorn','Osteuropa':'Goldene Kuppelkirche','Großbritannien':'Big Ben','Benelux':'Windmühlen & Tulpen','Frankreich':'Eiffelturm','Südeuropa':'Kolosseum','USA':'Freiheitsstatue','Kanada':'CN Tower','Japan':'Pagode & Torii','Skandinavien':'Stabkirche'};
+const medalOf=r=>(S.lm18&&S.lm18[r])||0;
+function medalTarget(r){ if(!(r>0&&r<S.regions)) return 0; const L=regShares(r), me=L.find(x=>x.me); if(!me) return 0; if(L[0].me) return 3; if(me.share>=.35) return 2; if(me.share>=.2) return 1; return 0; }
+function badgeMult(){ st19(); let m=1; Object.values(S.lm18).forEach(l=>{ for(let k=1;k<=l;k++) m+=MEDAL[k].b; }); return m; }
+function medalTick(){ st19(); for(let r=1;r<S.regions;r++){ const t=medalTarget(r), c=medalOf(r); if(t>c){ for(let k=c+1;k<=t;k++) S.gold+=MEDAL[k].g; S.lm18[r]=t; save(); const R=REGIONS[r], M_=MEDAL[t];
+      try{ SFX.ach(); }catch(e){} if(!document.querySelector('#modal.on')) modal(`<div class="em">${M_.em}</div><h2>${M_.n} in ${R.n}!</h2><p>${R.em} <b>${LMNAME[R.n]||R.n}</b> wandert als ${M_.n}-Abzeichen in dein Album.</p><div class="info" style="text-align:left"><div class="statrow"><span>Dauerhafter Bonus</span><b style="color:var(--green2)">+${(M_.b*100).toFixed(1).replace('.',',')} % Einkommen</b></div><div class="statrow"><span>Belohnung</span><b>+${M_.g} 🪙</b></div>${t<3?`<div class="statrow"><span>Nächstes Ziel</span><b>${MEDAL[t+1].em} ${MEDAL[t+1].need}</b></div>`:''}</div><button class="btn wide gold" id="mOk">Super!</button>`,()=>$('mOk').onclick=closeModal); else toast(`${M_.em} ${M_.n}-Abzeichen in ${R.n}! +${M_.g} 🪙`); } } }
+function medalRow(r){ const c=medalOf(r), me=(regShares(r).find(x=>x.me)||{share:0}).share; return `<div class="med19">${[1,2,3].map(k=>`<div class="${k<=c?'on':''}"><span class="icow">${ico(MEDAL[k].icoK||('medal'+k))}</span><b>${MEDAL[k].n}</b><small>${MEDAL[k].need}<br>+${(MEDAL[k].b*100).toFixed(1).replace('.',',')} % · ${MEDAL[k].g} 🪙</small></div>`).join('')}</div><div class="t2" style="text-align:center;margin-top:4px">Dein Anteil hier: <b>${Math.round(me*100)} %</b> · Wahrzeichen: ${LMNAME[REGIONS[r].n]||''}</div>`; }
+// ---------- 2) Fabrik-Tour ----------
+let TOUR=null, tourNext=150+Math.random()*120;
+function busModel(){ const g=new THREE.Group(), O=M('#f59e0b',{r:.4,m:.15}), W=M('#f8fafc',{r:.5}), DK=M('#1f2937'); const gl=nightMat('#1e3a5f','#fff1c4',.9);
+  RB(0,0,1.15,1.5,1.7,5.4,W,g); RB(0,0,.55,1.52,.5,5.42,O,g); RB(0,0,2.05,1.45,.12,5.3,O,g); [-1,1].forEach(s=>RB(s*.76,.2,1.45,.02,.65,4.4,gl,g)); RB(0,2.71,1.4,1.3,.9,.03,gl,g); RB(0,-2.71,1.4,1.2,.6,.03,gl,g);
+  RB(-.77,1.9,1.0,.03,1.3,.7,M('#334155'),g); const sg=new THREE.Mesh(G.box,[DK,DK,DK,DK,new THREE.MeshStandardMaterial({map:texSign18('FABRIK-TOUR','#f59e0b'),roughness:.5}),DK]); sg.scale.set(1.3,.3,.04); sg.position.set(0,1.95,2.73); g.add(sg);
+  [[-.7,1.8],[.7,1.8],[-.7,-1.7],[.7,-1.7]].forEach(([a,b])=>{ const w=mesh(G.cyl,DK,g); w.scale.set(.33,.22,.33); w.rotation.z=Math.PI/2; w.position.set(a*1.05,.33,b); });
+  [-.45,.45].forEach(a=>{ const l=mesh(G.box,nightMat('#fef9c3','#fff7cc',2),g); l.scale.set(.25,.12,.03); l.position.set(a,.75,2.72); }); g.traverse(o=>{ if(o.isMesh) o.castShadow=true; }); return g; }
+function startTour(){ if(TOUR||VISIT) return; st19(); const bus=busModel(); scene.add(bus); const n=4+Math.floor(Math.random()*3), lane=ROADX+1;
+  bus.position.set(lane,0,-125); bus.rotation.y=0; const box=document.createElement('div'); box.id='tourBox'; $('app').appendChild(box);
+  const vis=[]; for(let i=0;i<n;i++){ const a=makePerson(true,false); if(a.g.parent) a.g.parent.remove(a.g); a.g.visible=false; scene.add(a.g); const b=document.createElement('button'); b.className='tour19'; b.innerHTML=`<span class="icow">${ico(Math.random()<.5?'star':'sparkle')}</span>`; box.appendChild(b);
+    const ang=Math.PI*(.15+.7*i/(n-1||1)); const spot=[19+Math.cos(ang)*3.2, 15.8+Math.sin(ang)*1.6]; const v={a,b,spot,st:'wait',t:0,done:false,i}; b.onclick=e=>{ e.stopPropagation(); tapVisitor(v,e); }; vis.push(v); }
+  TOUR={bus,vis,st:'arrive',t:0,box,lane}; toast('🚌 Besuchergruppe zur Fabrik-Tour! Tippe die Gäste an.'); try{ SFX.drone&&tone&&AU.ctx&&tone(523,AU.ctx.currentTime,.25,'triangle',.08); }catch(e){} }
+function tapVisitor(v,e){ if(v.done||v.st!=='tour') return; v.done=true; v.b.classList.add('done'); st19(); S.tour18.n++; let txt;
+  if(Math.random()<.35){ S.gold+=1; S.tour18.g++; txt='+1 🪙'; fx(e.clientX,e.clientY,txt,'#ffd84d'); } else { const c=Math.max(50,income()*(8+Math.random()*8)); earn(c); txt='+'+eur(c); fx(e.clientX,e.clientY,txt); }
+  try{ SFX.click(); }catch(e2){} save(); }
+const TOURPATH=s=>[[ROADX-.4,8],[ROADX-.6,15.6],[25,16.4],s];
+function walkTo(v,path,dt,sp){ const P=path; v.k=v.k||0; if(v.k>=P.length-1) return true; const [x0,y0]=P[v.k], [x1,y1]=P[v.k+1]; const L=Math.hypot(x1-x0,y1-y0)||1; v.f=(v.f||0)+dt*sp/L; if(v.f>=1){ v.f=0; v.k++; return v.k>=P.length-1; }
+  const x=x0+(x1-x0)*v.f, y=y0+(y1-y0)*v.f; v.a.g.position.set(x,0,y); v.a.g.rotation.y=Math.atan2(x1-x0,y1-y0); const u=v.a.g.userData, s=Math.sin(TIME*9+v.i)*.55; if(u.legs){ u.legs[0].hip.rotation.x=s; u.legs[1].hip.rotation.x=-s; } if(u.arms){ u.arms[0].sh.rotation.x=-s*.6; u.arms[1].sh.rotation.x=s*.6; } return false; }
+function idlePose(v){ const u=v.a.g.userData; if(u.legs){ u.legs[0].hip.rotation.x=0; u.legs[1].hip.rotation.x=0; } if(u.arms){ u.arms[0].sh.rotation.x=0; u.arms[1].sh.rotation.x=v.i%2?-1.6+Math.sin(TIME*2+v.i)*.1:0; } }
+function tourTick(dt){ if(!TOUR){ if(!S.onboarded||VISIT||S.lifetime<5e5) return; tourNext-=dt; if(tourNext<=0&&!sheetKind&&!document.querySelector('#modal.on')){ tourNext=240+Math.random()*180; startTour(); } return; }
+  const T=TOUR; T.t+=dt; const B=T.bus;
+  if(T.st==='arrive'){ const z=B.position.z, d=8-z, sp=Math.min(14,Math.max(1.2,d*.6)); B.position.z=Math.min(8,z+sp*dt); if(8-B.position.z<.05){ B.position.x+=(ROADX-.9-B.position.x)*Math.min(1,dt*1.5); if(Math.abs(B.position.x-(ROADX-.9))<.06){ T.st='unload'; T.t=0; } } }
+  else if(T.st==='unload'){ T.vis.forEach(v=>{ if(v.st==='wait'&&T.t>v.i*.6){ v.st='go'; v.a.g.visible=true; v.a.g.position.set(ROADX-.4,0,8); v.path=TOURPATH(v.spot); v.k=0; v.f=0; } if(v.st==='go'&&walkTo(v,v.path,dt,2.4)){ v.st='tour'; v.a.g.rotation.y=Math.PI; } if(v.st==='tour') idlePose(v); }); if(T.vis.every(v=>v.st==='tour')){ T.st='tour'; T.t=0; } }
+  else if(T.st==='tour'){ T.vis.forEach(v=>{ idlePose(v); v.a.g.rotation.y=Math.PI+Math.sin(TIME*.6+v.i)*.35; }); if(T.t>32||T.vis.every(v=>v.done)&&T.t>4){ T.st='back'; T.t=0; T.vis.forEach(v=>{ v.st='back'; v.path=TOURPATH(v.spot).slice().reverse(); v.k=0; v.f=0; }); } }
+  else if(T.st==='back'){ let all=true; T.vis.forEach(v=>{ if(v.st==='back'){ if(walkTo(v,v.path,dt,2.6)){ v.st='in'; v.a.g.visible=false; } else all=false; } }); if(all){ T.st='leave'; T.t=0; } }
+  else if(T.st==='leave'){ if(B.position.x<T.lane-.05) B.position.x+=(T.lane-B.position.x)*Math.min(1,dt*1.5); else B.position.z+=dt*Math.min(14,2+T.t*4); if(B.position.z>125){ endTour(); return; } }
+  // Blasen über den Gästen
+  const r=renderer.domElement.getBoundingClientRect(), op=($('app')||document.body).getBoundingClientRect(), hide=!!sheetKind||!!VISIT;
+  T.vis.forEach(v=>{ const show=v.st==='tour'&&!v.done&&!hide; v.b.style.display=show?'block':'none'; if(!show) return; const p=new THREE.Vector3(); v.a.g.getWorldPosition(p); p.y+=1.75; p.project(camera); v.b.style.left=(r.left+(p.x+1)/2*r.width-op.left-22)+'px'; v.b.style.top=(r.top+(1-p.y)/2*r.height-op.top-48+Math.sin(TIME*3+v.i)*3)+'px'; }); }
+function endTour(){ if(!TOUR) return; scene.remove(TOUR.bus); TOUR.vis.forEach(v=>scene.remove(v.a.g)); TOUR.box.remove(); TOUR=null; }
+// ---------- 3) Sammelalbum ----------
+const LUXCAT=c=>LUX.filter(l=>l.cat===c).map(l=>l.id);
+const ALBUM=[
+  {id:'globe',n:'Weltenbummler',em:'🌍',d:'Besuche alle Export-Länder',items:()=>REGIONS.slice(1).map((R,i)=>({em:R.em,n:R.n,sub:LMNAME[R.n],ok:!!(S.vis18&&S.vis18[i+1])})),g:10,b:.03},
+  {id:'gold',n:'Marktführer der Welt',em:'🥇',d:'Gold-Abzeichen in allen Ländern',items:()=>REGIONS.slice(1).map((R,i)=>({em:medalOf(i+1)?MEDAL[medalOf(i+1)].em:'🔒',n:R.n,sub:medalOf(i+1)?MEDAL[medalOf(i+1)].n:'noch kein Abzeichen',ok:medalOf(i+1)>=3})),g:40,b:.08},
+  {id:'cities',n:'Fabrik-Imperium',em:'🏭',d:'Eröffne alle Standorte',items:()=>CITIES.map((C,k)=>({em:C.em,n:C.n,ok:(S.citiesOpen||[0]).includes(k)})),g:15,b:.04},
+  {id:'boss',n:'Bauherr',em:'🏡',d:'Alle Chef-Büros bis zur Villa Deluxe',items:()=>BOSS_LV.map((L,k)=>({em:L.em,n:L.n,ok:bossLv()>=k})),g:8,b:.02},
+  {id:'watch',n:'Uhrensammler',em:'⌚',d:'Alle Uhren',items:()=>LUX.filter(l=>l.cat==='Uhren').map(l=>({em:l.em,n:l.n,ok:hasLux(l.id)})),g:3,b:.01},
+  {id:'jewel',n:'Juwelier',em:'💎',d:'Aller Schmuck',items:()=>LUX.filter(l=>l.cat==='Schmuck').map(l=>({em:l.em,n:l.n,ok:hasLux(l.id)})),g:4,b:.01},
+  {id:'cars',n:'Fuhrpark',em:'🏎️',d:'Alle Autos',items:()=>LUX.filter(l=>l.cat==='Autos').map(l=>({em:l.em,n:l.n,ok:hasLux(l.id)})),g:5,b:.015},
+  {id:'life',n:'Lebemann',em:'🌴',d:'Alle Lifestyle-Extras',items:()=>LUX.filter(l=>l.cat==='Lifestyle').map(l=>({em:l.em,n:l.n,ok:hasLux(l.id)})),g:8,b:.02},
+  {id:'tour',n:'Gastgeber',em:'🚌',d:'Begrüße Gäste bei der Fabrik-Tour',items:()=>[10,50,150,400].map(n=>({em:'🚌',n:n+' Gäste',sub:Math.min(n,(S.tour18||{n:0}).n)+'/'+n,ok:(S.tour18||{n:0}).n>=n})),g:6,b:.015},
+  {id:'heli',n:'Paketjäger',em:'🚁',d:'Fange Paket-Helikopter',items:()=>[10,50,150,400].map(n=>({em:'🚁',n:n+' Pakete',sub:Math.min(n,S.drones||0)+'/'+n,ok:(S.drones||0)>=n})),g:6,b:.015}];
+function albumMult(){ st19(); let m=1; ALBUM.forEach(a=>{ if(S.alb18[a.id]) m+=a.b; }); return m; }
+function albumReady(){ st19(); return ALBUM.filter(a=>!S.alb18[a.id]&&a.items().every(x=>x.ok)).length; }
+function openAlbum(){ setNav(''); openSheet('album19',`<span class="big"><span class="icow">${ico('album')}</span></span><div><h2>Sammelalbum</h2><div class="sub">Sets komplettieren = dauerhafte Boni</div></div>`); }
+function renderAlbum(){ st19(); const done=ALBUM.filter(a=>S.alb18[a.id]).length; let h=`<div class="info"><div class="statrow"><span>Komplette Sets</span><b>${done} / ${ALBUM.length}</b></div><div class="statrow"><span>Bonus aus dem Album</span><b style="color:var(--green2)">+${Math.round((albumMult()-1)*1000)/10} % Einkommen</b></div><div class="statrow"><span>Bonus aus Länder-Abzeichen</span><b style="color:var(--green2)">+${Math.round((badgeMult()-1)*1000)/10} % Einkommen</b></div></div>`;
+  ALBUM.forEach(a=>{ const it=a.items(), have=it.filter(x=>x.ok).length, full=have===it.length, claimed=!!S.alb18[a.id];
+    h+=`<div class="alb19 ${claimed?'claimed':''}"><div class="ah"><span class="aic">${a.em}</span><div style="flex:1"><b>${a.n}</b><div class="t2">${a.d} · ${have}/${it.length}</div></div>${claimed?'<span class="tagc">✓ Komplett</span>':full?`<button class="btn gold" data-alb="${a.id}">Abholen<small>+${a.g} 🪙 · +${Math.round(a.b*1000)/10} %</small></button>`:`<small style="opacity:.7;text-align:right">+${a.g} 🪙<br>+${Math.round(a.b*1000)/10} %</small>`}</div>
+      <div class="pr" style="height:8px;margin:6px 0"><i style="width:${have/it.length*100}%"></i></div><div class="ag">${it.map(x=>`<div class="${x.ok?'ok':''}" title="${esc(x.n)}"><span class="e">${x.em}</span><span class="n">${esc(x.n)}</span>${x.sub?`<span class="s">${esc(x.sub)}</span>`:''}</div>`).join('')}</div></div>`; });
+  BD().innerHTML=h; BD().querySelectorAll('[data-alb]').forEach(b=>b.onclick=()=>{ const a=ALBUM.find(x=>x.id===b.dataset.alb); if(!a||S.alb18[a.id]||!a.items().every(x=>x.ok)) return; S.alb18[a.id]=Date.now(); S.gold+=a.g; try{ SFX.ach(); }catch(e){} toast(`📒 Set „${a.n}“ komplett! +${a.g} 🪙`); save(); renderAlbum(); }); }
+// ---------- 5) Umgebungsgeräusche ----------
+const AMB19={on:false,layers:{},t:0,next:{}};
+function ambLayer(type,freq,q){ const c=AU.ctx, s=c.createBufferSource(); s.buffer=AU.noise; s.loop=true; const f=c.createBiquadFilter(); f.type=type; f.frequency.value=freq; if(q) f.Q.value=q; const g=c.createGain(); g.gain.value=0; s.connect(f); f.connect(g); g.connect(AMB19.out); s.start(0,Math.random()*1.5); return {g,f}; }
+function ambInit(){ if(AMB19.on||!AU.ctx) return; const c=AU.ctx; AMB19.out=c.createGain(); AMB19.out.gain.value=(S.snd&&S.snd.a!=null?S.snd.a:.7); AMB19.out.connect(AU.sfx);
+  AMB19.layers={water:ambLayer('lowpass',420),traffic:ambLayer('bandpass',180,.7),wind:ambLayer('bandpass',520,.5),city:ambLayer('lowpass',260)}; AMB19.on=true; }
+function ambProfile(){ if(VISIT){ const n=REGIONS[VISIT.r].n; const P={'Deutschland':{birds:.8,traffic:.4,bells:.3,water:.25},'Österreich':{birds:.6,traffic:.3,wind:.35,creak:.6,bells:.4},'Schweiz':{birds:.5,wind:.6,cow:.5,water:.3},'Osteuropa':{birds:.7,traffic:.35,bells:.5},'Großbritannien':{birds:.4,traffic:.6,city:.4,bigben:.5,water:.3},'Benelux':{birds:.7,water:.45,wind:.3,gulls:.3},'Frankreich':{birds:.8,traffic:.4,bells:.3},'Südeuropa':{water:.7,gulls:.6,cicada:.7,birds:.3},'USA':{traffic:.7,city:.6,horn:.5,gulls:.4,water:.4},'Kanada':{birds:.6,wind:.5,water:.4,loon:.5},'Japan':{birds:.6,chime:.6,water:.3},'Skandinavien':{water:.6,gulls:.5,wind:.4}}; return P[n]||{birds:.5}; }
+  const P={Berlin:{birds:.7,traffic:.6,water:.25,bells:.25,city:.25},Tokio:{birds:.5,chime:.5,traffic:.5,water:.25},Kopenhagen:{gulls:.6,water:.55,traffic:.4},Stockholm:{birds:.7,water:.5,wind:.25},Oslo:{wind:.55,gulls:.45,water:.5},Helsinki:{birds:.7,water:.5,wind:.2}}; return P[CITIES[S.city||0].n]||{birds:.5}; }
+function chirp(t,g){ const c=AU.ctx, base=2600+Math.random()*1800, n=2+Math.floor(Math.random()*4); for(let i=0;i<n;i++){ const tt=t+i*(.09+Math.random()*.05); tone(base*(1+Math.random()*.2),tt,.07,'sine',.035*g,AMB19.out,.004,base*(1.25+Math.random()*.3)); } }
+function gull(t,g){ for(let i=0;i<3;i++) tone(1500-i*80,t+i*.22,.2,'sawtooth',.012*g,AMB19.out,.02,900); }
+function bell(t,g,f){ f=f||392; [1,2.01,2.76,4.1].forEach((h,i)=>tone(f*h,t,2.6-i*.4,'sine',.03*g/(i+1),AMB19.out,.003)); }
+function chime(t,g){ const notes=[2093,2349,2637,3136]; for(let i=0;i<3;i++) tone(notes[Math.floor(Math.random()*4)],t+i*.18,1.4,'sine',.018*g,AMB19.out,.002); }
+function cricket(t,g){ for(let i=0;i<6;i++) tone(4300,t+i*.05,.03,'square',.006*g,AMB19.out,.002); }
+function carPass(t,g){ const c=AU.ctx, s=c.createBufferSource(); s.buffer=AU.noise; const f=c.createBiquadFilter(); f.type='bandpass'; f.Q.value=1.2; f.frequency.setValueAtTime(220,t); f.frequency.linearRampToValueAtTime(520,t+1); f.frequency.linearRampToValueAtTime(240,t+2.2); const v=c.createGain(); v.gain.setValueAtTime(0,t); v.gain.linearRampToValueAtTime(.05*g,t+1); v.gain.linearRampToValueAtTime(0,t+2.2); s.connect(f); f.connect(v); v.connect(AMB19.out); s.start(t,Math.random()); s.stop(t+2.3); }
+function horn(t,g){ tone(392,t,.35,'sawtooth',.012*g,AMB19.out,.01); tone(494,t,.35,'sawtooth',.01*g,AMB19.out,.01); }
+function creak(t,g){ tone(140+Math.random()*30,t,.6,'sawtooth',.01*g,AMB19.out,.08,110); }
+function cow(t,g){ tone(160,t,1,'sawtooth',.012*g,AMB19.out,.1,120); }
+function loon(t,g){ tone(700,t,.7,'sine',.02*g,AMB19.out,.1,900); tone(900,t+.7,.9,'sine',.02*g,AMB19.out,.1,650); }
+function bigben(t,g){ [659,523,587,392].forEach((f,i)=>bell(t+i*.9,g*.7,f/2)); }
+function ambTick(dt){ if(!AU.ctx||AU.ctx.state!=='running') return; ambInit(); if(!AMB19.on) return; const vol=(S.snd&&S.snd.a!=null)?S.snd.a:.7; AMB19.out.gain.value=vol; if(vol<=0||(S.snd&&S.snd.s<=0)) return;
+  const P=ambProfile(), c=AU.ctx, t=c.currentTime, day=1-NIGHT, rain=(typeof WX!=='undefined'&&WX.r)||0, zf=Math.max(.5,Math.min(1.3,zoom/.8));
+  const tgt={water:(P.water||0)*.05*zf,traffic:(P.traffic||0)*.03*(.5+day*.5),wind:(P.wind||0)*.05*(.6+.4*Math.sin(t*.13)),city:(P.city||0)*.04};
+  Object.keys(AMB19.layers).forEach(k=>{ const L=AMB19.layers[k]; L.g.gain.setTargetAtTime(tgt[k]||0,t,.8); }); if(AMB19.layers.water) AMB19.layers.water.f.frequency.setTargetAtTime(380+Math.sin(t*.4)*120,t,.5);
+  const ev=(k,rate,fn)=>{ if(!P[k]) return; if(Math.random()<dt*rate*P[k]) fn(t+.05,P[k]); };
+  ev('birds',(.9*day+.05)*(1-rain*.8),chirp); if(NIGHT>.6) ev('birds',1.4,cricket); ev('gulls',.18*day,gull); ev('bells',.02,(tt,g)=>bell(tt,g)); ev('chime',.08,chime); ev('traffic',.12,carPass); ev('horn',.05*day,horn); ev('creak',.1,creak); ev('cow',.05*day,cow); ev('loon',.03*(NIGHT>.4?2:.5),loon); ev('cicada',.4*day,cricket);
+  if(P.bigben){ const m=new Date(); if(m.getMinutes()===0&&m.getSeconds()<2&&!AMB19.bb){ AMB19.bb=1; bigben(t+.1,P.bigben); } if(m.getSeconds()>3) AMB19.bb=0; if(Math.random()<dt*.01) bigben(t+.1,P.bigben*.6); } }
+// ---------- 6) Wochen-Rückblick ----------
+function weekId(d){ d=new Date(d||Date.now()); const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())); const day=(t.getUTCDay()+6)%7; t.setUTCDate(t.getUTCDate()-day+3); const y=t.getUTCFullYear(); const fy=new Date(Date.UTC(y,0,4)); const w=1+Math.round(((t-fy)/864e5-3+((fy.getUTCDay()+6)%7))/7); return y+'-W'+String(w).padStart(2,'0'); }
+function medalCount(){ return Object.values(S.lm18||{}).reduce((a,b)=>a+b,0); }
+function wkSnap(){ return {id:weekId(),t:Date.now(),life:S.lifetime,drones:S.drones||0,tour:(S.tour18||{n:0}).n,regions:S.regions,cities:(S.citiesOpen||[0]).length,medals:medalCount(),alb:Object.keys(S.alb18||{}).length,tier:S.tier,boss:bossLv(),lux:Object.keys((S.boss&&S.boss.items)||{}).length,recStart:(S.rec18||{inc:0}).inc,inc:0}; }
+function wkDiff(a){ return {id:a.id,from:a.t,to:Date.now(),earned:Math.max(0,S.lifetime-a.life),drones:(S.drones||0)-a.drones,tour:(S.tour18||{n:0}).n-a.tour,regions:S.regions-a.regions,cities:(S.citiesOpen||[0]).length-a.cities,medals:medalCount()-a.medals,alb:Object.keys(S.alb18||{}).length-a.alb,tier:S.tier-a.tier,boss:bossLv()-a.boss,lux:Object.keys((S.boss&&S.boss.items)||{}).length-a.lux,maxInc:a.inc,newRec:(S.rec18||{inc:0}).inc>a.recStart*1.0001}; }
+function weekTick(){ st19(); if(!S.onboarded) return; const inc=income(); if(inc>S.rec18.inc) S.rec18.inc=inc; if(!S.wk18){ S.wk18=wkSnap(); save(); return; } S.wk18.inc=Math.max(S.wk18.inc||0,inc);
+  if(S.wk18.id!==weekId()){ const d=wkDiff(S.wk18); S.wkPrev18=S.wkLast18||null; S.wkLast18=d; S.wk18=wkSnap(); S.wkShow18=1; save(); }
+  if(S.wkShow18&&!document.querySelector('#modal.on')&&!sheetKind&&S.lifetime>1e4){ S.wkShow18=0; save(); setTimeout(()=>openWeek(true),400); } }
+function fmtD(t){ const d=new Date(t); return d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}); }
+function weekCard(d,prev,title){ const ch=prev&&prev.earned>0?(d.earned/prev.earned-1):null; const rows=[['💶','Umsatz',eur(d.earned)],['📈','Bestes Einkommen',eur(d.maxInc||0)+'/s'],['🚁','Pakete gefangen',fmt(Math.max(0,d.drones))],['🚌','Tour-Gäste begrüßt',fmt(Math.max(0,d.tour))],['🌍','Neue Märkte',d.regions>0?'+'+d.regions:'–'],['🏭','Neue Standorte',d.cities>0?'+'+d.cities:'–'],['🥇','Neue Abzeichen',d.medals>0?'+'+d.medals:'–'],['📒','Album-Sets',d.alb>0?'+'+d.alb:'–'],['💎','Neue Luxus-Käufe',d.lux>0?'+'+d.lux:'–']];
+  return `<div class="wk19"><div class="wkh">${title}<small>${fmtD(d.from)} – ${fmtD(d.to)}</small></div><div class="wkbig">${eur(d.earned)}<small>Umsatz${ch!=null?` · <b style="color:${ch>=0?'var(--green2)':'#d23b4a'}">${ch>=0?'+':''}${Math.round(ch*100)} %</b> zur Vorwoche`:''}</small></div>${rows.slice(1).map(r=>`<div class="statrow"><span>${r[0]} ${r[1]}</span><b>${r[2]}</b></div>`).join('')}${d.newRec?'<div class="tagc" style="display:block;text-align:center;margin-top:6px">🏆 Neuer Einkommens-Rekord!</div>':''}</div>`; }
+function weekGoal(){ const r=S.regions; if(r<REGIONS.length) return `🌍 Erschließe <b>${REGIONS[r].n}</b> (${eur(REGIONS[r].cost)})`; for(let k=1;k<S.regions;k++){ if(medalOf(k)<3) return `${MEDAL[medalOf(k)+1].em} Hol dir <b>${MEDAL[medalOf(k)+1].n}</b> in ${REGIONS[k].n} (${MEDAL[medalOf(k)+1].need})`; } const a=ALBUM.find(x=>!S.alb18[x.id]); return a?`📒 Vervollständige das Set <b>${a.n}</b>`:'👑 Du hast alles erreicht – halte deine Rekorde!'; }
+function openWeek(auto){ st19(); const cur=S.wk18?wkDiff(S.wk18):null; if(cur) cur.maxInc=S.wk18.inc||0; let h=`<div class="em">📅</div><h2>${auto?'Dein Wochen-Rückblick':'Wochen-Rückblick'}</h2>`;
+  if(auto&&S.wkLast18) h+=weekCard(S.wkLast18,S.wkPrev18,'Letzte Woche'); else { if(cur) h+=weekCard(cur,S.wkLast18,'Diese Woche bisher'); if(S.wkLast18) h+=weekCard(S.wkLast18,S.wkPrev18,'Letzte Woche'); }
+  h+=`<div class="info" style="text-align:left;margin-top:8px"><b>🎯 Ziel für diese Woche</b><p style="margin:4px 0 0">${weekGoal()}</p></div><button class="btn wide gold" id="mOk">Los geht’s!</button>`; modal(h,()=>$('mOk').onclick=closeModal); }
+// ---------- Einbindung ----------
+const _inc19=income; income=function(){ return _inc19()*badgeMult()*albumMult(); };
+{ const st=document.createElement('style'); st.textContent=`.med19{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px}.med19>div{background:#f3f0ea;border-radius:12px;padding:6px 4px;text-align:center;opacity:.55;filter:grayscale(.8)}.med19>div.on{opacity:1;filter:none;background:#fff7e0;box-shadow:inset 0 0 0 2px #f5c542}.med19 .icow{width:34px;height:34px;display:block;margin:0 auto}.med19 b{display:block;font-size:12px}.med19 small{font-size:10px;line-height:1.25;display:block;opacity:.8}
+.tour19{position:absolute;z-index:24;width:44px;height:44px;border-radius:50%;border:3px solid #fff;background:#f59e0b;box-shadow:0 3px 0 rgba(0,0,0,.25);padding:0;display:none;animation:tb19 1s ease-in-out infinite alternate}.tour19 .icow{width:26px;height:26px;vertical-align:middle}.tour19.done{display:none!important}@keyframes tb19{from{transform:scale(1)}to{transform:scale(1.12)}}
+.alb19{background:#fff;border-radius:16px;padding:10px;margin:8px 0;box-shadow:0 2px 0 var(--line)}.alb19.claimed{background:#f2fbf0}.alb19 .ah{display:flex;gap:10px;align-items:center}.alb19 .aic{font-size:30px}.alb19 .aic .icow{width:38px;height:38px}.alb19 .ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px}.alb19 .ag>div{background:#f3f0ea;border-radius:10px;padding:5px 3px;text-align:center;filter:grayscale(1);opacity:.45}.alb19 .ag>div.ok{filter:none;opacity:1;background:#fff7e0}.alb19 .ag .e{display:block;font-size:22px}.alb19 .ag .e .icow{width:30px;height:30px}.alb19 .ag .n{display:block;font-size:10px;font-weight:700;line-height:1.15}.alb19 .ag .s{display:block;font-size:9px;opacity:.7}
+.wk19{background:#fff;border-radius:16px;padding:10px 12px;margin:8px 0;text-align:left;box-shadow:0 2px 0 var(--line)}.wk19 .wkh{font-weight:800;display:flex;justify-content:space-between}.wk19 .wkh small{opacity:.6;font-weight:600}.wk19 .wkbig{font-size:26px;font-weight:900;margin:4px 0 6px}.wk19 .wkbig small{display:block;font-size:12px;font-weight:600;opacity:.8}`; document.head.appendChild(st); }
+setTimeout(()=>{
+  { const _rs19=renderSheet; renderSheet=function(){ if(sheetKind==='album19'){ const k=BD().scrollTop; renderAlbum(); BD().scrollTop=k; return; } return _rs19(); }; }
+  { const _rm19=renderMore; renderMore=function(){ _rm19(); const n=albumReady(); BD().insertAdjacentHTML('afterbegin',`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 8px"><button class="btn wide purple alb19b" style="position:relative">📒 Sammelalbum${n?` <span class="tagc" style="margin-left:4px">${n} bereit</span>`:''}</button><button class="btn wide wk19b">📅 Wochen-Rückblick</button></div>`);
+      BD().querySelector('.alb19b').onclick=openAlbum; BD().querySelector('.wk19b').onclick=()=>openWeek(false);
+      const s=S.snd||{}; const box=BD().querySelector('#vS'); if(box&&!$('vA')){ box.closest('.srow').insertAdjacentHTML('afterend',`<div class="srow"><span>Umgebung</span><input type="range" min="0" max="1" step=".05" value="${s.a!=null?s.a:.7}" id="vA" style="flex:1"></div>`); $('vA').oninput=e=>{ S.snd=Object.assign({m:.35,s:.7},S.snd,{a:+e.target.value}); }; $('vA').onchange=()=>save(); } }; }
+  { const _mp19=mapPanel; mapPanel=function(r){ let h=_mp19(r); if(r>0&&r<S.regions){ h=h.replace(/(<button class="btn wide blue" id="mpV")/,`<div class="sect" style="margin-top:8px">Länder-Ziele</div>${medalRow(r)}$1`); } return h; }; }
+  { const _wp19=wmPin; wmPin=function(r){ let s=_wp19(r); const m=medalOf(r); if(m&&r<S.regions){ const col=['','#d08a4a','#b8c0ca','#f5c542'][m]; s=s.replace(/<\/g><\/g>$/,`<circle cx="-13" cy="-12" r="6" fill="${col}" stroke="#fff" stroke-width="1.6"/><path d="M-13,-15.5 l1,2.2 2.4,.3 -1.8,1.6 .5,2.4 -2.1,-1.2 -2.1,1.2 .5,-2.4 -1.8,-1.6 2.4,-.3z" fill="#fff"/></g></g>`); } return s; }; }
+  { const _vr19=visitRegion; visitRegion=function(r){ st19(); if(!S.vis18[r]){ S.vis18[r]=Date.now(); save(); } _vr19(r); try{ const b=$('visitBar'); if(b&&VISIT){ const m=medalOf(r); b.querySelector('div').insertAdjacentHTML('afterend',`<span class="icow" title="Abzeichen" style="${m?'':'filter:grayscale(1);opacity:.4'}">${ico('medal'+(m||1))}</span>`); } }catch(e){} }; }
+  { const _ep=endVisit; endVisit=function(s){ _ep(s); }; }
+},0);
+{ let s19=0; const _w19=world6; world6=function(dt){ _w19(dt); try{ tourTick(dt); }catch(e){ console.warn('tour',e); endTour(); } try{ ambTick(dt); }catch(e){} s19+=dt; if(s19>1){ s19=0; try{ medalTick(); weekTick(); }catch(e){ console.warn('v19',e); } } }; }
+// Update-Mitteilung
+{ let t19=0; const _w19b=world6; world6=function(dt){ _w19b(dt); if(S.seen19||!S.onboarded) return; if(S.lifetime<200){ S.seen19=1; return; } if(!S.seen18) return; t19+=dt; if(t19<7||document.querySelector('#modal.on')) return; S.seen19=1; save();
+  modal(`<div class="em">📒</div><h2>Update 19</h2><p style="text-align:left">🥇 <b>Länder-Ziele:</b> Bronze, Silber & Gold pro Land – jedes Abzeichen gibt dauerhaft mehr Einkommen<br>🚌 <b>Fabrik-Tour:</b> Ab und zu kommt ein Besucherbus – tippe die Gäste an für Gold & Geld<br>📒 <b>Sammelalbum</b> unter „Mehr“: Wahrzeichen, Luxus, Standorte & mehr – komplette Sets = Boni<br>🔊 <b>Umgebungsgeräusche</b> passend zur Szene (Regler unter „Mehr“)<br>📅 <b>Wochen-Rückblick</b> jeden Montag mit Zielen für die neue Woche</p><button class="btn wide gold" id="mOk">Weiter</button>`,()=>{ $('mOk').onclick=closeModal; }); }; }
+// Emoji-Erkennung um neue Icons erweitern
+{ const keys=Object.keys(EMOICON).sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'); EMORE2=new RegExp('('+keys+')\\uFE0F?','g'); EMOSTART=new RegExp('^('+keys+')\\uFE0F?\\s?'); }
 
 
 function shade(hex,amt){ const n=parseInt(hex.slice(1),16);
