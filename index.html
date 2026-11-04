@@ -4835,6 +4835,8 @@ function cityHouse(cn,l,i){ const pick=a=>a[(i*7+Math.floor(l.x*3+l.y))%a.length
 // Update-Mitteilung
 { let t22=0; const _w22=world6; world6=function(dt){ _w22(dt); if(S.seen22||!S.onboarded) return; if(S.lifetime<200){ S.seen22=1; return; } if(!S.seen21) return; t22+=dt; if(t22<9||document.querySelector('#modal.on')) return; S.seen22=1; save();
   modal(`<div class="em">🏗️</div><h2>Update 22</h2><p style="text-align:left">📣 <b>Upgrades sichtbar:</b> Werbung bringt Fahnen, Plakatwand, LED-Bildschirm, Werbe-Zeppelin & Suchscheinwerfer · Security stellt Wachleute, Kameras & Sicherheitsschranken auf · Stammkunden bekommen roten Teppich & Club-Stand<br>🤖 <b>Fabrik:</b> Jede Ausstattungsstufe bringt sichtbare Technik – Steuerpult, Roboterarme, Kühlung, Laser-Schranken, Leuchtband<br>⏱️ <b>Events</b> kommen nicht mehr gleichzeitig und mit mehr Abstand<br>🛣️ <b>Neue Straßen</b> mit Laternen und vielen <b>neuen Häusern</b></p><button class="btn wide gold" id="mOk">Weiter</button>`,()=>{ $('mOk').onclick=closeModal; }); }; }
+Object.assign(EMOICON,{'🤖':'gear','⏱️':'hourglass','⏱':'hourglass','🛣️':'map','🛣':'map'});
+{ const keys=Object.keys(EMOICON).sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'); EMORE2=new RegExp('('+keys+')\\uFE0F?','g'); EMOSTART=new RegExp('^('+keys+')\\uFE0F?\\s?'); }
 
 
 function shade(hex,amt){ const n=parseInt(hex.slice(1),16);
