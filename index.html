@@ -4519,6 +4519,75 @@ setTimeout(()=>{
 // Emoji-Erkennung um neue Icons erweitern
 { const keys=Object.keys(EMOICON).sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'); EMORE2=new RegExp('('+keys+')\\uFE0F?','g'); EMOSTART=new RegExp('^('+keys+')\\uFE0F?\\s?'); }
 
+// =====================================================================
+//  v20: Detaillierte Regenschirme · vier Tageszeiten
+// =====================================================================
+Object.assign(IC,{
+  sunrise:()=>iSH()+iC(64,78,30,'gold')+'<rect x="0" y="80" width="128" height="40" fill="#fff" opacity="0"/>'+iP('M14,86 H114 V100 H14Z','sky',4)+iLN('M64,30 V40 M34,44 L40,52 M94,44 L88,52 M22,66 L32,68 M106,66 L96,68',IOL,5)+iHL('M44,70 Q50,58 62,56',4,.7),
+  dusk:()=>iSH()+iC(64,72,30,'orange')+iP('M14,82 H114 V100 H14Z','purple',4)+iLN('M30,62 L20,60 M98,62 L108,60 M40,44 L34,36 M88,44 L94,36',IOL,5)+iHL('M44,66 Q50,54 62,52',4,.7)
+});
+Object.assign(EMOICON,{'🌄':'sunrise','🌇':'dusk'});
+{ const keys=Object.keys(EMOICON).sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'); EMORE2=new RegExp('('+keys+')\\uFE0F?','g'); EMOSTART=new RegExp('^('+keys+')\\uFE0F?\\s?'); }
+// ---------- Regenschirme ----------
+function mergeGeo20(parts){ const pos=[], nor=[]; parts.forEach(([geo,mtx])=>{ const g=geo.index?geo.toNonIndexed():geo.clone(); g.applyMatrix4(mtx); pos.push(...g.attributes.position.array); nor.push(...g.attributes.normal.array); });
+  const out=new THREE.BufferGeometry(); out.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); out.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3)); return out; }
+const UGEO={}; const UMAT={};
+function canopyGeo(colA,colB,dome){ const key=colA+colB+dome; if(UGEO[key]) return UGEO[key]; const N=8, R=1, H=dome?.62:.36, rings=[0,.35,.7,1], cols=[];
+  const P=(rf,a,t)=>{ const sag=1-.07*rf*Math.sin(Math.PI*t); const r=rf*R*sag; const y=H*(1-Math.pow(rf,dome?1.4:1.7))-(rf>.99?0:0)+(rf>.95?-.0:0); return new THREE.Vector3(Math.sin(a)*r,y-.02*rf*Math.sin(Math.PI*t)*(rf>.9?1:0),Math.cos(a)*r); };
+  const pos=[], col=[]; const cA=new THREE.Color(colA), cB=new THREE.Color(colB);
+  for(let i=0;i<N;i++){ const a0=i/N*Math.PI*2, a1=(i+1)/N*Math.PI*2, c=i%2?cB:cA; const S_=4;
+    for(let ri=0;ri<rings.length-1;ri++) for(let s=0;s<S_;s++){ const t0=s/S_, t1=(s+1)/S_; const r0=rings[ri], r1=rings[ri+1];
+      const v00=P(r0,a0+(a1-a0)*t0,t0), v01=P(r0,a0+(a1-a0)*t1,t1), v10=P(r1,a0+(a1-a0)*t0,t0), v11=P(r1,a0+(a1-a0)*t1,t1);
+      [v00,v10,v11, v00,v11,v01].forEach(v=>{ pos.push(v.x,v.y,v.z); col.push(c.r,c.g,c.b); }); } }
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); g.setAttribute('color',new THREE.Float32BufferAttribute(col,3)); g.computeVertexNormals(); return UGEO[key]=g; }
+function frameGeo(dome){ const k='frame'+dome; if(UGEO[k]) return UGEO[k]; const parts=[], m=new THREE.Matrix4(), q=new THREE.Quaternion(), H=dome?.62:.36;
+  const bar=(a,b,t)=>{ const A=new THREE.Vector3(...a), B=new THREE.Vector3(...b), d=B.clone().sub(A), L=d.length(); const geo=new THREE.CylinderGeometry(t,t,1,4); q.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize()); const mm=new THREE.Matrix4().compose(A.clone().add(B).multiplyScalar(.5),q,new THREE.Vector3(1,L,1)); parts.push([geo,mm]); };
+  for(let i=0;i<8;i++){ const a=(i+.0)/8*Math.PI*2, s=Math.sin(a), c=Math.cos(a);
+    bar([0,H-.01,0],[s*.5,H*(1-Math.pow(.5,dome?1.4:1.7))-.012,c*.5],.012); bar([s*.5,H*(1-Math.pow(.5,dome?1.4:1.7))-.012,c*.5],[s*.98,-.012,c*.98],.012); bar([0,H*.15,0],[s*.48,H*(1-Math.pow(.48,dome?1.4:1.7))-.02,c*.48],.009);
+    const tip=new THREE.SphereGeometry(.03,6,4); parts.push([tip,new THREE.Matrix4().makeTranslation(s*1.0,-.015,c*1.0)]); }
+  const run=new THREE.CylinderGeometry(.035,.035,.08,8); parts.push([run,new THREE.Matrix4().makeTranslation(0,H*.15,0)]);
+  const fin=new THREE.CylinderGeometry(.02,.035,.12,8); parts.push([fin,new THREE.Matrix4().makeTranslation(0,H+.05,0)]);
+  return UGEO[k]=mergeGeo20(parts); }
+const UMB_STYLES=[['#c8102e','#c8102e'],['#1e3a8a','#f8fafc'],['#111827','#111827'],['#f59e0b','#fde68a'],['#0f766e','#99f6e4'],['#db2777','#fbcfe8'],['#7c3aed','#f5f3ff'],['#16a34a','#f8fafc'],['#e11d48','#1f2937'],['#0ea5e9','#fef08a'],['clear','clear']];
+function buildUmbrella(u){ while(u.children.length) u.remove(u.children[0]); const st=UMB_STYLES[Math.floor(Math.random()*UMB_STYLES.length)], clear=st[0]==='clear';
+  const cm=clear?(UMAT.clear||(UMAT.clear=new THREE.MeshStandardMaterial({color:'#dff3ff',transparent:true,opacity:.42,roughness:.05,metalness:.1,side:THREE.DoubleSide,depthWrite:false}))):(UMAT.cv||(UMAT.cv=new THREE.MeshStandardMaterial({color:'#ffffff',vertexColors:true,roughness:.42,metalness:.02,side:THREE.DoubleSide})));
+  const can=new THREE.Mesh(canopyGeo(clear?'#ffffff':st[0],clear?'#ffffff':st[1],clear),cm); can.scale.set(.38,.38,.38); can.position.y=.46; can.castShadow=!clear; u.add(can);
+  const fr=new THREE.Mesh(frameGeo(clear),UMAT.fr||(UMAT.fr=new THREE.MeshStandardMaterial({color:'#2b2f36',metalness:.7,roughness:.35}))); fr.scale.set(.38,.38,.38); fr.position.y=.46; u.add(fr);
+  const sh=new THREE.Mesh(UGEO.shaft||(UGEO.shaft=new THREE.CylinderGeometry(.009,.009,.62,6)),UMAT.sh||(UMAT.sh=new THREE.MeshStandardMaterial({color:'#9ca3af',metalness:.8,roughness:.3}))); sh.position.y=.31; u.add(sh);
+  const hd=new THREE.Mesh(UGEO.hook||(UGEO.hook=new THREE.TorusGeometry(.035,.011,6,10,Math.PI)),UMAT.hd||(UMAT.hd=new THREE.MeshStandardMaterial({color:'#6b4423',roughness:.5}))); hd.position.set(.035,.0,0); hd.rotation.z=Math.PI; u.add(hd);
+  const grip=new THREE.Mesh(UGEO.grip||(UGEO.grip=new THREE.CylinderGeometry(.016,.016,.08,6)),UMAT.hd); grip.position.y=.04; u.add(grip);
+  if(!clear&&Math.random()<.35){ const strap=new THREE.Mesh(UGEO.strap||(UGEO.strap=new THREE.BoxGeometry(.02,.07,.006)),UMAT.sh); strap.position.set(.03,.37,.03); u.add(strap); }
+  u.rotation.z=-.12+Math.random()*.08; u.rotation.x=(Math.random()-.5)*.12; u.userData.ph=Math.random()*6; }
+{ const _mp20=makePerson; makePerson=function(civil,box_,suit){ const n=UMBR.length; const a=_mp20(civil,box_,suit); if(UMBR.length>n){ try{ buildUmbrella(UMBR[UMBR.length-1]); }catch(e){} } return a; }; }
+// ---------- Vier Tageszeiten ----------
+const TOD=[
+  {id:'morning',n:'Morgen',em:'🌄',h0:6,h1:10.5,sunI:1.05,sunC:'#ffe6c4',hemiI:.68,hemiC:'#dde7ff',gnd:'#66705a',sky:'#e8d8e6',night:.05,fogN:105,fogF:245,sp:[-24,20,-10]},
+  {id:'noon',n:'Mittag',em:'☀️',h0:10.5,h1:15,sunI:1.18,sunC:'#fffaf0',hemiI:.7,hemiC:'#eef6ff',gnd:'#5f6e52',sky:'#8fd0ef',night:0,fogN:165,fogF:320,sp:[-8,36,6]},
+  {id:'eve',n:'Nachmittag',em:'🌇',h0:15,h1:19.5,sunI:1.0,sunC:'#ffa45c',hemiI:.52,hemiC:'#ffc996',gnd:'#7a5a3a',sky:'#f1a46c',night:.24,fogN:130,fogF:285,sp:[14,12,-22]},
+  {id:'night',n:'Abend & Nacht',em:'🌙',h0:19.5,h1:30,sunI:.3,sunC:'#8fa8ff',hemiI:.42,hemiC:'#5d6fae',gnd:'#1f2a3a',sky:'#141c33',night:1,fogN:140,fogF:280,sp:[-14,30,10]}];
+const _tc=[new THREE.Color(),new THREE.Color(),new THREE.Color()], _tv=new THREE.Vector3();
+function todState(){ const fix={morning:0,noon:1,eve:2,night:3,day:1}[S.dn]; if(fix!=null) return {i:fix,j:fix,k:0,loc:.5};
+  const p=((Date.now()/1000)%DAYLEN)/DAYLEN, f=p*4, i=Math.floor(f)%4, loc=f-Math.floor(f), j=(i+1)%4, tr=.16; const k=loc>1-tr?((loc-(1-tr))/tr):0; return {i,j,k:k*k*(3-2*k),loc}; }
+dayNight=function(){ const st=todState(), A=TOD[st.i], B=TOD[st.j], k=st.k, L=(a,b)=>a+(b-a)*k;
+  dayPhase=(st.i+st.loc)/4; NIGHT=L(A.night,B.night); const nf=Math.max(0,Math.min(1,(NIGHT-.15)/.6));
+  _tv.set(L(A.sp[0],B.sp[0]),L(A.sp[1],B.sp[1]),L(A.sp[2],B.sp[2])); sun.position.set(target.x+_tv.x,_tv.y,target.z+_tv.z); sun.target.position.copy(target);
+  sun.intensity=L(A.sunI,B.sunI); sun.color.set(A.sunC).lerp(_tc[0].set(B.sunC),k);
+  hemi.intensity=L(A.hemiI,B.hemiI); hemi.color.set(A.hemiC).lerp(_tc[0].set(B.hemiC),k); hemi.groundColor.set(A.gnd).lerp(_tc[0].set(B.gnd),k);
+  scene.background.set(A.sky).lerp(_tc[1].set(B.sky),k); scene.fog.color.copy(scene.background); scene.fog.near=L(A.fogN,B.fogN); scene.fog.far=L(A.fogF,B.fogF);
+  NIGHTMATS.forEach(m=>m.emissiveIntensity=m.userData.base*nf); GLOWPOOLS.forEach(m=>m.material.opacity=.55*nf); HEADCONES.forEach(m=>m.opacity=.7*nf);
+  Object.values(MC).forEach(m=>{ if(m.userData&&m.userData.towerGlow) m.emissiveIntensity=.15+.9*nf; });
+  const cur=k>.5?B:A; let hh=A.h0+(A.h1-A.h0)*st.loc; if(S.dn&&S.dn!=='auto') hh=(A.h0+A.h1)/2; hh=hh%24; const el2=$('cTimeV');
+  if(el2){ const txt=cur.em+' '+String(Math.floor(hh)).padStart(2,'0')+':'+String(Math.floor((hh%1)*6)*10).padStart(2,'0'); if(el2.dataset.t!==txt){ el2.dataset.t=txt; el2.textContent=txt; el2.title=cur.n; } } TOD.cur=cur; };
+// Schirme leicht im Wind wippen lassen
+{ const _w20=world6; world6=function(dt){ _w20(dt); if(WX&&WX.r>.4) UMBR.forEach(u=>{ if(u.visible&&u.userData.ph!=null) u.rotation.z=-.1+Math.sin(TIME*1.7+u.userData.ph)*.06; }); }; }
+// Einstellungen: Tageszeit wählen
+setTimeout(()=>{ const _rm20=renderMore; renderMore=function(){ _rm20(); const seg=$('dnSeg'); if(!seg) return; const cur=S.dn==='day'?'noon':(S.dn||'auto');
+  seg.closest('.info').querySelector('p').textContent='Ein ganzer Tag dauert 10 Minuten: Morgen, Mittag, Nachmittag und Abend/Nacht – oder eine Tageszeit festhalten.';
+  seg.style.flexWrap='wrap'; seg.innerHTML=[['auto','Automatisch'],['morning','🌄 Morgen'],['noon','☀️ Mittag'],['eve','🌇 Nachmittag'],['night','🌙 Nacht']].map(([k,n])=>`<button data-dn="${k}" class="${cur===k?'on':''}" style="flex:1 0 30%">${n}</button>`).join('');
+  seg.querySelectorAll('[data-dn]').forEach(b=>b.onclick=()=>{ S.dn=b.dataset.dn; save(); renderMore(); }); }; },0);
+{ let t20=0; const _w20b=world6; world6=function(dt){ _w20b(dt); if(S.seen20||!S.onboarded) return; if(S.lifetime<200){ S.seen20=1; return; } if(!S.seen19) return; t20+=dt; if(t20<9||document.querySelector('#modal.on')) return; S.seen20=1; save();
+  modal(`<div class="em">🌄</div><h2>Update 20</h2><p style="text-align:left">🌄 <b>Vier Tageszeiten:</b> frischer Morgen, heller Mittag, goldener Nachmittag und Abend/Nacht – mit eigenem Licht, Himmel und Schattenrichtung<br>⚙️ Unter „Mehr“ kannst du eine Tageszeit festhalten<br>☔ <b>Neue Regenschirme</b> mit Stoffbahnen, Speichen, Griff – in vielen Farben und als durchsichtiger Glockenschirm</p><button class="btn wide gold" id="mOk">Weiter</button>`,()=>{ $('mOk').onclick=closeModal; }); }; }
+
 
 function shade(hex,amt){ const n=parseInt(hex.slice(1),16);
   const c=[n>>16,(n>>8)&255,n&255].map(v=>Math.max(0,Math.min(255,Math.round(v+amt))));
