@@ -5045,7 +5045,7 @@ setTimeout(()=>{ const _rs24=renderSheet; renderSheet=function(){ const r=_rs24(
 // Update-Mitteilung
 { let t24=0; const _w24b=world6; world6=function(dt){ _w24b(dt); if(S.seen24||!S.onboarded) return; if(S.lifetime<200){ S.seen24=1; return; } if(!S.seen23) return; t24+=dt; if(t24<9||document.querySelector('#modal.on')) return; S.seen24=1; save();
   modal(`<div class="em">✨</div><h2>Update 24</h2><p style="text-align:left"><b>Bedienung</b><br>👆 Kauf-Buttons <b>gedrückt halten</b> = schnell mehrfach kaufen<br>⏳ Gesperrte Buttons zeigen, <b>wann</b> du sie dir leisten kannst<br>⭐ <b>„Bester Kauf“</b> unten zeigt das lohnendste Upgrade – antippen und kaufen<br>🗺️ Kamera mit Schwung, Zoom zur Fingermitte, <b>Doppeltipp</b> zoomt heran, Knopf zurück zur Fabrik<br>⬇️ Fenster nach unten <b>wegwischen</b> · Scroll-Position bleibt gemerkt · Meldungen kommen nacheinander<br><br><b>Grafik</b><br>🌳 Bäume, Gras & Schilf wiegen sich im Wind · ☁️ Wolken · 🐦 Vogelschwärme · 🦋 Schmetterlinge<br>🌧️ Nasse, glänzende Straßen & Pfützen bei Regen · 💡 Lichtkegel der Laternen bei Nacht · weichere Schatten & kräftigere Farben</p><button class="btn wide gold" id="mOk">Weiter</button>`,()=>{ $('mOk').onclick=closeModal; }); }; }
-Object.assign(EMOICON,{'👆':'sparkle','⏳':'hourglass','⬇️':'sparkle','🦋':'sparkle','🐦':'leaf','☁️':'cloud','💡':'bolt'});
+Object.assign(EMOICON,{'🌳':'leaf','👆':'sparkle','⏳':'hourglass','⬇️':'sparkle','🦋':'sparkle','🐦':'leaf','☁️':'cloud','💡':'bolt'});
 { const keys=Object.keys(EMOICON).filter(k=>IC[EMOICON[k]]).sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'); EMORE2=new RegExp('('+keys+')\\uFE0F?','g'); EMOSTART=new RegExp('^('+keys+')\\uFE0F?\\s?'); }
 
 
