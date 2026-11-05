@@ -4941,7 +4941,8 @@ function alexanderplatz(){ CUR=STAT; PL(-62,-44,.05,26,30,new THREE.MeshStandard
 { const _tv23=rTVTower; rTVTower=function(x,y){ const g=_tv23(x,y); try{ g.scale.setScalar(1.15); }catch(e){} return g; }; }
 // Update-Mitteilung
 { let t23=0; const _w23=world6; world6=function(dt){ _w23(dt); if(S.seen23||!S.onboarded) return; if(S.lifetime<200){ S.seen23=1; return; } if(!S.seen22) return; t23+=dt; if(t23<9||document.querySelector('#modal.on')) return; S.seen23=1; save();
-  modal(`<div class="em">🏛️</div><h2>Update 23</h2><p style="text-align:left">🏛️ <b>Alexanderplatz:</b> Weltzeituhr, Brunnen der Völkerfreundschaft, S-Bahnhof mit fahrender S-Bahn, Hotelturm & Kaufhaus – direkt am Fernsehturm<br>🐎 <b>Quadriga</b> auf dem Brandenburger Tor jetzt mit echten Pferden, Wagen & Victoria<br>📍 Wahrzeichen näher an der Fabrik und größer<br>🏠 Häuser überlappen sich nicht mehr · neue Fensterbänke & Stürze · weiche Schatten unter Bäumen und Gebäuden</p><button class="btn wide gold" id="mOk">Weiter</button>`,()=>{ $('mOk').onclick=closeModal; }); }; }
+  modal(`<div class="em">🏛️</div><h2>Update 23</h2><p style="text-align:left">🏛️ <b>Alexanderplatz:</b> Weltzeituhr, Brunnen der Völkerfreundschaft, S-Bahnhof mit fahrender S-Bahn, Hotelturm & Kaufhaus – direkt am Fernsehturm<br>🏛️ <b>Quadriga</b> auf dem Brandenburger Tor jetzt mit echten Pferden, Wagen & Victoria<br>📍 Wahrzeichen näher an der Fabrik und größer<br>🏠 Häuser überlappen sich nicht mehr · neue Fensterbänke & Stürze · weiche Schatten unter Bäumen und Gebäuden</p><button class="btn wide gold" id="mOk">Weiter</button>`,()=>{ $('mOk').onclick=closeModal; }); }; }
+Object.assign(EMOICON,{'🐎':'star'}); { const keys=Object.keys(EMOICON).sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'); EMORE2=new RegExp('('+keys+')\\uFE0F?','g'); EMOSTART=new RegExp('^('+keys+')\\uFE0F?\\s?'); }
 
 
 function shade(hex,amt){ const n=parseInt(hex.slice(1),16);
