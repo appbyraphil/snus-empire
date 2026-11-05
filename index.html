@@ -5189,6 +5189,213 @@ function rewardTick(){ if(lastGold==null){ lastGold=S.gold; lastMoney=S.money; r
 { let t25=0; const _w25b=world6; world6=function(dt){ _w25b(dt); if(S.seen25||!S.onboarded) return; if(S.lifetime<200){ S.seen25=1; return; } if(!S.seen24) return; t25+=dt; if(t25<9||document.querySelector('#modal.on')) return; S.seen25=1; save();
   modal(`<div class="em">✨</div><h2>Update 25 – Grafik-Upgrade</h2><p style="text-align:left">✨ <b>Neue Stufe „Ultra“</b> (Mehr → Grafik): Leuchteffekte, kräftigere Farben, Vignette & Kantenglättung<br>⚡ <b>Deutlich flüssiger:</b> Gebäude werden zusammengefasst, Kleinteile vereinfacht – viel weniger Rechenaufwand auf iPhone & Android<br>🙂 <b>Neue Gesichter</b> mit Augenfarbe, Augenbrauen, Wangen & verschiedenen Mündern · neue Frisuren · Rucksäcke & Handys<br>🏭 Fabrik mit Signalsäulen, Kolben & Dampf · Laden mit Einkaufswagen & Aktions-Palette<br>🌳 Alleebäume an den neuen Straßen<br>🎉 Glänzende Buttons, federnde Fenster & fliegende Münzen bei Belohnungen<br>⚙️ Ultra schaltet sich automatisch zurück, wenn dein Gerät ins Stocken kommt</p><button class="btn wide gold" id="mOk">Weiter</button>`,()=>{ $('mOk').onclick=closeModal; }); }; }
 
+// =====================================================================
+//  v26: Finale Version – geordnete Wohnblöcke · keine Überlappungen · Gärten & Details · ohne Wolken
+//        neue Musik & Sounds · aufgeräumte Menüs
+// =====================================================================
+// ---------- 1) Wolken komplett entfernen ----------
+cloudTick=function(){ if(CLOUDS){ scene.remove(CLOUDS); CLOUDS.children.forEach(s=>s.material.dispose()); CLOUDS=null; } };
+{ const t=texSteam(); t.premultiplyAlpha=true; t.needsUpdate=true; }
+
+// ---------- 2) Straßenraster: Wohnblöcke ----------
+const XSTREETS26={
+  all:[{h:1,y:94,x0:-46,x1:100},{v:1,x:-46,y0:68.5,y1:94},{v:1,x:-16,y0:68.5,y1:94},{v:1,x:12,y0:68.5,y1:94},{v:1,x:84,y0:68.5,y1:94},{h:1,y:-22,x0:40.5,x1:92}],
+  north:[{h:1,y:-54,x0:-22,x1:31.5}],
+};
+const NORTH26={Berlin:1,Tokio:1,Stockholm:1,Oslo:1};
+{ const _sf26=streetsFor; streetsFor=cn=>{ let L=_sf26(cn).concat(XSTREETS26.all); if(NORTH26[cn]) L=L.concat(XSTREETS26.north); if(cn==='Kopenhagen') L=L.map(s=>s.v&&s.y0===68.5&&s.x<30?{...s,y0:76}:s); return L; }; }
+// Kandidaten-Grundstücke nur zum Einebnen des Geländes (gebaut wird später geprüft)
+const HOFF26=6.8;
+lotsFor=function(cn){ return []; };
+// Gelände unter den Grundstücken einebnen (analytisch statt Tausender Einzelpunkte → schnell)
+{ const _fd26=facDist; facDist=function(x,y){ let d=_fd26(x,y); if(!STREETS_ACTIVE.length) return d; const cop=D26.cn==='Kopenhagen';
+  for(const s of STREETS_ACTIVE){ if(s.h){ if(x>s.x0-2&&x<s.x1+2){ const dd=Math.max(0,Math.abs(y-s.y)-12.5); if(dd<d&&!(cop&&x<30&&y<76)) d=dd; } } else if(y>s.y0-2&&y<s.y1+2){ const dd=Math.max(0,Math.abs(x-s.x)-12.5); if(dd<d&&!(cop&&x<30&&y<76)) d=dd; } } return d; }; }
+{ const _ch26=cityHouse; cityHouse=function(cn,l,i){ if(l&&l.c26) return new THREE.Group(); return _ch26(cn,l,i); }; }
+streetTrees25=function(){};
+// Alte, ungeordnete Häuserreihen im Stadtgebiet unterdrücken (werden durch Blöcke ersetzt)
+const D26={on:false,cn:''};
+function zone26(x,y){ if(D26.cn==='Kopenhagen'&&x<30&&y<76) return false; return (y>54&&y<100&&x>-52&&x<104)||(x>56&&x<80&&y>-52&&y<70)||(NORTH26[D26.cn]&&y>-58&&y<-44&&x>-24&&x<34); }
+{ const _rh26=rHouse2; rHouse2=function(x,y,o){ if(D26.on&&(zone26(x,y)||(D26.cache&&boxHit26(x,y,2.5)))) return new THREE.Group(); const g=_rh26(x,y,o); if(g&&g.children.length) HL26.push(g); return g; }; }
+{ const _rj26=rJHouse; rJHouse=function(x,y,ry){ if(D26.on&&(zone26(x,y)||(D26.cache&&boxHit26(x,y,2)))) return new THREE.Group(); const g=_rj26(x,y,ry); if(g&&g.children.length) HL26.push(g); return g; }; }
+let HL26=[]; let MINE26=new Set();
+{ const _rb26=regBox; regBox=function(x,y,w,d,ry,tag){ if(tag==='factory'){ _rb26(-24+33,7,66,94,0,'factory'); return _rb26(49,13,12,22,0,'lager'); } return _rb26(x,y,w,d,ry,tag); }; }
+// Straßen neu: breitere Gehwege, Bordsteine, saubere Kreuzungen
+streetMesh=function(s){ const all=STREETS_ACTIVE, idx=all.indexOf(s), dz=idx*.0007;
+  const asph=new THREE.MeshStandardMaterial({map:texAsph(),roughness:.95}), conc=new THREE.MeshStandardMaterial({map:texConc(),roughness:.95}), wm=M('#f5f5f5'), curb=M('#b9b3a8',{r:.9});
+  const cross=all.filter(o=>o!==s&&(s.h?o.v:o.h)).map(o=>s.h?o.x:o.y).concat(s.h?[36]:[]);
+  const near=(p,r)=>cross.some(c=>Math.abs(p-c)<r);
+  if(s.h){ const L=s.x1-s.x0; PL(s.x0,s.y-3.2,.012+dz,L,6.4,conc); PL(s.x0,s.y-2,.022+dz,L,4,asph);
+    for(let x=s.x0;x<s.x1;x+=2){ if(near(x+.5,3.4)) continue; PL(x,s.y-.08,.032,1,.16,wm); }
+    let x=s.x0; while(x<s.x1){ let e=x; while(e<s.x1&&!near(e,2.2)) e+=.5; if(e-x>.6){ [-1,1].forEach(sg=>RB((x+e)/2,s.y+sg*2.05,.05,e-x,.1,.1,curb,STAT)); } while(e<s.x1&&near(e,2.2)) e+=.5; x=e; }
+    for(let x=s.x0+6;x<s.x1;x+=14){ if(near(x,4.5)) continue; lamp22(x,s.y-2.75); } }
+  else { const L=s.y1-s.y0; PL(s.x-3.2,s.y0,.012+dz,6.4,L,conc); PL(s.x-2,s.y0,.022+dz,4,L,asph);
+    for(let y=s.y0;y<s.y1;y+=2){ if(near(y+.5,3.4)) continue; PL(s.x-.08,y,.032,.16,1,wm); }
+    let y=s.y0; while(y<s.y1){ let e=y; while(e<s.y1&&!near(e,2.2)) e+=.5; if(e-y>.6){ [-1,1].forEach(sg=>RB(s.x+sg*2.05,(y+e)/2,.05,.1,e-y,.1,curb,STAT)); } while(e<s.y1&&near(e,2.2)) e+=.5; y=e; }
+    for(let y=s.y0+6;y<s.y1;y+=14){ if(near(y,4.5)) continue; lamp22(s.x+2.75,y); } } };
+// Paletten je Stadt
+const PAL26={Berlin:{walls:['#efe3cc','#d9c4a0','#e8d9c4','#c9d5dd','#f2e6d0','#e6d3b3','#dfe6e9'],roof:['#8a3b2b','#6b4b3a','#4b5563','#9a4a32'],kinds:['std','shut','alt'],fl:[2,2,3],trim:'#f4f1ea'},
+  Kopenhagen:{walls:['#f2b134','#e05a3a','#3b82c4','#f4e2b8','#2f9e8f','#f59e0b'],roof:['#7c2d12','#3f3f46'],kinds:['alt','std'],fl:[2,3],trim:'#fbf8f1'},
+  Stockholm:{walls:['#9e2b25','#9e2b25','#e9c46a','#f5f0e6','#c2703d'],roof:['#2f2f35'],kinds:['std','shut'],fl:[1,2],trim:'#f5f5f4'},
+  Oslo:{walls:['#e8b94a','#f5f5f4','#c0392b','#d08b3e','#3b6ea8','#efe6d0'],roof:['#3a3a40'],kinds:['std','shut'],fl:[1,2],trim:'#ffffff'},
+  Helsinki:{walls:['#f5e6c8','#e8d0a8','#d6e4f0','#e3eadf','#f0d9d0'],roof:['#3f3f46','#7a3528'],kinds:['std','alt'],fl:[2,3],trim:'#ffffff'}};
+// Garten-Details
+const WOOD26=()=>M('#a0764b',{r:.85}), WHITE26=()=>M('#f5f5f4',{r:.8});
+function fenceLine(par,x0,y0,x1,y1,mat,h){ const L=Math.hypot(x1-x0,y1-y0); if(L<.3) return; h=h||.55; const g=new THREE.Group(); g.position.set((x0+x1)/2,0,(y0+y1)/2); g.rotation.y=-Math.atan2(y1-y0,x1-x0); par.add(g);
+  RB(0,0,h*.75,L,.05,.06,mat,g); RB(0,0,h*.35,L,.05,.06,mat,g); const n=Math.max(2,Math.round(L/.8)); for(let k=0;k<=n;k++) RB(-L/2+k*L/n,0,h/2,.07,.07,h,mat,g); }
+function shed26(par,x,y,ry){ const g=new THREE.Group(); g.position.set(x,0,y); g.rotation.y=ry; par.add(g); const c=pick(['#7c5a3a','#4d7c5a','#8a3b2b','#6b7280']);
+  RB(0,0,.55,1.4,1.1,1.1,M(c,{r:.85}),g); const r=mesh(prismGeo(),M('#3f3f46',{r:.7}),g); r.rotation.y=Math.PI/2; r.scale.set(1.25,.45,1.55); r.position.y=1.1; RB(0,.56,.42,.5,.02,.8,M(shade(c,-25)),g); }
+function tramp26(par,x,y){ const g=new THREE.Group(); g.position.set(x,0,y); par.add(g); const t=mesh(new THREE.CylinderGeometry(.75,.75,.04,20),M('#111827',{r:.6}),g); t.position.y=.42; const ring=mesh(new THREE.TorusGeometry(.78,.06,6,24),M(pick(['#2563eb','#16a34a','#dc2626']),{r:.5}),g); ring.rotation.x=Math.PI/2; ring.position.y=.44; for(let k=0;k<4;k++){ const a=k*Math.PI/2+.4; RC(Math.cos(a)*.72,Math.sin(a)*.72,.21,.025,.42,M('#9ca3af',{m:.6}),g); } }
+function washLine26(par,x,y,ry){ const g=new THREE.Group(); g.position.set(x,0,y); g.rotation.y=ry; par.add(g); [-1.1,1.1].forEach(a=>RC(a,0,.7,.03,1.4,M('#9ca3af',{m:.5}),g)); RB(0,0,1.36,2.2,.015,.015,M('#e5e7eb'),g);
+  for(let k=0;k<5;k++){ const c=pick(['#f8fafc','#60a5fa','#f472b6','#facc15','#34d399','#f87171']); RB(-.8+k*.4,0,1.15,.28,.02,.36,M(c,{r:.9}),g); } }
+function patio26(par,x,y,ry){ const g=new THREE.Group(); g.position.set(x,0,y); g.rotation.y=ry; par.add(g); const T=WOOD26(); PL(-1,-0.8,.02,2,1.6,M('#d6cfc2',{r:.9}),g);
+  RC(0,0,.38,.4,.05,T,g); RC(0,0,.2,.04,.38,M('#4b5563'),g); [[-.62,0],[.62,0]].forEach(([a,b])=>{ RB(a,b,.22,.32,.32,.05,T,g); RB(a+(a>0?.14:-.14),b,.4,.05,.32,.35,T,g); });
+  if(Math.random()<.6){ RC(0,0,.9,.025,1.8,M('#e5e7eb'),g); const u=mesh(new THREE.ConeGeometry(.85,.32,8),M(pick(['#dc2626','#2563eb','#f5f5f4','#16a34a']),{r:.8}),g); u.position.y=1.65; } }
+function sandbox26(par,x,y){ const g=new THREE.Group(); g.position.set(x,0,y); par.add(g); const W=WOOD26(); RB(0,0,.1,1.2,1.2,.2,W,g); RB(0,0,.17,1.05,1.05,.06,M('#e9d8a6',{r:1}),g); RB(.25,.2,.27,.18,.12,.12,M('#ef4444'),g); }
+function bed26(par,x,y,ry){ const g=new THREE.Group(); g.position.set(x,0,y); g.rotation.y=ry; par.add(g); RB(0,0,.15,1.6,.6,.3,WOOD26(),g); RB(0,0,.31,1.5,.5,.04,M('#5b4632',{r:1}),g); for(let k=0;k<6;k++){ const f=mesh(LOW0,M(pick(['#ef4444','#f59e0b','#a855f7','#ec4899','#facc15','#ffffff']),{r:.8}),g); f.scale.setScalar(.09); f.position.set(-.6+k*.24,.4,(k%2-.5)*.18); } }
+function mailbox26(par,x,y,ry){ const g=new THREE.Group(); g.position.set(x,0,y); g.rotation.y=ry; par.add(g); RC(0,0,.4,.03,.8,M('#4b5563'),g); RB(0,0,.85,.22,.3,.2,M(pick(['#facc15','#1f2937','#2563eb','#dc2626']),{r:.5,m:.2}),g); }
+function hedge26(par,x0,y0,x1,y1){ const L=Math.hypot(x1-x0,y1-y0); if(L<.5) return; const m=mesh(G.box,M('#3f7d3a',{r:1,flat:true}),par); m.scale.set(L,.7,.55); m.position.set((x0+x1)/2,.35,(y0+y1)/2); m.rotation.y=-Math.atan2(y1-y0,x1-x0); m.castShadow=true; }
+function backyard26(cx,cy,ry,w,depth,i){ // Garten hinter dem Haus (lokales System: Haus-Rückseite bei z=0, Garten nach -z)
+  const g=new THREE.Group(); g.position.set(cx,hAt(cx,cy),cy); g.rotation.y=ry; STAT.add(g);
+  const F=i%3===0?WHITE26():WOOD26(); fenceLine(g,-w/2,-depth,w/2,-depth,F); fenceLine(g,-w/2,0,-w/2,-depth,F); if(i%2) fenceLine(g,w/2,0,w/2,-depth,F);
+  const r=Math.random(), mid=-depth/2;
+  if(depth>2.2){ if(r<.22) shed26(g,w/2-1,-depth+.8,0); else if(r<.4) tramp26(g,0,mid); else if(r<.58) patio26(g,0,-1.1,0); else if(r<.72) washLine26(g,0,mid,0); else if(r<.84) sandbox26(g,-w/4,mid); else bed26(g,0,-depth+.5,0); }
+  else bed26(g,0,-depth+.5,0);
+  if(depth>3.2&&Math.random()<.65){ const p=new THREE.Vector3(Math.random()<.5?-w/2+.8:w/2-.8,0,-depth+.9); p.applyAxisAngle(new THREE.Vector3(0,1,0),ry); tree17(pick(['oak','birch','bush','bush']),cx+p.x,cy+p.z,.6+Math.random()*.25); } }
+// Häuser entlang einer Straßenseite reihen
+function rowSide26(cn,s,side,startIdx){ const P=PAL26[cn]; const jp=cn==='Tokio'; let n=0, i=startIdx;
+  const along=s.h?[s.x0,s.x1]:[s.y0,s.y1]; let p=along[0]+3.6;
+  const ry=s.h?(side<0?0:Math.PI):(side<0?Math.PI/2:-Math.PI/2);
+  while(p<along[1]-3.4){ const w=jp?3.8:(4.4+(i%3)*.6), d=jp?3.2:4, gd=jp?0:1.2; const c=p+w/2; const off=HOFF26+(jp?-.4:0);
+    const x=s.h?c:s.x+side*off, y=s.h?s.y+side*off:c; if(s.h?(c+w/2>along[1]-3.4):(c+w/2>along[1]-3.4)) break;
+    const back=s.h?[0,side]:[side,0], fl=d+gd+.55, fo=(gd+.35)/2; const fx0=x-back[0]*fo, fy0=y-back[1]*fo;
+    const fw=s.h?w+.5:fl, fd=s.h?fl:w+.5;
+    const corners=[[x-fw/2,y-fd/2],[x+fw/2,y-fd/2],[x-fw/2,y+fd/2],[x+fw/2,y+fd/2],[x,y]];
+    const wet=corners.some(([a,b])=>hAt(a,b)<WL+.3), steep=slopeAt(x,y)>.5;
+    if(hits(fx0,fy0,fw,fd,0,.05)||wet||steep||Math.hypot(x-60,y-82)<11.5){ p+=1; continue; }
+    let g; if(jp) g=rJHouse(x,y,ry); else g=rHouse2(x,y,{w,d,fl:P.fl[(i*7)%P.fl.length],wall:P.walls[(i*5+3)%P.walls.length],roof:P.roof[(i*3)%P.roof.length],kind:P.kinds[i%P.kinds.length],type:i%5===3?'hip':'gable',trim:P.trim,ry,garden:true,dormer:i%3===1,chim:i%2===0});
+    if(!g||!g.children.length){ p+=1; continue; } g.userData26=1; MINE26.add(g);
+    regBox(fx0,fy0,fw,fd,0,'h26');
+    // Garten nach hinten: so tief wie frei (max. 6)
+    let depth=0; for(let t=.6;t<=6;t+=.6){ const bx=x+back[0]*(d/2+.25+t/2), by=y+back[1]*(d/2+.25+t/2); const bw=s.h?w:t, bdd=s.h?t:w; if(hits(bx,by,bw,bdd,0,.05)||hAt(x+back[0]*(d/2+t),y+back[1]*(d/2+t))<WL+.3) break; depth=t; }
+    if(depth>=1.2){ const bx=x+back[0]*(d/2+depth/2), by=y+back[1]*(d/2+depth/2); regBox(bx,by,s.h?w+.3:depth,s.h?depth:w+.3,0,'g26'); const hx=x+back[0]*d/2, hy=y+back[1]*d/2; try{ backyard26(hx,hy,ry,w,depth,i); }catch(e){} }
+    try{ const fx=x-back[0]*(d/2+gd+.15)+(s.h?w/2-.4:0), fy=y-back[1]*(d/2+gd+.15)+(s.h?0:w/2-.4); mailbox26(STAT,fx,fy,ry); }catch(e){}
+    try{ if(Math.random()<.42&&!crossNear26(s,c,6)){ const cg=makeCarGroup(pick(['#c0392b','#2563eb','#f5f5f4','#111827','#6b7280','#16a34a','#f59e0b','#7c3aed','#0ea5e9'])); if(cg.parent) cg.parent.remove(cg); const o=1.45; cg.position.set(s.h?c:s.x+side*o,0.02,s.h?s.y+side*o:c); cg.rotation.y=s.h?Math.PI/2:0; STAT.add(cg); }
+      if(!jp&&Math.random()<.7){ const bx=x-back[0]*(d/2+.5)+(s.h?-(w/2-.5):0), by=y-back[1]*(d/2+.5)+(s.h?0:-(w/2-.5)); bins26(bx,by,ry); } }catch(e){}
+    n++; i++; p=c+w/2+(jp?1:.9); }
+  return i; }
+function crossNear26(s,p,r){ return STREETS_ACTIVE.some(o=>o!==s&&(s.h?(o.v&&Math.abs(o.x-p)<r&&s.y>=o.y0-3&&s.y<=o.y1+3):(o.h&&Math.abs(o.y-p)<r&&s.x>=o.x0-3&&s.x<=o.x1+3)))||(s.h&&Math.abs(p-36)<r+3); }
+function bins26(x,y,ry){ const g=new THREE.Group(); g.position.set(x,hAt(x,y),y); g.rotation.y=ry; STAT.add(g); ['#374151','#2563eb','#15803d'].slice(0,1+Math.floor(Math.random()*3)).forEach((c,k)=>{ RB(k*.36,0,.28,.3,.32,.56,M(c,{r:.6}),g); RB(k*.36,-.02,.58,.32,.36,.04,M(shade(c,-20),{r:.6}),g); }); }
+function blocks26(cn){ let i=0; const S_=STREETS_ACTIVE; [...S_.filter(s=>s.h),...S_.filter(s=>s.v)].forEach(s=>{ [-1,1].forEach(side=>{ i=rowSide26(cn,s,side,i); }); }); }
+// Sicherheitsnetz: echte Überlappungen nach dem Aufbau entfernen
+function dedupe26(){ const L=HL26.filter(g=>g.parent).map(g=>{ const B=new THREE.Box3().setFromObject(g); return {g,x0:B.min.x+.7,x1:B.max.x-.7,z0:B.min.z+.7,z1:B.max.z-.7}; }); let removed=0;
+  for(let i=0;i<L.length;i++){ const a=L[i]; if(!a.g.parent) continue; for(let j=i+1;j<L.length;j++){ const b=L[j]; if(!b.g.parent) continue; if(MINE26.has(a.g)&&MINE26.has(b.g)) continue; if(Math.min(a.x1,b.x1)-Math.max(a.x0,b.x0)>.3&&Math.min(a.z1,b.z1)-Math.max(a.z0,b.z0)>.3){ const k=MINE26.has(b.g)&&!MINE26.has(a.g)?b:(MINE26.has(a.g)&&!MINE26.has(b.g)?b:b); k.g.parent.remove(k.g); removed++; if(k===a) break; } } } window.DEDUP26=removed; window.HCOUNT26=L.length; }
+// Wohnblöcke werden je Stadt nur einmal gebaut & zusammengefasst (kein Ruckeln bei Käufen)
+let BLK26=null, BLKKEY=null, BOX26=[], TREE26=null;
+function boxHit26(x,y,r){ for(const b of BOX26){ if(x+r>b.x0&&x-r<b.x1&&y+r>b.y0&&y-r<b.y1) return true; } return false; }
+{ const _br26=buildRegion; buildRegion=function(){ HL26=[]; D26.cn=CITIES[S.city||0].n; const key=D26.cn+'|'+(S.city||0); const cached=BLK26&&BLKKEY===key; D26.cache=cached; D26.on=true; try{ _br26(); }finally{ D26.on=false; }
+  try{ CUR=STAT; Object.keys(TREES).forEach(k=>TREES[k]=[]);
+    if(!cached){ if(BLK26){ scene.remove(BLK26); BLK26.traverse(o=>{ if(o.geometry&&!Object.values(G).includes(o.geometry)&&!Object.values(G2).includes(o.geometry)&&o.geometry!==LOW0) o.geometry.dispose(); }); }
+      MINE26=new Set(); const n0=STAT.children.length, h0=HREG.length; blocks26(D26.cn);
+      BLK26=new THREE.Group(); BLK26.name='blocks26'; const moved=STAT.children.slice(n0); moved.forEach(o=>{ STAT.remove(o); BLK26.add(o); }); scene.add(BLK26);
+      BOX26=HREG.slice(h0).filter(b=>b.tag==='h26'||b.tag==='g26'||b.tag==='house'||b.tag==='jh'); TREE26={}; Object.keys(TREES).forEach(k=>TREE26[k]=TREES[k].slice()); BLKKEY=key;
+      dedupe26(); try{ if(!S.noMerge) regionMerge(BLK26); }catch(e){ console.warn('merge26',e); } }
+    else Object.keys(TREE26).forEach(k=>{ TREES[k]=TREE26[k].slice(); });
+    flushTrees(); }catch(e){ console.warn('blocks26',e); } }; }
+
+// ---------- 3) Musik: neue Engine mit 3 Stücken, Hall & echten Instrumenten ----------
+const MU={init:false,step:0,next:0,song:null,bar:0,motif:null};
+function mu26Init(){ if(MU.init||!AU.ctx) return; const c=AU.ctx; MU.init=true;
+  MU.bus=c.createGain(); MU.bus.gain.value=1; const comp=c.createDynamicsCompressor(); comp.threshold.value=-18; comp.ratio.value=3; comp.attack.value=.01; comp.release.value=.25; MU.bus.connect(comp); comp.connect(AU.mus);
+  const len=c.sampleRate*2.4, ir=c.createBuffer(2,len,c.sampleRate); for(let ch=0;ch<2;ch++){ const d=ir.getChannelData(ch); for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3.2); }
+  MU.rev=c.createConvolver(); MU.rev.buffer=ir; MU.revIn=c.createGain(); MU.revIn.gain.value=.28; MU.revIn.connect(MU.rev); MU.rev.connect(MU.bus);
+  MU.sfxRev=c.createGain(); MU.sfxRev.gain.value=.22; const r2=c.createConvolver(); r2.buffer=ir; MU.sfxRev.connect(r2); r2.connect(AU.sfx);
+  MU.dl=c.createDelay(); MU.dl.delayTime.value=.375; const fb=c.createGain(); fb.gain.value=.3; const df=c.createBiquadFilter(); df.type='lowpass'; df.frequency.value=2200; MU.dl.connect(df); df.connect(fb); fb.connect(MU.dl); df.connect(MU.bus); }
+const env26=(g,t,a,peak,dec,sus,rel,dur)=>{ g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(peak,t+a); g.gain.setTargetAtTime(peak*sus,t+a,dec); g.gain.setTargetAtTime(0,t+dur,rel); };
+function ePiano(n,t,dur,vel,dest){ const c=AU.ctx, f=mtof(n); const car=c.createOscillator(), mod=c.createOscillator(), mg=c.createGain(), g=c.createGain(); car.type='sine'; mod.type='sine'; car.frequency.value=f; mod.frequency.value=f*2; mg.gain.setValueAtTime(f*1.6,t); mg.gain.exponentialRampToValueAtTime(f*.15,t+.6); mod.connect(mg); mg.connect(car.frequency);
+  env26(g,t,.006,vel,.35,.35,.25,dur); car.connect(g); g.connect(dest||MU.bus); const s=c.createGain(); s.gain.value=.6; g.connect(s); s.connect(MU.revIn); car.start(t); mod.start(t); car.stop(t+dur+1.2); mod.stop(t+dur+1.2); }
+function pad26(notes,t,dur,vel,cut){ const c=AU.ctx, f=c.createBiquadFilter(); f.type='lowpass'; f.frequency.setValueAtTime(cut*.6,t); f.frequency.linearRampToValueAtTime(cut,t+dur*.5); f.Q.value=.7; const g=c.createGain(); env26(g,t,.9,vel,1,.85,.8,dur); f.connect(g); g.connect(MU.bus); g.connect(MU.revIn);
+  notes.forEach(n=>{ [-7,7].forEach(dt=>{ const o=c.createOscillator(); o.type='sawtooth'; o.frequency.value=mtof(n); o.detune.value=dt; o.connect(f); o.start(t); o.stop(t+dur+3); }); }); }
+function bass26(n,t,dur,vel){ const c=AU.ctx, o=c.createOscillator(), s=c.createOscillator(), f=c.createBiquadFilter(), g=c.createGain(); o.type='triangle'; s.type='sine'; o.frequency.value=mtof(n); s.frequency.value=mtof(n-12); f.type='lowpass'; f.frequency.setValueAtTime(900,t); f.frequency.exponentialRampToValueAtTime(260,t+.25);
+  env26(g,t,.005,vel,.18,.55,.06,dur); o.connect(f); s.connect(f); f.connect(g); g.connect(MU.bus); o.start(t); s.start(t); o.stop(t+dur+.5); s.stop(t+dur+.5); }
+function pluck26(n,t,vel,send){ const c=AU.ctx, o=c.createOscillator(), o2=c.createOscillator(), f=c.createBiquadFilter(), g=c.createGain(); o.type='triangle'; o2.type='square'; o.frequency.value=mtof(n); o2.frequency.value=mtof(n)*1.002; const g2=c.createGain(); g2.gain.value=.18; o2.connect(g2); g2.connect(f); o.connect(f); f.type='lowpass'; f.frequency.setValueAtTime(4200,t); f.frequency.exponentialRampToValueAtTime(700,t+.3);
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vel,t+.004); g.gain.exponentialRampToValueAtTime(.0001,t+.55); f.connect(g); g.connect(MU.bus); if(send){ const s=c.createGain(); s.gain.value=.5; g.connect(s); s.connect(MU.dl); s.connect(MU.revIn); } o.start(t); o2.start(t); o.stop(t+.6); o2.stop(t+.6); }
+function kick26(t,v){ const c=AU.ctx, o=c.createOscillator(), g=c.createGain(); o.frequency.setValueAtTime(140,t); o.frequency.exponentialRampToValueAtTime(42,t+.12); g.gain.setValueAtTime(v,t); g.gain.exponentialRampToValueAtTime(.0001,t+.38); o.connect(g); g.connect(MU.bus); o.start(t); o.stop(t+.4); }
+function snare26(t,v,brush){ noiseHit(t,brush?.22:.14,v,'bandpass',brush?2600:1900,MU.bus); if(!brush) tone(190,t,.09,'triangle',v*.6,MU.bus); const c=AU.ctx; }
+function hat26(t,v,open){ noiseHit(t,open?.22:.045,v,'highpass',open?6500:8500,MU.bus); }
+function crackle26(t){ if(Math.random()<.5) noiseHit(t+Math.random()*.2,.012,.02+Math.random()*.03,'highpass',3000,MU.bus); }
+// Songs: Akkorde (MIDI), Drum-Pattern (16tel: k=Kick s=Snare h=Hat o=Open), Bass-Rhythmus
+const SONGS26={
+  upbeat:{name:'Aufschwung',bpm:108,swing:.04,keys:'pluck',pad:1600,chords:[[60,64,67,71],[55,59,62,66],[57,60,64,67],[53,57,60,64],[60,64,67,71],[55,59,62,66],[53,57,60,64],[55,59,62,65]],
+    drum:['k.h.s.hkk.h.s.hh','k.h.s.hk..hks.ho'],bass:[0,0,null,0,null,12,0,null,0,0,null,0,null,12,7,null],mel:[72,74,76,79,81,84],dens:.42},
+  chill:{name:'Lo-Fi Feierabend',bpm:76,swing:.17,keys:'ep',pad:900,lofi:1,chords:[[53,57,60,64],[52,55,59,62],[50,53,57,60],[48,52,55,59],[53,57,60,64],[52,55,59,62],[50,53,57,62],[55,59,62,65]],
+    drum:['k..hs.hhk.k.s.h.','k..hs.h.kk..s.ho'],bass:[0,null,null,null,null,null,0,null,7,null,null,null,null,null,5,null],mel:[69,72,74,76,79,81],dens:.28},
+  night:{name:'Nachtschicht Jazz',bpm:68,swing:.22,keys:'ep',pad:700,brush:1,chords:[[57,60,64,67,71],[50,53,57,60,64],[55,59,62,65,69],[48,52,55,59,62],[57,60,64,67,71],[53,57,60,64,67],[52,56,59,62],[52,55,59,62,64]],
+    drum:['k.h.s.h.k.h.s.h.','k.h.s.hhk.h.s.hh'],bass:[0,null,null,null,4,null,null,null,7,null,null,null,5,null,null,null],mel:[69,72,74,76,79,81,84],dens:.22}};
+function songPick26(){ const t=(S.snd&&S.snd.t)||'auto'; if(t!=='auto'&&SONGS26[t]) return t; if(typeof chillOn==='function'&&chillOn()) return 'chill'; return NIGHT>.6?'night':NIGHT>.25?'chill':'upbeat'; }
+auSched=function(){ const c=AU.ctx; if(!c) return; mu26Init(); if(S.snd&&S.snd.m<=0){ MU.next=Math.max(MU.next,c.currentTime); return; }
+  const want=songPick26(); if(!MU.song||(MU.step%128===0&&MU.song!==want)){ if(MU.song!==want){ MU.song=want; MU.step=0; MU.motif=null; } }
+  const SG=SONGS26[MU.song], spb=60/SG.bpm/4; if(MU.next<c.currentTime) MU.next=c.currentTime+.06;
+  while(MU.next<c.currentTime+.25){ const st=MU.step%16, bar=Math.floor(MU.step/16), sec=Math.floor(bar/8)%4, ch=SG.chords[bar%SG.chords.length];
+    const t=MU.next+(st%2===1?SG.swing*spb:0), root=ch[0]-12;
+    if(!MU.motif||(st===0&&bar%4===0)){ MU.motif=[]; for(let k=0;k<16;k++) MU.motif.push(Math.random()<SG.dens?SG.mel[Math.floor(Math.random()*SG.mel.length)]:null); }
+    // Akkorde
+    if(st===0){ pad26(ch.slice(0,4),t,spb*16,SG.lofi?.018:.022,SG.pad); if(SG.keys==='ep'){ ch.forEach((n,i)=>ePiano(n,t+i*.012,spb*(SG.lofi?7:15),.05)); } }
+    if(SG.keys==='ep'&&SG.lofi&&st===10) ch.slice(1).forEach((n,i)=>ePiano(n,t+i*.01,spb*5,.035));
+    if(SG.keys==='pluck'&&(st%4===2)) ch.slice(1,4).forEach((n,i)=>pluck26(n+12,t+i*.006,.035,false));
+    // Bass
+    const bn=SG.bass[st]; if(bn!=null&&sec>0) bass26(root+bn,t,spb*(SG.brush?3.5:1.8),.16);
+    // Drums (Intro ohne, Abschnitt B halbiert, Fill im letzten Takt)
+    if(sec>0){ const pat=SG.drum[(bar%8===7)?1:0], d=pat[st]; const half=sec===2&&!SG.brush;
+      if(d==='k'&&(!half||st%8===0)) kick26(t,SG.brush?.35:.55); if(d==='s') snare26(t,SG.brush?.05:(half?.06:.11),SG.brush); if(d==='h') hat26(t,SG.brush?.012:.03); if(d==='o') hat26(t,.035,true); }
+    if(SG.lofi) crackle26(t);
+    // Melodie
+    if(sec!==0){ const m=MU.motif[st]; if(m!=null){ const n=ch.some(x=>(x-m)%12===0)||Math.random()<.6?m:m+2; if(SG.keys==='pluck') pluck26(n,t,.06,true); else ePiano(n,t,spb*3,.06); } }
+    MU.step++; MU.next+=spb; } };
+// ---------- 4) Bessere Soundeffekte ----------
+const bell26=(f,t,v,dest)=>{ [1,2.76,5.4,8.9].forEach((r,i)=>tone(f*r,t,.9/(i+1),'sine',v/(i+1.4),dest||AU.sfx,.002)); };
+const sfxRev=v=>{ mu26Init(); return MU.sfxRev; };
+Object.assign(SFX,{
+  click(){ if(!this._ok()||!this._rl('c',40)) return; const t=AU.ctx.currentTime; tone(1050,t,.045,'sine',.07,null,.001,650); noiseHit(t,.015,.03,'highpass',5000); },
+  coin(){ if(!this._ok()) return; const t=AU.ctx.currentTime; bell26(1568,t,.05); bell26(2093,t+.07,.05); bell26(2093,t+.07,.02,sfxRev()); },
+  cash(){ if(!this._ok()) return; const t=AU.ctx.currentTime; noiseHit(t,.06,.1,'bandpass',2500); noiseHit(t+.05,.18,.05,'lowpass',900); bell26(2637,t+.08,.05); bell26(3520,t+.15,.04); bell26(3520,t+.15,.02,sfxRev()); },
+  up(){ if(!this._ok()) return; const t=AU.ctx.currentTime; [72,76,79,84,88].forEach((n,k)=>{ tone(mtof(n),t+k*.05,.25,'triangle',.05); tone(mtof(n+12),t+k*.05,.2,'sine',.02,sfxRev()); }); },
+  ding(){ if(!this._ok()) return; const t=AU.ctx.currentTime; bell26(1568,t,.06); bell26(2349,t+.14,.05); bell26(2349,t+.14,.03,sfxRev()); },
+  ach(){ if(!this._ok()) return; const t=AU.ctx.currentTime; [[60,64,67],[65,69,72],[67,71,74,79]].forEach((ch,k)=>ch.forEach(n=>{ const c=AU.ctx, o=c.createOscillator(), f=c.createBiquadFilter(), g=c.createGain(); o.type='sawtooth'; o.frequency.value=mtof(n); f.type='lowpass'; f.frequency.value=1800; g.gain.setValueAtTime(0,t+k*.16); g.gain.linearRampToValueAtTime(.025,t+k*.16+.03); g.gain.exponentialRampToValueAtTime(.0001,t+k*.16+(k===2?.9:.3)); o.connect(f); f.connect(g); g.connect(AU.sfx); g.connect(sfxRev()); o.start(t+k*.16); o.stop(t+k*.16+1); }));
+    for(let k=0;k<6;k++) tone(2000+Math.random()*2500,t+.35+k*.05,.15,'sine',.02,sfxRev()); },
+  build(){ if(!this._ok()) return; const t=AU.ctx.currentTime; for(let k=0;k<3;k++){ noiseHit(t+k*.16,.09,.16,'lowpass',700); tone(120,t+k*.16,.12,'sine',.12,null,.001,60); noiseHit(t+k*.16,.03,.06,'highpass',4000); } bell26(1318,t+.5,.03); },
+  crate(){ if(!this._ok()) return; const t=AU.ctx.currentTime; for(let k=0;k<10;k++) noiseHit(t+k*.035,.04,.03+k*.006,'bandpass',1400); [60,64,67,72,76,79].forEach((n,k)=>{ tone(mtof(n),t+.4+k*.06,.5,'triangle',.05); tone(mtof(n+12),t+.4+k*.06,.4,'sine',.02,sfxRev()); }); },
+  fanfare(){ if(!this._ok()) return; const t=AU.ctx.currentTime; [[60,0,.3],[64,.15,.3],[67,.3,.3],[72,.45,.9]].forEach(([n,d,l])=>[0,4,7].forEach(iv=>{ const c=AU.ctx,o=c.createOscillator(),f=c.createBiquadFilter(),g=c.createGain(); o.type='sawtooth'; o.frequency.value=mtof(n+iv); f.type='lowpass'; f.frequency.setValueAtTime(800,t+d); f.frequency.linearRampToValueAtTime(2600,t+d+.08); g.gain.setValueAtTime(0,t+d); g.gain.linearRampToValueAtTime(.022,t+d+.04); g.gain.exponentialRampToValueAtTime(.0001,t+d+l); o.connect(f); f.connect(g); g.connect(AU.sfx); g.connect(sfxRev()); o.start(t+d); o.stop(t+d+l+.1); }));
+    noiseHit(t+.45,.8,.05,'highpass',5000); },
+  pop(){ if(!this._ok()||!this._rl('p',150)) return; const t=AU.ctx.currentTime; tone(600,t,.12,'sine',.08,null,.001,1400); noiseHit(t,.05,.06,'bandpass',2000); for(let k=0;k<4;k++) tone(1800+Math.random()*1800,t+.04+k*.04,.12,'sine',.025,sfxRev()); },
+});
+
+// Musik-Auswahl in den Einstellungen
+{ const _rs26=renderSettings6; renderSettings6=function(){ const h=_rs26(); const cur=(S.snd&&S.snd.t)||'auto'; const seg=`<div class="srow" style="margin-top:6px"><span>Stück</span></div><div class="seg" id="musSeg">${[['auto','Automatisch'],['upbeat','Aufschwung'],['chill','Lo-Fi'],['night','Jazz']].map(([k,n])=>`<button data-mus="${k}" class="${cur===k?'on':''}">${n}</button>`).join('')}</div><p style="font-size:11.5px;margin:4px 0 0;opacity:.75">Automatisch: tagsüber „Aufschwung“, abends Lo-Fi, nachts Jazz</p>`;
+  return h.replace('id="vS" style="flex:1"></div></div>','id="vS" style="flex:1"></div>'+seg+'</div>'); }; }
+setTimeout(()=>{ const _rm26=renderMore; renderMore=function(){ _rm26(); BD().querySelectorAll('[data-mus]').forEach(b=>b.onclick=()=>{ S.snd=Object.assign({m:.35,s:.7},S.snd,{t:b.dataset.mus}); MU.song=null; save(); BD().querySelectorAll('[data-mus]').forEach(x=>x.classList.toggle('on',x===b)); toast('🎵 '+(b.dataset.mus==='auto'?'Musik wechselt nach Tageszeit':SONGS26[b.dataset.mus].name)); }); }; },0);
+
+// ---------- 5) Menüs & Bedienung ----------
+{ const st=document.createElement('style'); st.textContent=`
+.sheet{max-height:calc(100% - 150px - env(safe-area-inset-top))!important}
+.sheet .bd{padding:12px 12px 22px}
+.info>b:first-child{font-size:15px;letter-spacing:.1px}
+.info,.card{box-shadow:0 3px 0 var(--line),0 6px 14px rgba(43,35,80,.06)}
+.sheet .btn{white-space:nowrap}
+.sheet .bd>div[style*="grid"] .btn,.sheet .bd .row2 .btn{font-size:clamp(12.5px,3.5vw,16px);line-height:1.15;padding-left:8px;padding-right:8px}
+.dt small{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:1px 3px;line-height:1.15;min-height:22px}
+.dt small span{font-size:inherit!important}.dt small .icow{width:15px;height:15px}
+.seg button{transition:background .15s,color .15s,transform .1s}.seg button:active{transform:scale(.96)}
+.sheet .hd{padding-top:8px}
+#musSeg{margin-top:4px}`; document.head.appendChild(st); }
+// Haptisches Feedback (Android unterstützt Vibration; iOS ignoriert es)
+document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('button,.card'); if(!b||S.hap===0) return; try{ if(navigator.vibrate) navigator.vibrate(b.classList.contains('gold')||b.classList.contains('go')?14:6); }catch(_){} },true);
+// ---------- Update-Mitteilung ----------
+{ let t26=0; const _w26=world6; world6=function(dt){ _w26(dt); if(S.seen26||!S.onboarded) return; if(S.lifetime<200){ S.seen26=1; S.seen25=1; return; } t26+=dt; if(t26<8||document.querySelector('#modal.on')) return; S.seen26=1; S.seen25=1; save();
+  modal(`<div class="em">🏙️</div><h2>Update 26 – Finale Stadt</h2><p style="text-align:left">🏘️ <b>Geordnete Wohnblöcke</b> mit neuen Straßen, breiten Gehwegen & Bordsteinen – <b>keine Überlappungen</b> mehr<br>🌳 <b>Gärten hinter jedem Haus:</b> Zäune, Schuppen, Trampoline, Terrassen mit Schirm, Wäscheleinen, Sandkästen, Blumenbeete<br>🚗 Parkende Autos, Briefkästen & Mülltonnen<br>☁️ Wolken entfernt – klare Sicht<br>🎵 <b>Neue Musik:</b> 3 Stücke (Aufschwung, Lo-Fi, Jazz) mit echtem Hall – wechselt automatisch nach Tageszeit (Mehr → Sound)<br>🔔 Neue, hochwertigere Soundeffekte<br>📱 Größere Menüfenster, sauberere Buttons, Vibration auf Android</p><button class="btn wide gold" id="mOk">Los geht's</button>`,()=>{ $('mOk').onclick=closeModal; }); }; }
+
+try{ Object.assign(EMOICON,{'🏙️':'house','🏘️':'house','🔔':'bolt','📱':'sparkle'}); }catch(e){}
+{ const keys=Object.keys(EMOICON).filter(k=>IC[EMOICON[k]]).sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'); EMORE2=new RegExp('('+keys+')\\uFE0F?','g'); EMOSTART=new RegExp('^('+keys+')\\uFE0F?\\s?'); }
+
 
 function shade(hex,amt){ const n=parseInt(hex.slice(1),16);
   const c=[n>>16,(n>>8)&255,n&255].map(v=>Math.max(0,Math.min(255,Math.round(v+amt))));
