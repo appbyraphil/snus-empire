@@ -10792,7 +10792,7 @@ window.__SNUS_DIAG__={ get renderer(){ return renderer.info; }, get state(){ ret
 //  v30: Endstufe – Profi-Modelle (Kenney/KayKit, CC0) für Häuser, Autos, Straßenmöbel, Figuren
 // =====================================================================
 const AS30={ready:false,failed:false,m:{},tex:{},list:{}};
-const ASSET_BASE=(()=>{ try{ const s=document.currentScript&&document.currentScript.src; }catch(e){} return 'assets/'; })();
+const ASSET_BASE=(()=>{ const h=location.hostname; return (/github\.io$|^127\.|^localhost$/.test(h))?'assets/':'https://appbyraphil.github.io/snus-empire/assets/'; })();
 const KH30=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u'].map(c=>'building-type-'+c);
 const KC30=['a','b','c','d','e','f','g','h','i','j','k','l','m','n'].map(c=>'building-'+c);
 const CARS30=['car_sedan','car_hatchback','car_stationwagon','car_taxi','car_police'];
