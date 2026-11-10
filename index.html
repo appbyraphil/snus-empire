@@ -8845,7 +8845,7 @@ function buildTerrain(tint,o){ o=o||{}; const X0=o.X0??-130,X1=o.X1??160,Y0=o.Y0
   for(let i=0;i<n;i++){ const x=P.getX(i), y=P.getZ(i), h=H[i], ny=N.getY(i), slope=Math.sqrt(Math.max(0,1-ny*ny))/Math.max(ny,.05); let mx=0;
     const v=fbm17(x*.05+7,y*.05,3); c.copy(cG1).lerp(cG2,ss17(.35,.7,v)); mx=.28*ss17(1,3,facDist(x,y));
     if(h<WL+.24&&facDist(x,y)>2){ const k=ss17(WL+.24,WL+.04,h)*(1-ss17(.35,.8,slope)); c.lerp(cSa,k); mx=Math.max(mx,.85*k); if(h<WL-.2){ c.lerp(cU,ss17(WL-.2,WL-1,h)); mx=.9; } }
-    const rk=ss17(tint.rs||.6,(tint.rs||.6)+.4,slope)*ss17(1.2,2.5,h); if(rk>0){ c.lerp(cR,rk); mx=Math.max(mx,.88*rk); }
+    const rk=ss17(tint.rs||.6,(tint.rs||.6)+.4,slope)*ss17(1.2,2.5,h)*((typeof onHill30==='function'&&onHill30(x,y,1.5))?0:1); if(rk>0){ c.lerp(cR,rk); mx=Math.max(mx,.88*rk); }
     if(h>TER.snow-2){ const k=ss17(TER.snow-2+fbm17(x*.1,y*.1,2)*2,TER.snow+1,h)*(1-ss17(1.4,2.4,slope)*.6); c.lerp(cS,k); mx=Math.max(mx,.95*k); }
     if(SEASON==='winter'&&h>WL+.2){ c.lerp(cW,.65); mx=Math.max(mx,.7); }
     shA[i]=Math.min(1.15,Math.max(.8,1+.35*(N.getX(i)*L2.x+N.getY(i)*L2.y+N.getZ(i)*L2.z-L2.y))); tintA[i*3]=c.r; tintA[i*3+1]=c.g; tintA[i*3+2]=c.b; mixA[i]=mx; }
@@ -10821,7 +10821,7 @@ function recolorMat30(base,kind){ const key=(base.map?base.map.uuid:base.uuid)+k
       { vec3 c=diffuseColor.rgb; float mx=max(c.r,max(c.g,c.b)), mn=min(c.r,min(c.g,c.b));
         float wall=step(.62,mn)*step(mx-mn,.12);                                     // helle, unbunte Flächen = Wand
         float roof=step(.08,c.g-c.r)*step(.02,c.g-c.b)*step(.12,c.g);                  // grüne Flächen = Dach
-        float win=step(.1,c.b-c.r)*step(c.g,c.b+.02)*step(.25,c.b);                     // bläuliche Flächen = Fenster
+        float win=step(.28,c.b-c.r)*step(.1,c.g-c.r)*step(c.g,c.b+.02);                     // bläuliche Flächen = Fenster
         float lum=dot(c,vec3(.3,.59,.11));
         diffuseColor.rgb=mix(diffuseColor.rgb,vWall*clamp(lum/.85,.6,1.15),wall);
         diffuseColor.rgb=mix(diffuseColor.rgb,vRoof*clamp(lum/.35,.55,1.3),roof*(1.-wall));
@@ -10832,9 +10832,13 @@ function recolorMat30(base,kind){ const key=(base.map?base.map.uuid:base.uuid)+k
 let HQ30=[]; // geplante Häuser {key,x,y,ry,s,wall,roof,lit}
 const PALW30={Berlin:['#efe3cc','#e2cfae','#f2e6d0','#cfd8dc','#e8d5c0','#f4efe6','#d9c3a5'],Tokio:['#f3efe6','#e6e0d4','#d8d2c4','#efe9dd'],Kopenhagen:['#f2b134','#e05a3a','#3b82c4','#f4e2b8','#2f9e8f','#f59e0b','#ec9a8b'],Stockholm:['#9e2b25','#a3322a','#e9c46a','#f5f0e6','#c2703d'],Oslo:['#e8b94a','#f5f5f4','#c0392b','#d08b3e','#3b6ea8','#efe6d0'],Helsinki:['#f5e6c8','#e8d0a8','#d6e4f0','#e3eadf','#f0d9d0']};
 const PALR30={Berlin:['#8a3b2b','#6b4b3a','#4b5563','#9a4a32','#7a3a2c'],Tokio:['#374151','#1f2937','#4b5563','#7f1d1d'],Kopenhagen:['#7c2d12','#3f3f46','#9a3412'],Stockholm:['#2f2f35','#3f3f46','#4b4b52'],Oslo:['#3a3a40','#52525b','#7c2d12'],Helsinki:['#3f3f46','#7a3528','#2f4f4f']};
-function planHouse30(cn,x,y,ry,w,i){ const k=KH30[(i*7+3)%KH30.length], g=AS30.m['k/'+k]; if(!g) return null; const s=w/Math.max(g.size.x,.1); const P=PALW30[cn]||PALW30.Berlin, R=PALR30[cn]||PALR30.Berlin;
+function planHouse30(cn,x,y,ry,w,i,d){ const k=KH30[(i*7+3)%KH30.length], g=AS30.m['k/'+k]; if(!g) return null; const s=Math.min(w/Math.max(g.size.x,.1),(d||w)/Math.max(g.size.z,.1)); const P=PALW30[cn]||PALW30.Berlin, R=PALR30[cn]||PALR30.Berlin;
   const h={key:'k/'+k,x,y,ry,s,wall:new THREE.Color(P[(i*5+1)%P.length]),roof:new THREE.Color(R[(i*3)%R.length]),lit:Math.random()<.7?1:0,d:g.size.z*s}; if(SEASON==='winter') h.roof.lerp(new THREE.Color('#f4f8fb'),.8); HQ30.push(h); return h; }
-function buildHouses30(par,list0){ const m4=new THREE.Matrix4(), q=new THREE.Quaternion(), up=new THREE.Vector3(0,1,0), v=new THREE.Vector3(), sc=new THREE.Vector3(); const byMat=new Map(); const out=[];
+function box30(h){ const g=AS30.m[h.key]; const w=g.size.x*h.s, d=g.size.z*h.s, c=Math.cos(h.ry), sn=Math.sin(h.ry); const ox=(g.min.x+g.size.x/2)*h.s, oz=(g.min.z+g.size.z/2)*h.s; const cx=h.x+ox*c+oz*sn, cy=h.y-ox*sn+oz*c; const ex=(w*Math.abs(c)+d*Math.abs(sn))/2-.12, ey=(w*Math.abs(sn)+d*Math.abs(c))/2-.12; return {x0:cx-ex,x1:cx+ex,y0:cy-ey,y1:cy+ey}; }
+// Häuser, die mit Nachbarn, Straßen, Läden oder Wahrzeichen kollidieren: verkleinern, notfalls weglassen
+function fit30(list,others){ const fix=HREG.filter(b=>/^(lm|street|shop|road)$/.test(b.tag||'')); const kept=(others||[]).filter(h=>AS30.m[h.key]).map(box30); const hit=a=>kept.some(b=>a.x0<b.x1&&a.x1>b.x0&&a.y0<b.y1&&a.y1>b.y0)||fix.some(b=>a.x0<b.x1&&a.x1>b.x0&&a.y0<b.y1&&a.y1>b.y0);
+  return list.filter(h=>{ if(!AS30.m[h.key]) return false; let a=box30(h); for(let k=0;k<3&&hit(a);k++){ h.s*=.85; a=box30(h); } if(hit(a)) return false; kept.push(a); return true; }); }
+function buildHouses30(par,list0){ if(list0){ list0=fit30(list0,HQ30); HQIN30=list0; } else HQ30=fit30(HQ30); const m4=new THREE.Matrix4(), q=new THREE.Quaternion(), up=new THREE.Vector3(0,1,0), v=new THREE.Vector3(), sc=new THREE.Vector3(); const byMat=new Map(); const out=[];
   (list0||HQ30).forEach(h=>{ const g=AS30.m[h.key]; if(!g||!g.parts) return; q.setFromAxisAngle(up,h.ry); v.set(h.x,hAt(h.x,h.y)-g.min.y*h.s,h.y); sc.set(h.s,h.s,h.s); m4.compose(v,q,sc);
     g.parts.forEach(p=>{ const mat=recolorMat30(p.mat,'house'); if(!byMat.has(mat)) byMat.set(mat,[]); byMat.get(mat).push([p.geo,m4.clone(),h]); }); });
   byMat.forEach((list,mat)=>{ let chunks=[[]], vc=0; list.forEach(e=>{ const c=e[0].index?e[0].index.count:e[0].attributes.position.count; if(vc+c>200000){ chunks.push([]); vc=0; } vc+=c; chunks[chunks.length-1].push(e); });
@@ -10848,12 +10852,12 @@ function buildHouses30(par,list0){ const m4=new THREE.Matrix4(), q=new THREE.Qua
 let D30=false, HN30=0;
 let REG30=false, HQIN30=[];
 function onHill30(x,y,r){ const P=S.hill30&&S.hill30[CITIES[S.city||0].n]; return P&&P[0]<999&&Math.hypot(x-P[0],y-P[1])<HILLR30+(r||3); }
-{ const _rh30=rHouse2; rHouse2=function(x,y,o){ if((D30||REG30)&&onHill30(x,y,.5)) return new THREE.Group(); if((D30||REG30)&&AS30.ready&&o&&(o.fl||2)<=3&&o.type!=='flat'&&(o.w||5)<=7.5){ const before=HQ30.length; const h=planHouse30(D26.cn,x,y,o.ry||0,o.w||5,HN30++); if(h&&!D30){ HQ30.pop(); HQIN30.push(h); } if(h){ const g=new THREE.Group(); g.position.set(x,0,y); g.add(new THREE.Object3D()); STAT.add(g); return g; } } return _rh30.apply(this,arguments); }; }
+{ const _rh30=rHouse2; rHouse2=function(x,y,o){ if((D30||REG30)&&onHill30(x,y,.5)) return new THREE.Group(); if((D30||REG30)&&AS30.ready&&o&&(o.fl||2)<=3&&o.type!=='flat'&&(o.w||5)<=7.5){ const before=HQ30.length; const h=planHouse30(D26.cn,x,y,o.ry||0,o.w||5,HN30++,o.d); if(h&&!D30){ HQ30.pop(); HQIN30.push(h); } if(h){ const g=new THREE.Group(); g.position.set(x,0,y); g.add(new THREE.Object3D()); STAT.add(g); return g; } } return _rh30.apply(this,arguments); }; }
 { const _rj30=rJHouse; rJHouse=function(x,y,ry){ if((D30||REG30)&&onHill30(x,y,.5)) return new THREE.Group(); if((D30||REG30)&&AS30.ready){ const h=planHouse30(D26.cn,x,y,ry||0,3.9,HN30++); if(h&&!D30){ HQ30.pop(); HQIN30.push(h); } if(h){ const g=new THREE.Group(); g.position.set(x,0,y); g.add(new THREE.Object3D()); STAT.add(g); return g; } } return _rj30.apply(this,arguments); }; }
 { const _bl30=blocks26; blocks26=function(cn){ HQ30=[]; HN30=0; D30=true; try{ _bl30(cn); }finally{ D30=false; } if(AS30.ready){ try{ buildHouses30(STAT); }catch(e){ console.warn('houses30',e); } } }; }
 function nightTick30(){ const nf=Math.max(0,Math.min(1,(NIGHT-.15)/.45)); Object.values(RECOL30).forEach(m=>{ if(m.userData.U) m.userData.U.uNight.value=nf; }); }
 { const _w30=world6; world6=function(dt){ _w30(dt); try{ nightTick30(); }catch(e){} }; }
-loadAssets30().then(ok=>{ if(ok){ BLK26=null; sceneDirty=true; console.log('assets30 ready',Object.keys(AS30.m).length); } });
+loadAssets30().then(ok=>{ if(ok){ BLKKEY=null; sceneDirty=true; console.log('assets30 ready',Object.keys(AS30.m).length); } });
 
 // ---------- Autos: KayKit-Modelle ----------
 const CARMAP30={'#c0392b':'car_sedan','#c9353c':'car_sedan','#2563eb':'car_hatchback','#2a62d6':'car_hatchback','#f5f5f4':'car_stationwagon','#efefef':'car_stationwagon','#f59e0b':'car_taxi','#facc15':'car_taxi'};
@@ -10949,7 +10953,7 @@ function hillDeco30(){ const P=S.hill30&&S.hill30[CITIES[S.city||0].n]; if(!P||P
   [[2.8,0],[-2.8,0]].forEach(([dx,dy],k)=>{ const p=AS30.m['kk/bench']; if(!p) return; const m=p.scene.clone(true); const s=1.4/Math.max(p.size.x,p.size.z); m.scale.setScalar(s); m.position.set(cx+dx,top-p.min.y*s,cy+dy+2.6); m.rotation.y=Math.PI; STAT.add(m); }); }
 
 // ---------- Einbindung ----------
-{ const _br30=buildRegion; buildRegion=function(){ HQIN30=[]; REG30=true; try{ _br30(); }finally{ REG30=false; } try{ CUR=STAT; if(AS30.ready&&HQIN30.length){ const keep=HQ30; buildHouses30(STAT,HQIN30); } landmarkLayer30(); shore30(); Object.keys(TREES).forEach(k=>TREES[k]=[]); hillDeco30(); if(findHill30()){ BLK26=null; setTimeout(()=>{ sceneDirty=true; },50); } flushTrees(); }catch(e){ console.warn('br30',e); } }; }
+{ const _br30=buildRegion; buildRegion=function(){ HQIN30=[]; REG30=true; try{ _br30(); }finally{ REG30=false; } try{ CUR=STAT; if(AS30.ready&&HQIN30.length){ const keep=HQ30; buildHouses30(STAT,HQIN30); } landmarkLayer30(); shore30(); Object.keys(TREES).forEach(k=>TREES[k]=[]); hillDeco30(); if(findHill30()){ BLKKEY=null; setTimeout(()=>{ sceneDirty=true; },50); } flushTrees(); }catch(e){ console.warn('br30',e); } }; }
 { const _w30c=world6; world6=function(dt){ _w30c(dt); try{ floodTick30(); trainTick30(dt); }catch(e){} }; }
 
 // ---------- Leistung: Farb-Batching (vertex colors) ----------
@@ -10985,7 +10989,14 @@ function streetProps30(par){ if(!AS30.ready||!STREETS_ACTIVE.length) return; con
   instProps30(par,L); window.PROPS30N=L.length; }
 { const _bl30b=blocks26; blocks26=function(cn){ _bl30b(cn); try{ streetProps30(STAT); }catch(e){ console.warn('props30',e); } }; }
 { let t30=0; const _w30m=world6; world6=function(dt){ _w30m(dt); if(S.seen30||!S.onboarded) return; if(S.lifetime<200){ S.seen30=1; return; } if(!S.seen28) return; t30+=dt; if(t30<8||document.querySelector('#modal.on')) return; S.seen30=1; save();
-  modal(`<div class="em">🏙️</div><h2>Update 30 – Endstufe</h2><p style="text-align:left">🏠 <b>Neue Häuser, Autos & Straßenmöbel</b> – detaillierte Modelle, in den Farben jeder Stadt<br>🧑‍🔧 <b>Neue Figuren</b> mit echten Animationen: laufen, tragen, sitzen, hüpfen<br>⛰️ <b>Hügel mit Aussichtspavillon</b> und Treppe in jeder Stadt<br>🚆 <b>S-Bahnhof ausgebaut:</b> Bahnsteige, Uhr, wartende Fahrgäste und eine zweite S-Bahn<br>🌿 Seen mit Schilf, Seerosen und Bootssteg<br>🏛️ Wahrzeichen nachts angestrahlt, mit Infotafel & Bänken<br>⚡ Deutlich flüssiger: weniger Rechenarbeit pro Bild</p><button class="btn wide gold" id="mOk">Weiter</button>`,()=>{ $('mOk').onclick=closeModal; }); }; }
+  modal(`<div class="em">🏙️</div><h2>Version 1.0</h2><p style="text-align:left">🏠 <b>Neue Häuser, Autos & Straßenmöbel</b> – detaillierte Modelle, in den Farben jeder Stadt<br>🧑‍🔧 <b>Neue Figuren</b> mit echten Animationen: laufen, tragen, sitzen, hüpfen<br>⛰️ <b>Hügel mit Aussichtspavillon</b> und Treppe in jeder Stadt<br>🚆 <b>S-Bahnhof ausgebaut:</b> Bahnsteige, Uhr, wartende Fahrgäste und eine zweite S-Bahn<br>🌿 Seen mit Schilf, Seerosen und Bootssteg<br>🏛️ Wahrzeichen nachts angestrahlt, mit Infotafel & Bänken<br>⚡ Deutlich flüssiger: weniger Rechenarbeit pro Bild</p><button class="btn wide gold" id="mOk">Weiter</button>`,()=>{ $('mOk').onclick=closeModal; }); }; }
+// ---------- Release 1.0: Ladebild + Versionszeile ----------
+{ const ld=document.createElement('div'); ld.id='ld31'; ld.setAttribute('role','status'); ld.style.cssText='position:fixed;inset:0;z-index:999;background:#22b8c9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;font-family:var(--f);transition:opacity .4s';
+  ld.innerHTML='<img src="icon-192.png" alt="" width="96" height="96" style="border-radius:22px" onerror="this.remove()"><div style="font-size:26px;font-weight:800">Snus Empire Tycoon</div><div style="font-size:15px;opacity:.9">Stadt wird aufgebaut …</div>'; document.body.appendChild(ld);
+  const done=()=>{ if(!ld.parentNode) return; ld.style.opacity='0'; setTimeout(()=>ld.remove(),450); };
+  loadAssets30().then(()=>setTimeout(done,600),done); setTimeout(done,12000); } // shortcut: nach 12 s geht es mit der einfachen Grafik weiter, Modelle werden nachgeladen
+{ const _rs31=renderSettings6; renderSettings6=function(){ return _rs31()+'<p style="font-size:11.5px;margin:12px 0 0;opacity:.7;text-align:center">Version 1.0 · 3D-Modelle: Kenney &amp; KayKit (CC0)</p>'; }; }
+for(let k=17;k<=28;k++) S['seen'+k]=1; // Release: alte Update-Hinweise nicht mehr nacheinander zeigen
 
 
 function shade(hex,amt){ const n=parseInt(hex.slice(1),16);
